@@ -1,0 +1,15 @@
+module.exports = {
+  User: require('./User'),
+  Role: require('./Role'),
+  Category: require('./Category'),
+  Brand: require('./Brand'),
+  Unit: require('./Unit'),
+  Product: require('./Product'),
+  PriceHistory: require('./PriceHistory'),
+  WarehouseStock: require('./WarehouseStock'),
+  StockMovement: require('./StockMovement'),
+  GoodsReceive: require('./GoodsReceive'),
+  StockTransfer: require('./StockTransfer'),
+  StockAdjustment: require('./StockAdjustment'),
+  StockCount: require('./StockCount'),
+};

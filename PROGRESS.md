@@ -19,6 +19,10 @@
 	- Decisions: Keep `/login` outside the workspace shell; sidebar destinations point to existing routes; mobile navigation uses a drawer.
 	- Validation: `npm.cmd --prefix frontend run build` passes; browser checks confirmed desktop/mobile navigation behavior. Dev server runs at `http://localhost:3001` because port 3000 was occupied.
 - [ ] 1.1
+- [x] 1.1a Models stock
+	- Files: Mongoose models for users, roles, categories, brands, units, products, price history, warehouse stocks, stock movements, goods receives, stock transfers, stock adjustments, and stock counts; model tests.
+	- Decisions: Product margin is calculated and rounded to 2 decimals; MRP cannot be below vendor price; vendor-owned products require a vendor; commission and online listing default off; stock documents use blueprint workflow statuses and movement types.
+	- Validation: Backend Jest suite passes (2 suites, 6 tests).
 - [ ] 1.2
 - [ ] 1.3
 - [ ] 1.4
