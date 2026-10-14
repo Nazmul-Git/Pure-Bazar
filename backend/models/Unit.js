@@ -6,5 +6,6 @@ const unitSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 unitSchema.index({ createdAt: 1 });
+unitSchema.index({ name: 1 }, { unique: true });
 
 module.exports = mongoose.models.Unit || mongoose.model('Unit', unitSchema);

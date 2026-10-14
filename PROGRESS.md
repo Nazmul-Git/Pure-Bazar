@@ -27,6 +27,10 @@
 	- Files: Order, return, vendor, vendor ledger, vendor statement, shareholder, wallet log, wallet audit log, and discount log models; model registration and validation tests.
 	- Decisions: Orders use the blueprint POS fields and payment/status enums; vendor statements follow Draft/Approved/Paid; wallet and discount records capture the specified member, payment, and approval events.
 	- Validation: Full backend Jest suite passes (3 suites, 10 tests).
+- [x] 1.1c Models and seed
+	- Files: Shift, employee, salary sheet, salary advance, expense category, expense, settings, and audit log models; idempotent role/default seeder and `seed:roles` script; model and seeder tests.
+	- Decisions: Salary sheets calculate rounded payroll totals and lock after payment; settings default to 5% shareholder discount, VAT off, commission off, and vendor wallet payout off; seeding requires `SUPER_ADMIN_PASSWORD` and a test-named database.
+	- Validation: Seeded `purebazarv1_test` (6 roles, 7 units, 4 categories, 1 settings document, 1 Super Admin); all backend tests pass (5 suites, 16 tests).
 - [ ] 1.2
 - [ ] 1.3
 - [ ] 1.4

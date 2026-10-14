@@ -21,4 +21,12 @@ module.exports = {
   WalletLog: require('./WalletLog'),
   WalletAuditLog: require('./WalletAuditLog'),
   DiscountLog: require('./DiscountLog'),
+  Shift: require('./Shift'),
+  Employee: require('./Employee'),
+  SalarySheet: require('./SalarySheet'),
+  SalaryAdvance: require('./SalaryAdvance'),
+  ExpenseCategory: require('./ExpenseCategory'),
+  Expense: require('./Expense'),
+  Settings: require('./Settings'),
+  AuditLog: require('./AuditLog'),
 };
