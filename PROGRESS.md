@@ -10,6 +10,10 @@
 	- Decisions: frontend API base URL defaults to http://localhost:5000/api; shared placeholder component keeps routes empty until their modules are built.
 	- Validation: frontend production build passes; all 23 requested routes returned HTTP 200 with rendered page content from the dev server.
 - [ ] 0.4
+- [x] 0.4a UI notes
+	- Files: `docs/UI-NOTES.md`.
+	- Decisions: Documented the supplied design summary; exact color hex values and a numeric spacing scale remain unspecified. `ui-reference/` was unavailable.
+	- Validation: Confirmed the notes are under 120 lines and contain visual guidance only; no automated test applies to this documentation-only step.
 - [ ] 1.1
 - [ ] 1.2
 - [ ] 1.3
