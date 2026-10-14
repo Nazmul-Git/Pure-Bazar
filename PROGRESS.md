@@ -31,7 +31,10 @@
 	- Files: Shift, employee, salary sheet, salary advance, expense category, expense, settings, and audit log models; idempotent role/default seeder and `seed:roles` script; model and seeder tests.
 	- Decisions: Salary sheets calculate rounded payroll totals and lock after payment; settings default to 5% shareholder discount, VAT off, commission off, and vendor wallet payout off; seeding requires `SUPER_ADMIN_PASSWORD` and a test-named database.
 	- Validation: Seeded `purebazarv1_test` (6 roles, 7 units, 4 categories, 1 settings document, 1 Super Admin); all backend tests pass (5 suites, 16 tests).
-- [ ] 1.2
+- [x] 1.2 Middleware and validator
+	- Files: JWT authentication and role/permission authorization middleware, express-validator request helper, consistent central error responses, and middleware integration tests.
+	- Decisions: Authentication reloads active users with their current role; role permissions are checked at request time and `*` grants all permissions.
+	- Validation: Full backend Jest suite passes (6 suites, 20 tests).
 - [ ] 1.3
 - [ ] 1.4
 - [ ] 2.1
