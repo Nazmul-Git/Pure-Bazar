@@ -23,6 +23,10 @@
 	- Files: Mongoose models for users, roles, categories, brands, units, products, price history, warehouse stocks, stock movements, goods receives, stock transfers, stock adjustments, and stock counts; model tests.
 	- Decisions: Product margin is calculated and rounded to 2 decimals; MRP cannot be below vendor price; vendor-owned products require a vendor; commission and online listing default off; stock documents use blueprint workflow statuses and movement types.
 	- Validation: Backend Jest suite passes (2 suites, 6 tests).
+- [x] 1.1b Models sales vendors
+	- Files: Order, return, vendor, vendor ledger, vendor statement, shareholder, wallet log, wallet audit log, and discount log models; model registration and validation tests.
+	- Decisions: Orders use the blueprint POS fields and payment/status enums; vendor statements follow Draft/Approved/Paid; wallet and discount records capture the specified member, payment, and approval events.
+	- Validation: Full backend Jest suite passes (3 suites, 10 tests).
 - [ ] 1.2
 - [ ] 1.3
 - [ ] 1.4

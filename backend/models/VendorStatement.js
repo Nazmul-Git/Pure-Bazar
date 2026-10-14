@@ -1,0 +1,34 @@
+const mongoose = require('mongoose');
+
+const vendorStatementSchema = new mongoose.Schema({
+  vendorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Vendor', required: true },
+  statementNumber: { type: String, required: true, trim: true, unique: true },
+  periodStart: { type: Date, required: true },
+  periodEnd: { type: Date, required: true },
+  status: { type: String, enum: ['Draft', 'Approved', 'Paid'], default: 'Draft', required: true },
+  openingStock: { type: Number, required: true, min: 0 },
+  receipts: { type: Number, required: true, min: 0 },
+  sales: { type: Number, required: true, min: 0 },
+  returns: { type: Number, required: true, min: 0 },
+  closingStock: { type: Number, required: true, min: 0 },
+  salesValueAtVendorPrice: { type: Number, required: true, min: 0 },
+  netPayable: { type: Number, required: true },
+  paymentMethod: { type: String, enum: ['Cash', 'Bank', 'bKash', 'Nagad'] },
+  paymentReference: { type: String, trim: true },
+  paidAt: { type: Date },
+  receivedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  settlementRef: { type: String, trim: true },
+}, { timestamps: true });
+
+vendorStatementSchema.pre('validate', function requirePaymentForPaidStatement() {
+  if (this.status === 'Paid') {
+    if (!this.paymentMethod) this.invalidate('paymentMethod', 'Payment method is required when paid');
+    if (!this.paidAt) this.invalidate('paidAt', 'Payment date is required when paid');
+    if (!this.receivedBy) this.invalidate('receivedBy', 'Receiver is required when paid');
+  }
+});
+
+vendorStatementSchema.index({ vendorId: 1 });
+vendorStatementSchema.index({ createdAt: 1 });
+
+module.exports = mongoose.models.VendorStatement || mongoose.model('VendorStatement', vendorStatementSchema);

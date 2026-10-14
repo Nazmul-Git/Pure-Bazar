@@ -12,4 +12,13 @@ module.exports = {
   StockTransfer: require('./StockTransfer'),
   StockAdjustment: require('./StockAdjustment'),
   StockCount: require('./StockCount'),
+  Order: require('./Order'),
+  Return: require('./Return'),
+  Vendor: require('./Vendor'),
+  VendorLedger: require('./VendorLedger'),
+  VendorStatement: require('./VendorStatement'),
+  Shareholder: require('./Shareholder'),
+  WalletLog: require('./WalletLog'),
+  WalletAuditLog: require('./WalletAuditLog'),
+  DiscountLog: require('./DiscountLog'),
 };

@@ -6,8 +6,10 @@ const objectId = () => new mongoose.Types.ObjectId();
 describe('Mongoose models', () => {
   it('registers every requested model', () => {
     expect(Object.keys(models).sort()).toEqual([
-      'Brand', 'Category', 'GoodsReceive', 'PriceHistory', 'Product', 'Role', 'StockAdjustment',
-      'StockCount', 'StockMovement', 'StockTransfer', 'Unit', 'User', 'WarehouseStock',
+      'Brand', 'Category', 'DiscountLog', 'GoodsReceive', 'Order', 'PriceHistory', 'Product',
+      'Return', 'Role', 'Shareholder', 'StockAdjustment', 'StockCount', 'StockMovement',
+      'StockTransfer', 'Unit', 'User', 'Vendor', 'VendorLedger', 'VendorStatement',
+      'WalletAuditLog', 'WalletLog', 'WarehouseStock',
     ]);
   });
 
