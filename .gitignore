@@ -7,4 +7,5 @@ pnpm-debug.log*
 dist/
 .env
 .env.*
+!.env.example
 ui-reference/

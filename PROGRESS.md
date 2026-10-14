@@ -1,7 +1,10 @@
 # Project Progress
 
 - [ ] 0.1
-- [ ] 0.2
+- [x] 0.2
+	- Files: backend config, middleware, health route/controller, server, package manifest, and health test.
+	- Decisions: validate MONGODB_URI and JWT_SECRET before startup; connect MongoDB before listening; return 503 when health is requested without a database connection.
+	- Validation: backend tests pass. Live health request awaits real MongoDB credentials/service in backend/.env.
 - [ ] 0.3
 - [ ] 0.4
 - [ ] 1.1
