@@ -7,6 +7,8 @@ const { loadEnv } = require('./config/env');
 const errorMiddleware = require('./middlewares/errorMiddleware');
 const authRoutes = require('./routes/authRoutes');
 const healthRoutes = require('./routes/healthRoutes');
+const roleRoutes = require('./routes/roleRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 
@@ -15,6 +17,8 @@ app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/roles', roleRoutes);
 app.use('/api', healthRoutes);
 app.use((req, res, next) => {
   const error = new Error('Route not found');

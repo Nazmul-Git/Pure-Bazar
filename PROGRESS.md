@@ -39,7 +39,10 @@
 	- Files: Auth login/me/logout routes and controller, JWT bearer auth with audit events, endpoint integration tests, Redux Toolkit auth slice, API token header management, and responsive login page.
 	- Decisions: Login uses normalized email plus bcrypt; successful login returns a short-lived JWT in the response body and Authorization header; /me and logout require a bearer token.
 	- Validation: Backend tests pass (7 suites, 23 tests); frontend production build passes, including /login.
-- [ ] 1.4
+- [x] 1.4 Users and roles management
+	- Files: Super Admin-only users/roles CRUD APIs with input validation, hashed passwords, audit events, integration tests, and API-backed frontend management pages.
+	- Decisions: Protect the Super Admin role from modification/deletion; prevent deleting assigned roles and the signed-in user; expose user records without password hashes.
+	- Validation: Backend tests pass (8 suites, 29 tests); frontend production build passes.
 - [ ] 2.1
 - [ ] 2.2
 - [ ] 2.3
