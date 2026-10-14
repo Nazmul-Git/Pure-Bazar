@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const connectDB = require('./config/db');
 const { loadEnv } = require('./config/env');
 const errorMiddleware = require('./middlewares/errorMiddleware');
+const authRoutes = require('./routes/authRoutes');
 const healthRoutes = require('./routes/healthRoutes');
 
 const app = express();
@@ -13,6 +14,7 @@ app.use(helmet());
 app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
+app.use('/api/auth', authRoutes);
 app.use('/api', healthRoutes);
 app.use((req, res, next) => {
   const error = new Error('Route not found');

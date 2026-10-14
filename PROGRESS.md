@@ -35,7 +35,10 @@
 	- Files: JWT authentication and role/permission authorization middleware, express-validator request helper, consistent central error responses, and middleware integration tests.
 	- Decisions: Authentication reloads active users with their current role; role permissions are checked at request time and `*` grants all permissions.
 	- Validation: Full backend Jest suite passes (6 suites, 20 tests).
-- [ ] 1.3
+- [x] 1.3 Auth endpoints and frontend login
+	- Files: Auth login/me/logout routes and controller, JWT bearer auth with audit events, endpoint integration tests, Redux Toolkit auth slice, API token header management, and responsive login page.
+	- Decisions: Login uses normalized email plus bcrypt; successful login returns a short-lived JWT in the response body and Authorization header; /me and logout require a bearer token.
+	- Validation: Backend tests pass (7 suites, 23 tests); frontend production build passes, including /login.
 - [ ] 1.4
 - [ ] 2.1
 - [ ] 2.2
