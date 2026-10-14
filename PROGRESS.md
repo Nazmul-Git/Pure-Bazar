@@ -14,6 +14,10 @@
 	- Files: `docs/UI-NOTES.md`.
 	- Decisions: Documented the supplied design summary; exact color hex values and a numeric spacing scale remain unspecified. `ui-reference/` was unavailable.
 	- Validation: Confirmed the notes are under 120 lines and contain visual guidance only; no automated test applies to this documentation-only step.
+- [x] 0.4b Layout
+	- Files: Shared responsive app shell, nine route-aware sidebar menus, user menu, and reusable Button, Input, Select, Modal, Card, Table, and Badge components under `frontend/src/components/`.
+	- Decisions: Keep `/login` outside the workspace shell; sidebar destinations point to existing routes; mobile navigation uses a drawer.
+	- Validation: `npm.cmd --prefix frontend run build` passes; browser checks confirmed desktop/mobile navigation behavior. Dev server runs at `http://localhost:3001` because port 3000 was occupied.
 - [ ] 1.1
 - [ ] 1.2
 - [ ] 1.3
