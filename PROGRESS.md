@@ -5,7 +5,10 @@
 	- Files: backend config, middleware, health route/controller, server, package manifest, and health test.
 	- Decisions: validate MONGODB_URI and JWT_SECRET before startup; connect MongoDB before listening; return 503 when health is requested without a database connection.
 	- Validation: backend tests pass. Live health request awaits real MongoDB credentials/service in backend/.env.
-- [ ] 0.3
+- [x] 0.3
+	- Files: frontend Next.js App Router skeleton, Tailwind setup, Redux Toolkit provider/store, Axios API client, local API URL, and placeholder pages for all requested routes.
+	- Decisions: frontend API base URL defaults to http://localhost:5000/api; shared placeholder component keeps routes empty until their modules are built.
+	- Validation: frontend production build passes; all 23 requested routes returned HTTP 200 with rendered page content from the dev server.
 - [ ] 0.4
 - [ ] 1.1
 - [ ] 1.2
