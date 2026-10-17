@@ -89,6 +89,7 @@ describe('product endpoints', () => {
     const response = await request(app).get('/api/products').set(auth);
 
     expect(response.status).toBe(200);
+    expect(response.body.marginWarningPercent).toBe(5);
     expect(response.body.products[0]).toMatchObject({
       ownerType: 'COMPANY',
       vendorPrice: 96,

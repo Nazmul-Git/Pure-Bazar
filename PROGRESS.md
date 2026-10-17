@@ -66,6 +66,10 @@
 	- Files: Product list/detail/create/update API, generated unique barcodes, settings-based margin warnings, price history and audit records, and product model/integration tests.
 	- Decisions: Product writes require `products:write`; updates change current product pricing only and do not rewrite sales. Margin warnings compare rounded margin with the configured shareholder discount amount.
 	- Validation: Full backend Jest suite passes (11 suites, 47 tests).
+- [x] 2.2b Products screens
+	- Files: API-backed All Products table and Add New Product form with ownership, pricing, live margin warning, VAT, generated barcode, and category/brand/unit selectors with Quick Add.
+	- Decisions: Expose the configured margin-warning percentage with the product list response for matching live UI calculations; vendor-owned entry accepts a vendor record ID because the vendor directory API is not available yet.
+	- Validation: Frontend production build passes; product integration tests pass (1 suite, 4 tests); browser verified product form, Quick Add modal, and automatic margin warning.
 - [ ] 2.3
 - [ ] 2.4
 - [ ] 3.1

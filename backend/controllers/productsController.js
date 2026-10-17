@@ -86,7 +86,11 @@ async function listProducts(req, res, next) {
       Product.find().sort({ name: 1 }).lean(),
       discountPercent(),
     ]);
-    return res.json({ success: true, products: products.map((product) => productOutput(product, percent)) });
+    return res.json({
+      success: true,
+      products: products.map((product) => productOutput(product, percent)),
+      marginWarningPercent: percent,
+    });
   } catch (error) {
     return next(error);
   }
