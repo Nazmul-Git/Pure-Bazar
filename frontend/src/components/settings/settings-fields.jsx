@@ -4,6 +4,7 @@ export const paymentMethods = ['Cash', 'Bank', 'bKash', 'Nagad', 'Card', 'Wallet
 export const payoutMethods = ['Cash', 'Bank', 'bKash', 'Nagad'];
 export const settingFields = [
   'shareholderDiscountPercent',
+  'stockAdjustmentApprovalLimit',
   'vatEnabled',
   'defaultVatRate',
   'vatPriceMode',
@@ -23,6 +24,7 @@ export const settingFields = [
 
 export const defaultSettings = {
   shareholderDiscountPercent: 5,
+  stockAdjustmentApprovalLimit: 0,
   vatEnabled: false,
   defaultVatRate: 0,
   vatPriceMode: 'EXCLUDED',

@@ -141,7 +141,7 @@ export default function SettingsForm() {
         <div>
           <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Workspace configuration</p>
           <h1 className="text-2xl font-semibold text-slate-900">Settings</h1>
-          <p className="mt-1 text-sm text-slate-600">Manage checkout, tax, vendor, and outlet settings.</p>
+          <p className="mt-1 text-sm text-slate-600">Manage checkout, tax, stock, vendor, and outlet settings.</p>
         </div>
         <Button type="submit" disabled={saving}>{saving ? 'Saving...' : 'Save settings'}</Button>
       </div>
@@ -162,6 +162,17 @@ export default function SettingsForm() {
         </div>
         <ToggleField label="Enable VAT" checked={settings.vatEnabled} onChange={(event) => setField('vatEnabled', event.target.checked)} />
         <JsonField label="Discount limits by role" value={jsonValues.discountLimitByRole} onChange={(value) => setJsonValues((current) => ({ ...current, discountLimitByRole: value }))} help='JSON object mapping role names to maximum discount percentages, for example { "Cashier": 10 }.' />
+      </SettingsSection>
+
+      <SettingsSection title="Stock adjustments" description="Adjustments valued above this limit require Super Admin approval. Values use product purchase cost.">
+        <Input
+          label="Super Admin approval limit"
+          type="number"
+          min="0"
+          step="0.01"
+          value={settings.stockAdjustmentApprovalLimit}
+          onChange={(event) => setField('stockAdjustmentApprovalLimit', Number(event.target.value))}
+        />
       </SettingsSection>
 
       <SettingsSection title="Payments and receipt" description="Choose accepted checkout methods and configure the receipt layout.">

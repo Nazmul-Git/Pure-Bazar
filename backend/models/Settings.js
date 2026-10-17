@@ -9,6 +9,7 @@ const vendorTermSchema = new mongoose.Schema({
 const settingsSchema = new mongoose.Schema({
   singleton: { type: String, default: 'global', unique: true, immutable: true },
   shareholderDiscountPercent: { type: Number, min: 0, max: 100, default: 5 },
+  stockAdjustmentApprovalLimit: { type: Number, min: 0, default: 0 },
   vatEnabled: { type: Boolean, default: false },
   defaultVatRate: { type: Number, min: 0, max: 100, default: 0 },
   vatPriceMode: { type: String, enum: ['INCLUDED', 'EXCLUDED'], default: 'EXCLUDED' },

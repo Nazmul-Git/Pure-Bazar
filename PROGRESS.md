@@ -112,6 +112,10 @@
 	- Files: Conflict-free, idempotent role permission updates; idempotent Demo Outlet creation alongside Central Warehouse; repeat-seeding regression test.
 	- Decisions: Seed all role permissions via `$addToSet` and initialize only the role name via `$setOnInsert`, avoiding overlapping update paths.
 	- Validation: Full backend Jest suite passes (15 suites, 72 tests); the seeder was not run against a database.
+- [x] 2.5a Adjustment count API
+	- Files: Transactional stock adjustment and count APIs, approval-limit setting/API/UI, adjustment and count audit/movement records, and integration tests.
+	- Decisions: Value adjustments at rounded product purchase cost; auto-post at or below the configured limit and require Super Admin approval above it. Stock counts snapshot system quantities and post only the counted difference through an adjustment.
+	- Validation: Full backend Jest suite passes (16 suites, 76 tests); frontend production build passes.
 - [ ] 3.1
 - [ ] 3.2
 - [ ] 3.3

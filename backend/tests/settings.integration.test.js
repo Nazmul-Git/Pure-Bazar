@@ -7,6 +7,7 @@ jest.mock('../models', () => ({
   Settings: Object.assign(jest.fn(() => ({
     toObject: () => ({
       shareholderDiscountPercent: 5,
+      stockAdjustmentApprovalLimit: 0,
       vatEnabled: false,
       defaultVatRate: 0,
       vatPriceMode: 'EXCLUDED',
@@ -54,6 +55,7 @@ function settingsDocument(fields = {}) {
   const data = {
     _id: settingsId,
     shareholderDiscountPercent: 5,
+    stockAdjustmentApprovalLimit: 0,
     vatEnabled: false,
     defaultVatRate: 0,
     vatPriceMode: 'EXCLUDED',
@@ -121,6 +123,7 @@ describe('settings and audit endpoints', () => {
     expect(defaults.status).toBe(200);
     expect(defaults.body.settings).toMatchObject({
       shareholderDiscountPercent: 5,
+      stockAdjustmentApprovalLimit: 0,
       vatEnabled: false,
       commissionEnabled: false,
       vendorWalletPayoutEnabled: false,
@@ -168,6 +171,21 @@ describe('settings and audit endpoints', () => {
     }));
     expect(invalid.status).toBe(400);
     expect(AuditLog.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('accepts a non-negative stock adjustment approval limit with at most two decimals', async () => {
+    const response = await request(app).put('/api/settings').set(auth)
+      .send({ stockAdjustmentApprovalLimit: 125.5 });
+    const invalid = await request(app).put('/api/settings').set(auth)
+      .send({ stockAdjustmentApprovalLimit: -1 });
+
+    expect(response.status).toBe(200);
+    expect(Settings.findOneAndUpdate).toHaveBeenCalledWith(
+      { singleton: 'global' },
+      { $set: expect.objectContaining({ stockAdjustmentApprovalLimit: 125.5 }) },
+      expect.objectContaining({ upsert: true, runValidators: true }),
+    );
+    expect(invalid.status).toBe(400);
   });
 
   it('rejects modified vendor terms and cut-off dates inconsistent with the cycle', async () => {

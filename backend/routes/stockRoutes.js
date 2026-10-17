@@ -4,6 +4,8 @@ const goodsReceiveController = require('../controllers/goodsReceiveController');
 const locationRoutes = require('./locationRoutes');
 const stockController = require('../controllers/stockController');
 const stockTransferController = require('../controllers/stockTransferController');
+const stockAdjustmentController = require('../controllers/stockAdjustmentController');
+const stockCountController = require('../controllers/stockCountController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const authorizeMiddleware = require('../middlewares/authorizeMiddleware');
 const validateRequest = require('../middlewares/validateRequest');
@@ -29,10 +31,61 @@ const challan = body('vendorChallanNumber').optional({ nullable: true }).isStrin
 const transferId = param('id').isMongoId().withMessage('A valid stock transfer ID is required');
 const transferLines = body('lines').isArray({ min: 1 }).withMessage('At least one product line is required');
 const transferProduct = body('lines.*.productId').isMongoId().withMessage('A valid product ID is required');
+const adjustmentId = param('id').isMongoId().withMessage('A valid stock adjustment ID is required');
+const countId = param('id').isMongoId().withMessage('A valid stock count ID is required');
+const adjustmentLines = body('lines').isArray({ min: 1 }).withMessage('At least one adjustment line is required');
+const adjustmentProducts = body('lines.*.productId').isMongoId().withMessage('A valid product ID is required');
+const adjustmentQuantities = body('lines.*.quantity').isFloat().toFloat()
+  .withMessage('Adjustment quantity must be a non-zero number');
+const nonZeroAdjustmentLines = body('lines').custom((items) => (
+  Array.isArray(items) && items.some((item) => Number(item.quantity) !== 0)
+)).withMessage('At least one non-zero adjustment line is required');
+const countLines = body('lines').isArray({ min: 1 }).withMessage('At least one stock count line is required');
+const countProducts = body('lines.*.productId').isMongoId().withMessage('A valid product ID is required');
+const countQuantities = body('lines.*.countedQuantity').isFloat({ min: 0 }).toFloat()
+  .withMessage('Counted quantity must be zero or greater');
+const stockLocation = body('warehouseId').isMongoId().withMessage('A valid warehouse or outlet ID is required');
+const stockReason = body('reason').isString().trim().isLength({ min: 1, max: 500 })
+  .withMessage('A reason of 1 to 500 characters is required');
+const adminApproval = [authMiddleware, authorizeMiddleware({ roles: ['Super Admin'] })];
 
 router.get('/stock', read, [
   query('warehouseId').isMongoId().withMessage('A valid warehouse ID is required'),
 ], validateRequest, stockController.getWarehouseStock);
+router.get('/stock-adjustments', read, [
+  query('warehouseId').optional().isMongoId().withMessage('A valid warehouse or outlet ID is required'),
+  query('status').optional().isIn(['Draft', 'Pending', 'Approved', 'Rejected'])
+    .withMessage('A valid adjustment status is required'),
+], validateRequest, stockAdjustmentController.listAdjustments);
+router.post('/stock-adjustments', write, [
+  stockLocation,
+  stockReason,
+  adjustmentLines,
+  adjustmentProducts,
+  adjustmentQuantities,
+  nonZeroAdjustmentLines,
+], validateRequest, stockAdjustmentController.createAdjustment);
+router.post('/stock-adjustments/:id/approve', adminApproval, [
+  adjustmentId,
+], validateRequest, stockAdjustmentController.approveAdjustment);
+router.post('/stock-adjustments/:id/reject', adminApproval, [
+  adjustmentId,
+], validateRequest, stockAdjustmentController.rejectAdjustment);
+router.get('/stock-counts', read, [
+  query('warehouseId').optional().isMongoId().withMessage('A valid warehouse or outlet ID is required'),
+  query('status').optional().isIn(['Draft', 'Counting', 'PendingApproval', 'Posted', 'Rejected'])
+    .withMessage('A valid stock count status is required'),
+], validateRequest, stockCountController.listCounts);
+router.post('/stock-counts', write, [
+  stockLocation,
+  stockReason,
+  countLines,
+  countProducts,
+  countQuantities,
+], validateRequest, stockCountController.createCount);
+router.post('/stock-counts/:id/post', write, [
+  countId,
+], validateRequest, stockCountController.postCount);
 router.get('/stock-transfers', [
   authMiddleware, authorizeMiddleware({ permissions: ['stock:transfer:read'] }),
   query('status').optional().isIn(['Requested', 'Dispatched', 'Received', 'Discrepancy'])

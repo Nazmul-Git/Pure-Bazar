@@ -14,9 +14,11 @@ stockCountLineSchema.pre('validate', function calculateDifference() {
 });
 
 const stockCountSchema = new mongoose.Schema({
-  warehouseId: { type: mongoose.Schema.Types.ObjectId, required: true },
-  status: { type: String, enum: ['Draft', 'Counting', 'Posted'], default: 'Draft' },
+  warehouseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Location', required: true },
+  reason: { type: String, required: true, trim: true },
+  status: { type: String, enum: ['Draft', 'Counting', 'PendingApproval', 'Posted', 'Rejected'], default: 'Draft' },
   lines: { type: [stockCountLineSchema], required: true, validate: (lines) => lines.length > 0 },
+  stockAdjustmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'StockAdjustment' },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   postedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 }, { timestamps: true });

@@ -52,6 +52,7 @@ const CATEGORY_SEEDS = ['Groceries', 'Beverages', 'Household', 'Personal Care'];
 const SETTINGS_SEED = {
   singleton: 'global',
   shareholderDiscountPercent: 5,
+  stockAdjustmentApprovalLimit: 0,
   vatEnabled: false,
   defaultVatRate: 0,
   commissionEnabled: false,
