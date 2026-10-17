@@ -83,6 +83,10 @@
 	- Decisions: No SKU schema field or SKU index remains because no existing code or tests depend on it.
 	- Validation: Full backend Jest suite passes (12 suites, 51 tests).
 - [ ] 2.3
+- [x] 2.3a GRN API
+	- Files: Movement-only warehouse stock aggregation, signed stock-movement quantities, transactional Goods Receive approval, vendor-scoped product search, GRN draft/edit/reject/print endpoints, and integration/model tests.
+	- Decisions: Merge repeated product lines into one GRN line; add accepted quantities as positive GRN movements only inside the approval transaction; remove the writable WarehouseStock model so stock has a single ledger source.
+	- Validation: Full backend Jest suite passes (13 suites, 59 tests); approval rollback, draft isolation, approved-GRN immutability, vendor filtering, printable GRN data, rejected receives, and direct stock-write absence covered.
 - [ ] 2.4
 - [ ] 3.1
 - [ ] 3.2

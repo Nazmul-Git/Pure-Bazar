@@ -10,7 +10,7 @@ describe('Mongoose models', () => {
       'GoodsReceive', 'Order', 'PriceHistory', 'Product', 'Return', 'Role', 'SalaryAdvance',
       'SalarySheet', 'Settings', 'Shareholder', 'Shift', 'StockAdjustment', 'StockCount',
       'StockMovement', 'StockTransfer', 'Unit', 'User', 'Vendor', 'VendorLedger',
-      'VendorStatement', 'WalletAuditLog', 'WalletLog', 'WarehouseStock',
+      'VendorStatement', 'WalletAuditLog', 'WalletLog',
     ]);
   });
 
@@ -95,6 +95,29 @@ describe('Mongoose models', () => {
 
     await expect(adjustment.validate()).rejects.toMatchObject({
       errors: { reason: expect.objectContaining({ kind: 'required' }) },
+    });
+  });
+
+  it('requires signed nonzero movement quantities and unique products per GRN', async () => {
+    const outgoing = new models.StockMovement({
+      productId: objectId(), warehouseId: objectId(), quantity: 2, type: 'SALE', userId: objectId(),
+    });
+    const grn = new models.GoodsReceive({
+      ownerType: 'COMPANY',
+      warehouseId: objectId(),
+      createdBy: objectId(),
+      lines: [
+        { productId: objectId(), receivedQuantity: 1, acceptedQuantity: 1, rejectedQuantity: 0 },
+        { productId: objectId(), receivedQuantity: 1, acceptedQuantity: 1, rejectedQuantity: 0 },
+      ],
+    });
+    grn.lines[1].productId = grn.lines[0].productId;
+
+    await expect(outgoing.validate()).rejects.toMatchObject({
+      errors: { quantity: expect.objectContaining({ message: 'Outgoing movements must have a negative quantity' }) },
+    });
+    await expect(grn.validate()).rejects.toMatchObject({
+      errors: { lines: expect.objectContaining({ message: 'A product can only appear once on a goods receive' }) },
     });
   });
 

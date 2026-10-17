@@ -11,6 +11,7 @@ const inventoryRoutes = require('./routes/inventoryRoutes');
 const productRoutes = require('./routes/productRoutes');
 const roleRoutes = require('./routes/roleRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
+const stockRoutes = require('./routes/stockRoutes');
 const userRoutes = require('./routes/userRoutes');
 
 const app = express();
@@ -25,6 +26,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/roles', roleRoutes);
 app.use('/api', settingsRoutes);
+app.use('/api', stockRoutes);
 app.use('/api', healthRoutes);
 app.use((req, res, next) => {
   const error = new Error('Route not found');
