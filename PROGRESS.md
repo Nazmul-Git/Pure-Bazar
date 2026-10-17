@@ -116,6 +116,10 @@
 	- Files: Transactional stock adjustment and count APIs, approval-limit setting/API/UI, adjustment and count audit/movement records, and integration tests.
 	- Decisions: Value adjustments at rounded product purchase cost; auto-post at or below the configured limit and require Super Admin approval above it. Stock counts snapshot system quantities and post only the counted difference through an adjustment.
 	- Validation: Full backend Jest suite passes (16 suites, 76 tests); frontend production build passes.
+- [x] 2.5b Count and labels
+	- Files: Stock adjustment and stock count screens; barcode scanner hook; bulk barcode/price label output engine for TSPL and ESC/POS; printable label preview, ESC/POS serial print helper, and output format tests.
+	- Decisions: Reuse existing transactional adjustment/count endpoints and their approval workflow; cap each product label batch at 500; provide raw TSPL/ESC/POS exports alongside optional Web Serial printing.
+	- Validation: Barcode output tests pass (1 suite, 2 tests); frontend production build passes; editor diagnostics report no errors in changed frontend files.
 - [ ] 3.1
 - [ ] 3.2
 - [ ] 3.3

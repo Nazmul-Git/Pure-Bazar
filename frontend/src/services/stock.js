@@ -16,6 +16,19 @@ export const getWarehouseStock = (token, warehouseId) => api.get('/stock', {
   ...authConfig(token),
   params: { warehouseId },
 });
+export const getStockAdjustments = (token, params) => api.get('/stock-adjustments', {
+  ...authConfig(token),
+  params,
+});
+export const createStockAdjustment = (token, payload) => api.post('/stock-adjustments', payload, authConfig(token));
+export const approveStockAdjustment = (token, id) => api.post(`/stock-adjustments/${id}/approve`, {}, authConfig(token));
+export const rejectStockAdjustment = (token, id) => api.post(`/stock-adjustments/${id}/reject`, {}, authConfig(token));
+export const getStockCounts = (token, params) => api.get('/stock-counts', {
+  ...authConfig(token),
+  params,
+});
+export const createStockCount = (token, payload) => api.post('/stock-counts', payload, authConfig(token));
+export const postStockCount = (token, id) => api.post(`/stock-counts/${id}/post`, {}, authConfig(token));
 export const getReceiveVendors = (token) => api.get('/stock/vendors', authConfig(token));
 export const searchReceiveProducts = (token, params) => api.get('/stock/products', {
   ...authConfig(token),

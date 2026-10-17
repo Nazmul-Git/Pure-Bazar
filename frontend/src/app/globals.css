@@ -42,6 +42,22 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 a { color: inherit; text-decoration: none; }
 :focus-visible { outline: 3px solid #83bdf2; outline-offset: 2px; }
 
+.label-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+.label-card { align-items: center; border: 1px dashed #aab5c2; display: flex; flex-direction: column; gap: 3px; justify-content: center; min-height: 170px; padding: 8px; text-align: center; }
+.label-name { font-size: 12px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.barcode-graphic { height: 68px; max-width: 100%; width: 100%; }
+.label-price { font-size: 13px; }
+
+@media print {
+  body * { visibility: hidden !important; }
+  #label-print-preview, #label-print-preview * { visibility: visible !important; }
+  #label-print-preview { background: #fff; display: grid; gap: 3mm; grid-template-columns: repeat(3, 50mm); left: 0; padding: 0; position: absolute; top: 0; width: 100%; }
+  #label-print-preview .label-card { border: 0; height: 30mm; min-height: 0; overflow: hidden; padding: 1mm; width: 50mm; }
+  #label-print-preview .barcode-graphic { height: 16mm; }
+  #label-print-preview .ui-badge { display: none; }
+  @page { margin: 5mm; }
+}
+
 .app-shell { min-height: 100vh; }
 .sidebar {
   background: var(--nav);
