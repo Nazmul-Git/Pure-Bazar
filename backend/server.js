@@ -1,3 +1,6 @@
+require('dns').setDefaultResultOrder('ipv4first'); // IPv6 সমস্যা এড়াতে (সবার উপরে থাকতে হবে)
+require('dotenv').config();
+
 const cors = require('cors');
 const express = require('express');
 const helmet = require('helmet');
@@ -33,11 +36,11 @@ app.use((req, res, next) => {
   error.status = 404;
   next(error);
 });
+
 app.use(errorMiddleware);
 
 async function startServer() {
   let env;
-
   try {
     env = loadEnv();
   } catch (error) {
@@ -46,10 +49,25 @@ async function startServer() {
     return;
   }
 
+  // নিরাপদ ডিবাগ: পাসওয়ার্ড লুকিয়ে URI দেখুন
+  const safeUri = env.MONGODB_URI.replace(/:\/\/([^:]+):([^@]+)@/, '://$1:****@');
+  console.log('Connecting to:', safeUri);
+
   try {
     await connectDB(env.MONGODB_URI);
+    console.log('MongoDB connected');
   } catch (error) {
-    console.error(`Database connection failed: ${error.message}`);
+    console.error('Database connection failed');
+    console.error('message:', error.message);
+
+    // প্রতিটি shard-এর আসল এরর দেখাবে (MongoNetworkError-এর ভেতরের বার্তা)
+    const servers = error.reason?.servers;
+    if (servers) {
+      for (const [addr, server] of servers) {
+        console.error(' ', addr, '=>', server.error?.message);
+      }
+    }
+
     process.exitCode = 1;
     return;
   }

@@ -17,8 +17,18 @@ function publicUser(user) {
 async function login(req, res, next) {
   try {
     const email = req.body.email.trim().toLowerCase();
-    const user = await User.findOne({ email }).populate('roleId');
-    const passwordMatches = user && await bcrypt.compare(req.body.password, user.passwordHash);
+    console.log('[auth.login] query email:', email);
+    const user = await User.findOne({ email }).select('+passwordHash').populate('roleId');
+    console.log('[auth.login] user found:', Boolean(user));
+    const hasPasswordHash = typeof user?.passwordHash === 'string' && user.passwordHash.length > 0;
+    console.log(
+      '[auth.login] passwordHash status:',
+      user?.passwordHash === undefined ? 'undefined' : hasPasswordHash ? 'hash present' : 'missing or invalid',
+    );
+    const passwordMatches = hasPasswordHash
+      ? await bcrypt.compare(req.body.password, user.passwordHash)
+      : false;
+    console.log('[auth.login] bcrypt.compare result:', passwordMatches);
 
     if (!user || !passwordMatches || !user.isActive) {
       const error = new Error('Invalid email or password');

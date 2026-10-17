@@ -40,7 +40,9 @@ describe('auth endpoints', () => {
     User.findById.mockReset();
     User.findOne.mockReset();
     AuditLog.create.mockClear();
-    User.findOne.mockReturnValue({ populate: jest.fn().mockResolvedValue(user) });
+    User.findOne.mockReturnValue({
+      select: jest.fn().mockReturnValue({ populate: jest.fn().mockResolvedValue(user) }),
+    });
     User.findById.mockReturnValue({ populate: jest.fn().mockResolvedValue(user) });
   });
 
