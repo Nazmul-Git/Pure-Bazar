@@ -23,6 +23,9 @@ function createApp() {
     roles: ['Inventory Manager'],
     permissions: ['products:read'],
   }), (req, res) => res.json({ user: req.user.id }));
+  app.get('/one-permission', authMiddleware, authorizeMiddleware({
+    anyPermissions: ['stock:read', 'stock:transfer:read'],
+  }), (req, res) => res.json({ user: req.user.id }));
   app.post('/validated', body('name').isString().notEmpty(), validateRequest, (req, res) => {
     res.json({ name: req.body.name });
   });
@@ -103,6 +106,27 @@ describe('middleware integration', () => {
     expect(wrongRole.status).toBe(403);
     expect(missingPermission.status).toBe(403);
     expect(wildcardPermission.status).toBe(200);
+  });
+
+  it('allows any configured permission while rejecting users with none', async () => {
+    setUser({
+      _id: { toString: () => userId },
+      isActive: true,
+      roleId: { name: 'Outlet Cashier', permissions: ['stock:transfer:read'] },
+    });
+    const allowed = await request(app).get('/one-permission')
+      .set({ Authorization: `Bearer ${tokenFor()}` });
+
+    setUser({
+      _id: { toString: () => userId },
+      isActive: true,
+      roleId: { name: 'Finance', permissions: ['finance:read'] },
+    });
+    const denied = await request(app).get('/one-permission')
+      .set({ Authorization: `Bearer ${tokenFor()}` });
+
+    expect(allowed.status).toBe(200);
+    expect(denied.status).toBe(403);
   });
 
   it('returns validation errors and consistent central error responses', async () => {

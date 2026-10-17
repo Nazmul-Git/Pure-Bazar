@@ -44,7 +44,7 @@ function normalizeRequestedLines(lines) {
   return [...combined].map(([productId, requestedQuantity]) => ({ productId, requestedQuantity }));
 }
 
-function transferOutput(transfer) {
+function transferOutput(transfer, productsById) {
   const data = transfer.toObject ? transfer.toObject() : transfer;
   return {
     id: data._id.toString(),
@@ -58,14 +58,31 @@ function transferOutput(transfer) {
     receivedAt: data.receivedAt || null,
     createdAt: data.createdAt,
     updatedAt: data.updatedAt,
-    lines: data.lines.map((line) => ({
-      productId: line.productId.toString(),
-      requestedQuantity: line.requestedQuantity,
-      dispatchedQuantity: line.dispatchedQuantity ?? null,
-      receivedQuantity: line.receivedQuantity ?? null,
-      discrepancyQuantity: line.discrepancyQuantity ?? null,
-    })),
+    lines: data.lines.map((line) => {
+      const productId = line.productId.toString();
+      const product = productsById.get(productId);
+      return {
+        productId,
+        productName: product?.name || null,
+        barcode: product?.barcode || null,
+        requestedQuantity: line.requestedQuantity,
+        dispatchedQuantity: line.dispatchedQuantity ?? null,
+        receivedQuantity: line.receivedQuantity ?? null,
+        discrepancyQuantity: line.discrepancyQuantity ?? null,
+      };
+    }),
   };
+}
+
+async function transferOutputs(transfers) {
+  const items = Array.isArray(transfers) ? transfers : [transfers];
+  const productIds = [...new Set(items.flatMap((transfer) => {
+    const data = transfer.toObject ? transfer.toObject() : transfer;
+    return data.lines.map((line) => line.productId.toString());
+  }))];
+  const products = await Product.find({ _id: { $in: productIds } }).select('_id name barcode').lean();
+  const productsById = new Map(products.map((product) => [product._id.toString(), product]));
+  return items.map((transfer) => transferOutput(transfer, productsById));
 }
 
 async function loadScopedTransfer(id, user, session) {
@@ -115,7 +132,7 @@ async function createTransfer(req, res, next) {
         after: transfer.toObject(),
         ipAddress: req.ip,
       }], { session });
-      output = transferOutput(transfer);
+      [output] = await transferOutputs([transfer]);
     });
     return res.status(201).json({ success: true, stockTransfer: output });
   } catch (error) {
@@ -130,7 +147,7 @@ async function listTransfers(req, res, next) {
     const filter = locationFilter(req.user);
     if (req.query.status) filter.status = req.query.status;
     const transfers = await StockTransfer.find(filter).sort({ createdAt: -1 }).lean();
-    return res.json({ success: true, stockTransfers: transfers.map(transferOutput) });
+    return res.json({ success: true, stockTransfers: await transferOutputs(transfers) });
   } catch (error) {
     return next(error);
   }
@@ -139,7 +156,8 @@ async function listTransfers(req, res, next) {
 async function getTransfer(req, res, next) {
   try {
     const transfer = await loadScopedTransfer(req.params.id, req.user);
-    return res.json({ success: true, stockTransfer: transferOutput(transfer) });
+    const [output] = await transferOutputs([transfer]);
+    return res.json({ success: true, stockTransfer: output });
   } catch (error) {
     return next(error);
   }
@@ -206,7 +224,7 @@ async function dispatchTransfer(req, res, next) {
         after: transfer.toObject(),
         ipAddress: req.ip,
       }], { session });
-      output = transferOutput(transfer);
+      [output] = await transferOutputs([transfer]);
     });
     return res.json({ success: true, stockTransfer: output });
   } catch (error) {
@@ -268,7 +286,7 @@ async function receiveTransfer(req, res, next) {
         after: transfer.toObject(),
         ipAddress: req.ip,
       }], { session });
-      output = transferOutput(transfer);
+      [output] = await transferOutputs([transfer]);
     });
     return res.json({ success: true, stockTransfer: output });
   } catch (error) {

@@ -8,6 +8,10 @@ export const getLocations = (token, type) => api.get('/locations', {
   ...authConfig(token),
   params: type ? { type } : undefined,
 });
+export const getStockTransfers = (token) => api.get('/stock-transfers', authConfig(token));
+export const createStockTransfer = (token, payload) => api.post('/stock-transfers', payload, authConfig(token));
+export const dispatchStockTransfer = (token, id, payload) => api.post(`/stock-transfers/${id}/dispatch`, payload, authConfig(token));
+export const receiveStockTransfer = (token, id, payload) => api.post(`/stock-transfers/${id}/receive`, payload, authConfig(token));
 export const getWarehouseStock = (token, warehouseId) => api.get('/stock', {
   ...authConfig(token),
   params: { warehouseId },

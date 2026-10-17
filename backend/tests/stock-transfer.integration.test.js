@@ -5,7 +5,7 @@ const request = require('supertest');
 
 jest.mock('../models', () => ({
   AuditLog: { create: jest.fn() },
-  Location: { findById: jest.fn() },
+  Location: { find: jest.fn(), findById: jest.fn() },
   Product: { find: jest.fn() },
   StockMovement: { aggregate: jest.fn(), create: jest.fn() },
   StockTransfer: { create: jest.fn(), find: jest.fn(), findOne: jest.fn() },
@@ -31,7 +31,11 @@ const locations = new Map([
   [outletId, { _id: new mongoose.Types.ObjectId(outletId), type: 'OUTLET' }],
   [otherOutletId, { _id: new mongoose.Types.ObjectId(otherOutletId), type: 'OUTLET' }],
 ]);
-const product = { _id: new mongoose.Types.ObjectId(productId) };
+const product = {
+  _id: new mongoose.Types.ObjectId(productId),
+  name: 'Sample Product',
+  barcode: '1234567890123',
+};
 
 function createApp() {
   const app = express();
@@ -191,6 +195,10 @@ describe('stock transfer API', () => {
     const id = requested.body.stockTransfer.id;
     expect(requested.status).toBe(201);
     expect(requested.body.stockTransfer.status).toBe('Requested');
+    expect(requested.body.stockTransfer.lines[0]).toMatchObject({
+      productName: 'Sample Product',
+      barcode: '1234567890123',
+    });
     expect(totalStock()).toBe(50);
 
     const warehouseList = await request(app).get('/api/stock-transfers').set(auth(warehouseUserId));
@@ -206,6 +214,10 @@ describe('stock transfer API', () => {
       },
       locationId: new mongoose.Types.ObjectId(outletId),
     };
+    Location.find.mockImplementation(() => query([...locations.values()]));
+    const outletLocations = await request(app).get('/api/locations').set(auth(outletUserId));
+    expect(outletLocations.status).toBe(200);
+
     const outletList = await request(app).get('/api/stock-transfers').set(auth(outletUserId));
     expect(outletList.body.stockTransfers).toHaveLength(1);
     expect(StockTransfer.find).toHaveBeenCalledWith({ toWarehouseId: outletId });

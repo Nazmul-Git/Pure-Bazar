@@ -96,6 +96,10 @@
 	- Files: Central-to-outlet transfer requests, transactional dispatch/receipt stock movements, discrepancy tracking, per-location role scoping, user location assignment, and transfer integration tests.
 	- Decisions: Dispatch deducts actual dispatched quantities; outlet receipt posts actual received quantities. Any difference is recorded on the transfer, with no balancing stock movement.
 	- Validation: Full backend Jest suite passes (15 suites, 68 tests); exact transfers preserve total stock after receipt, shortage discrepancy is reconciled against the missing quantity, and cross-outlet reads/unauthorized dispatch are rejected.
+- [x] 2.4b Transfer screens
+	- Files: API-backed outlet transfer request, warehouse dispatch, and outlet receipt screens; status filtering and badges; transfer service methods and permission-aware navigation; transfer product labels in API responses and location lookup access for transfer readers.
+	- Decisions: Keep request, dispatch, and confirmation actions gated by existing permissions; preserve location-scoped transfer lists; let location lookup use either stock-read or transfer-read permission.
+	- Validation: Frontend production build passes; focused transfer and authorization tests pass (2 suites, 8 tests).
 - [ ] 3.1
 - [ ] 3.2
 - [ ] 3.3

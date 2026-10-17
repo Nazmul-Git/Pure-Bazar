@@ -1,4 +1,4 @@
-function authorizeMiddleware({ roles = [], permissions = [] } = {}) {
+function authorizeMiddleware({ roles = [], permissions = [], anyPermissions = [] } = {}) {
   return (req, res, next) => {
     if (!req.user) {
       const error = new Error('Authentication required');
@@ -13,7 +13,10 @@ function authorizeMiddleware({ roles = [], permissions = [] } = {}) {
     }
 
     const userPermissions = Array.isArray(req.user.permissions) ? req.user.permissions : [];
-    if (!userPermissions.includes('*') && !permissions.every((permission) => userPermissions.includes(permission))) {
+    const hasAllPermissions = permissions.every((permission) => userPermissions.includes(permission));
+    const hasAnyPermission = !anyPermissions.length
+      || anyPermissions.some((permission) => userPermissions.includes(permission));
+    if (!userPermissions.includes('*') && (!hasAllPermissions || !hasAnyPermission)) {
       const error = new Error('Insufficient permissions');
       error.status = 403;
       return next(error);
