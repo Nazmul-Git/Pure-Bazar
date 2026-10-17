@@ -48,7 +48,7 @@ describe('Mongoose models', () => {
     expect(category.commissionEnabled).toBe(false);
   });
 
-  it('generates a valid EAN-13 barcode and related SKU and enforces uniqueness', async () => {
+  it('generates a valid EAN-13 barcode and enforces uniqueness', async () => {
     const product = new models.Product({
       name: 'Rice',
       categoryId: objectId(),
@@ -65,7 +65,6 @@ describe('Mongoose models', () => {
       sum + Number(digit) * (index % 2 === 0 ? 1 : 3)
     ), 0);
     expect((weightedBody + Number(product.barcode[12])) % 10).toBe(0);
-    expect(product.sku).toBe(`PB-${product.barcode}`);
     expect(models.Product.schema.indexes().some(([fields, options]) => (
       fields.barcode === 1 && options.unique
     ))).toBe(true);
@@ -103,8 +102,9 @@ describe('Mongoose models', () => {
     const indexes = models.Product.schema.indexes().map(([fields]) => fields);
 
     expect(indexes).toContainEqual({ barcode: 1 });
-    expect(indexes).toContainEqual({ sku: 1 });
     expect(indexes).toContainEqual({ vendorId: 1 });
     expect(indexes).toContainEqual({ createdAt: 1 });
+    expect(models.Product.schema.path('sku')).toBeUndefined();
+    expect(indexes.some((fields) => fields.sku)).toBe(false);
   });
 });

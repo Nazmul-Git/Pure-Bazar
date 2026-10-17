@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { generateEan13Barcode, generateSku, isValidEan13 } = require('../utils/productIdentifiers');
+const { generateEan13Barcode, isValidEan13 } = require('../utils/productIdentifiers');
 
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
@@ -22,13 +22,6 @@ const productSchema = new mongoose.Schema({
       message: 'Barcode must be a valid EAN-13 number',
     },
   },
-  sku: {
-    type: String,
-    trim: true,
-    default() {
-      return generateSku(this.barcode);
-    },
-  },
   listedOnline: { type: Boolean, default: false },
 }, { timestamps: true });
 
@@ -46,7 +39,6 @@ productSchema.path('mrp').validate(function validateMrp(value) {
 }, 'MRP must be greater than or equal to vendor price');
 
 productSchema.index({ barcode: 1 }, { unique: true, sparse: true });
-productSchema.index({ sku: 1 }, { unique: true, sparse: true });
 productSchema.index({ vendorId: 1 });
 productSchema.index({ createdAt: 1 });
 

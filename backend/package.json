@@ -8,7 +8,7 @@
     "dev": "nodemon server.js",
     "test": "jest --runInBand",
     "seed:roles": "node seeders/seedRoles.js",
-    "migrate:product-identifiers": "node scripts/migrateProductIdentifiers.js"
+    "migrate:product-barcodes": "node scripts/migrateProductBarcodes.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

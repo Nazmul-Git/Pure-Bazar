@@ -70,14 +70,18 @@
 	- Files: API-backed All Products table and Add New Product form with ownership, pricing, live margin warning, VAT, generated barcode, and category/brand/unit selectors with Quick Add.
 	- Decisions: Expose the configured margin-warning percentage with the product list response for matching live UI calculations; vendor-owned entry accepts a vendor record ID because the vendor directory API is not available yet.
 	- Validation: Frontend production build passes; product integration tests pass (1 suite, 4 tests); browser verified product form, Quick Add modal, and automatic margin warning.
-- [x] 2.2c Product barcode and SKU
-	- Files: EAN-13 barcode and linked SKU generation/validation, collision-aware product identifier migration command, and identifier/model tests.
-	- Decisions: Generate SKUs as `PB-<EAN-13>`; preserve existing non-empty SKUs and already-valid EAN-13 barcodes during migration. Run the migration explicitly with `--apply` against the intended database.
+- [x] 2.2c Product barcode
+	- Files: EAN-13 barcode generation/validation, collision-aware barcode-only migration command, and barcode/model tests.
+	- Decisions: Numeric 13-digit EAN-13 barcode is the only product identifier. Run the barcode migration explicitly with `--apply` against the intended database.
 	- Validation: Full backend Jest suite passes (12 suites, 51 tests).
-- [x] 2.2d SKU column
-	- Files: Added SKU next to Barcode in All Products and included SKU in product search.
-	- Decisions: Search is case-insensitive across product name, barcode, and SKU.
-	- Validation: Frontend production build passes.
+- [x] 2.2d SKU column (superseded)
+	- Files: The temporary SKU column and search were removed in 2.2f.
+	- Decisions: Product search matches name and barcode only.
+	- Validation: See 2.2f.
+- [x] 2.2f Remove SKU
+	- Files: Removed SKU from the product model/API/UI, deleted SKU generation and migration behavior, and retained the barcode-only EAN-13 migration.
+	- Decisions: No SKU schema field or SKU index remains because no existing code or tests depend on it.
+	- Validation: Full backend Jest suite passes (12 suites, 51 tests).
 - [ ] 2.3
 - [ ] 2.4
 - [ ] 3.1

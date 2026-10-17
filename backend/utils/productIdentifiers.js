@@ -24,11 +24,4 @@ function isValidEan13(value) {
     && value[12] === ean13CheckDigit(value.slice(0, 12));
 }
 
-function generateSku(barcode) {
-  if (!isValidEan13(barcode)) {
-    throw new Error('A valid EAN-13 barcode is required to generate a product SKU');
-  }
-  return `PB-${barcode}`;
-}
-
-module.exports = { ean13CheckDigit, generateEan13Barcode, generateSku, isValidEan13 };
+module.exports = { ean13CheckDigit, generateEan13Barcode, isValidEan13 };
