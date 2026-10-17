@@ -58,6 +58,10 @@
 	- Decisions: Category VAT and commission percentages are optional; category commission is always disabled. Brand logos are PNG/JPEG/WebP images up to 2 MB stored on brand records. Keep seeded units available and support manually adding units; prevent deleting categories, brands, or units referenced by products. Audit all writes.
 	- Validation: Full backend Jest suite passes (10 suites, 42 tests).
 - [ ] 2.2
+- [x] 2.2a Products API
+	- Files: Product list/detail/create/update API, generated unique barcodes, settings-based margin warnings, price history and audit records, and product model/integration tests.
+	- Decisions: Product writes require `products:write`; updates change current product pricing only and do not rewrite sales. Margin warnings compare rounded margin with the configured shareholder discount amount.
+	- Validation: Full backend Jest suite passes (11 suites, 47 tests).
 - [ ] 2.3
 - [ ] 2.4
 - [ ] 3.1

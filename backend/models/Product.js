@@ -12,7 +12,11 @@ const productSchema = new mongoose.Schema({
   margin: { type: Number, min: 0 },
   vatApplicable: { type: Boolean, default: false },
   vatRate: { type: Number, min: 0, max: 100 },
-  barcode: { type: String, trim: true },
+  barcode: {
+    type: String,
+    trim: true,
+    default: () => `PB${new mongoose.Types.ObjectId().toString().toUpperCase()}`,
+  },
   sku: { type: String, trim: true },
   listedOnline: { type: Boolean, default: false },
 }, { timestamps: true });

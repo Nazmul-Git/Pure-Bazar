@@ -48,6 +48,24 @@ describe('Mongoose models', () => {
     expect(category.commissionEnabled).toBe(false);
   });
 
+  it('generates a barcode and enforces barcode uniqueness', async () => {
+    const product = new models.Product({
+      name: 'Rice',
+      categoryId: objectId(),
+      unitId: objectId(),
+      ownerType: 'COMPANY',
+      vendorPrice: 99,
+      mrp: 120,
+    });
+
+    await product.validate();
+
+    expect(product.barcode).toMatch(/^PB[0-9A-F]{24}$/);
+    expect(models.Product.schema.indexes().some(([fields, options]) => (
+      fields.barcode === 1 && options.unique
+    ))).toBe(true);
+  });
+
   it('requires a reason for stock adjustments', async () => {
     const adjustment = new models.StockAdjustment({
       warehouseId: objectId(),
