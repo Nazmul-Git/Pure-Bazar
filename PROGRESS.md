@@ -53,6 +53,10 @@
 	- Decisions: Keep structured receipt, role-discount, and outlet settings editable as validated JSON; prevent saving defaults if settings fail to load; show only Probashi status, never credentials.
 	- Validation: Frontend production build passes; focused settings and audit API tests pass (1 suite, 5 tests).
 - [ ] 2.1
+- [x] 2.1a Category brand unit API
+	- Files: Inventory CRUD controller/routes, brand logo upload middleware and model fields, server route registration, and inventory API integration tests.
+	- Decisions: Category VAT and commission percentages are optional; category commission is always disabled. Brand logos are PNG/JPEG/WebP images up to 2 MB stored on brand records. Keep seeded units available and support manually adding units; prevent deleting categories, brands, or units referenced by products. Audit all writes.
+	- Validation: Full backend Jest suite passes (10 suites, 42 tests).
 - [ ] 2.2
 - [ ] 2.3
 - [ ] 2.4
