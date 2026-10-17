@@ -15,6 +15,7 @@ const money = (value) => new Intl.NumberFormat('en-BD', {
 const columns = [
   { key: 'name', label: 'Product' },
   { key: 'barcode', label: 'Barcode' },
+  { key: 'sku', label: 'SKU' },
   { key: 'ownerType', label: 'Owner', render: (value) => value === 'VENDOR' ? 'Vendor' : 'Company' },
   { key: 'vendorPrice', label: 'Vendor price', render: money },
   { key: 'mrp', label: 'MRP', render: money },
@@ -61,7 +62,9 @@ export default function ProductsPage() {
   const visibleProducts = useMemo(() => {
     const query = search.trim().toLowerCase();
     if (!query) return products;
-    return products.filter((product) => `${product.name} ${product.barcode}`.toLowerCase().includes(query));
+    return products.filter((product) => (
+      `${product.name} ${product.barcode} ${product.sku || ''}`.toLowerCase().includes(query)
+    ));
   }, [products, search]);
 
   async function addProduct(payload) {
@@ -86,7 +89,7 @@ export default function ProductsPage() {
 
       {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
       <div className="max-w-sm">
-        <Input label="Search products" name="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Name or barcode" />
+        <Input label="Search products" name="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Name, barcode, or SKU" />
         <Search size={16} aria-hidden="true" className="pointer-events-none relative -mt-7 ml-auto mr-3 text-slate-400" />
       </div>
       <Table columns={columns} rows={visibleProducts} rowKey="id" emptyMessage={search ? 'No products match your search.' : 'No products found.'} />

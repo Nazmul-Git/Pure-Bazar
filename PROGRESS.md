@@ -74,6 +74,10 @@
 	- Files: EAN-13 barcode and linked SKU generation/validation, collision-aware product identifier migration command, and identifier/model tests.
 	- Decisions: Generate SKUs as `PB-<EAN-13>`; preserve existing non-empty SKUs and already-valid EAN-13 barcodes during migration. Run the migration explicitly with `--apply` against the intended database.
 	- Validation: Full backend Jest suite passes (12 suites, 51 tests).
+- [x] 2.2d SKU column
+	- Files: Added SKU next to Barcode in All Products and included SKU in product search.
+	- Decisions: Search is case-insensitive across product name, barcode, and SKU.
+	- Validation: Frontend production build passes.
 - [ ] 2.3
 - [ ] 2.4
 - [ ] 3.1
