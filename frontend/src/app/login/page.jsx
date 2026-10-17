@@ -3,14 +3,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react';
-import { useDispatch, useSelector } from 'react-redux';
 import Button from '@/components/ui/button';
-import { clearAuthError, loginUser } from '@/store/auth-slice';
+import useAuth from '@/store/use-auth';
 
 export default function LoginPage() {
-  const dispatch = useDispatch();
   const router = useRouter();
-  const { error, status } = useSelector((state) => state.auth);
+  const { error, status, login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -18,9 +16,8 @@ export default function LoginPage() {
 
   async function handleSubmit(event) {
     event.preventDefault();
-    dispatch(clearAuthError());
     try {
-      await dispatch(loginUser({ email, password })).unwrap();
+      await login({ email, password });
       router.replace('/dashboard');
     } catch {
       // The auth slice holds the server or connection error for display.

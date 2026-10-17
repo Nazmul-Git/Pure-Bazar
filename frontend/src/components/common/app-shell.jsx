@@ -1,16 +1,46 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import Header from './header';
 import Sidebar from './sidebar';
-import { getCurrentSection } from './navigation';
+import { getCurrentSection, getRoutePermissions } from './navigation';
+import useAuth from '@/store/use-auth';
+import { restoreAuth } from '@/store/auth-slice';
 
 export default function AppShell({ children }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const dispatch = useDispatch();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { initialized, isAuthenticated, canAccess } = useAuth();
 
-  if (pathname === '/login') return children;
+  useEffect(() => {
+    dispatch(restoreAuth());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (!initialized) return;
+    if (pathname === '/login' && isAuthenticated) router.replace('/dashboard');
+    if (pathname !== '/login' && !isAuthenticated) router.replace('/login');
+  }, [initialized, isAuthenticated, pathname, router]);
+
+  if (!initialized) {
+    return <main className="auth-status" role="status">Checking your session...</main>;
+  }
+  if (pathname === '/login') return isAuthenticated ? null : children;
+  if (!isAuthenticated) return <main className="auth-status" role="status">Redirecting to sign in...</main>;
+  if (!canAccess(getRoutePermissions(pathname))) {
+    return (
+      <main className="auth-status">
+        <section className="access-denied">
+          <h1>Access denied</h1>
+          <p>Your role does not have permission to view this page.</p>
+        </section>
+      </main>
+    );
+  }
 
   return (
     <div className="app-shell">

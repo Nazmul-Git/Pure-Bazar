@@ -37,8 +37,9 @@
 	- Validation: Full backend Jest suite passes (6 suites, 20 tests).
 - [x] 1.3 Auth endpoints and frontend login
 	- Files: Auth login/me/logout routes and controller, JWT bearer auth with audit events, endpoint integration tests, Redux Toolkit auth slice, API token header management, and responsive login page.
-	- Decisions: Login uses normalized email plus bcrypt; successful login returns a short-lived JWT in the response body and Authorization header; /me and logout require a bearer token.
-	- Validation: Backend tests pass (7 suites, 23 tests); frontend production build passes, including /login.
+	- Files: Added the useAuth hook, session restoration through /auth/me, protected routes, permission-filtered navigation, and sign-out controls; completed the API-backed role and user screens with administration tabs.
+	- Decisions: Keep the short-lived JWT in sessionStorage across reloads; use the backend role permissions for menu and route visibility, and restrict role administration to Super Admin.
+	- Validation: Backend tests pass (7 suites, 23 tests); frontend production build passes. Playwright browser flow verified sign-in, sign-out, session restore, live role/user API pages, route denial, and 9 Super Admin menus versus 2 cashier menus.
 - [x] 1.4 Users and roles management
 	- Files: Super Admin-only users/roles CRUD APIs with input validation, hashed passwords, audit events, integration tests, and API-backed frontend management pages.
 	- Decisions: Protect the Super Admin role from modification/deletion; prevent deleting assigned roles and the signed-in user; expose user records without password hashes.

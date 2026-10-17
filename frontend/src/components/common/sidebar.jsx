@@ -4,9 +4,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { X } from 'lucide-react';
 import { navigationItems } from './navigation';
+import useAuth from '@/store/use-auth';
 
 export default function Sidebar({ open, onClose }) {
   const pathname = usePathname();
+  const { canAccess } = useAuth();
+  const visibleItems = navigationItems.filter((item) => canAccess(item.permissions));
 
   return (
     <>
@@ -23,7 +26,7 @@ export default function Sidebar({ open, onClose }) {
         </div>
         <nav className="sidebar-nav">
           <p className="nav-caption">WORKSPACE</p>
-          {navigationItems.map(({ label, href, icon: Icon }) => {
+          {visibleItems.map(({ label, href, icon: Icon }) => {
             const section = href.split('/')[1];
             const active = pathname === href || pathname.startsWith(`/${section}/`);
             return (

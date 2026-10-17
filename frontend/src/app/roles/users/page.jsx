@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useSelector } from 'react-redux';
 import { Pencil, Plus, Trash2, Users } from 'lucide-react';
 import { Badge, Button, Input, Modal, Select } from '@/components/ui';
@@ -95,6 +96,11 @@ export default function RoleUsersPage() {
           <Plus size={17} /> Add user
         </Button>
       </div>
+
+      <nav aria-label="Role administration" className="flex gap-5 border-b border-slate-200">
+        <Link href="/roles/manage" className="pb-3 text-sm font-medium text-slate-500 hover:text-slate-900">Roles</Link>
+        <Link href="/roles/users" aria-current="page" className="border-b-2 border-blue-600 pb-3 text-sm font-semibold text-blue-700">Users</Link>
+      </nav>
 
       {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
 

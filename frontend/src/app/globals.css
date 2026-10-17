@@ -175,6 +175,12 @@ a { color: inherit; text-decoration: none; }
 .login-submit:disabled { opacity: .62; }
 .login-error { background: #fff0ef; border-left: 3px solid #b54141; color: #9e3636; font-size: 12px; line-height: 1.5; margin: -5px 0 0; padding: 10px 12px; }
 .login-security-note { align-items: center; color: #849189; display: flex; font-size: 11px; gap: 7px; justify-content: center; margin: 24px 0 0; }
+.auth-status { align-items: center; display: flex; justify-content: center; min-height: 100vh; padding: 24px; }
+.access-denied { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); max-width: 440px; padding: 28px; text-align: center; }
+.access-denied h1 { font-size: 20px; margin: 0 0 8px; }
+.access-denied p { color: var(--muted); line-height: 1.6; margin: 0; }
+.user-menu-error { background: var(--red-pale); color: var(--red); font-size: 11px; line-height: 1.5; margin: 7px 3px; padding: 8px; }
+.user-menu-logout { justify-content: flex-start; margin-top: 3px; width: 100%; }
 
 @media (max-width: 760px) {
   .sidebar { transform: translateX(-100%); transition: transform .2s ease; width: min(290px, 86vw); }
