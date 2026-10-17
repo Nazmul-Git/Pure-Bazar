@@ -5,6 +5,7 @@ const request = require('supertest');
 
 jest.mock('../models', () => ({
   AuditLog: { create: jest.fn() },
+  Location: { exists: jest.fn() },
   Role: {
     create: jest.fn(),
     exists: jest.fn(),
@@ -23,7 +24,9 @@ jest.mock('../models', () => ({
   },
 }));
 
-const { AuditLog, Role, User } = require('../models');
+const {
+  AuditLog, Location, Role, User,
+} = require('../models');
 const roleRoutes = require('../routes/roleRoutes');
 const userRoutes = require('../routes/userRoutes');
 const errorMiddleware = require('../middlewares/errorMiddleware');
@@ -68,6 +71,7 @@ describe('users and roles endpoints', () => {
     process.env.JWT_SECRET = secret;
     jest.clearAllMocks();
     AuditLog.create.mockResolvedValue({});
+    Location.exists.mockResolvedValue(true);
     User.findById.mockReturnValue({ populate: jest.fn().mockResolvedValue(admin) });
     User.find.mockReturnValue(chain([]));
     Role.find.mockReturnValue(chain([]));
@@ -121,6 +125,31 @@ describe('users and roles endpoints', () => {
     expect(removed.status).toBe(200);
     expect(AuditLog.create).toHaveBeenCalledWith(expect.objectContaining({ action: 'UPDATE', entity: 'User' }));
     expect(AuditLog.create).toHaveBeenCalledWith(expect.objectContaining({ action: 'DELETE', entity: 'User' }));
+  });
+
+  it('stores and returns a user location assignment', async () => {
+    User.create.mockResolvedValue({
+      _id: createdUserId,
+      name: 'Outlet User',
+      email: 'outlet@example.test',
+      roleId,
+      locationId: '65b000000000000000000004',
+      isActive: true,
+    });
+    const response = await request(app).post('/api/users').set(auth).send({
+      name: 'Outlet User',
+      email: 'outlet@example.test',
+      password: 'long-password',
+      roleId,
+      locationId: '65b000000000000000000004',
+    });
+
+    expect(response.status).toBe(201);
+    expect(User.create).toHaveBeenCalledWith(expect.objectContaining({
+      locationId: '65b000000000000000000004',
+    }));
+    expect(response.body.user.locationId).toBe('65b000000000000000000004');
+    expect(Location.exists).toHaveBeenCalledWith({ _id: '65b000000000000000000004' });
   });
 
   it('creates, updates, and deletes roles with audit records', async () => {

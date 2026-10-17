@@ -11,6 +11,7 @@ const userFields = [
   body('name').isString().trim().isLength({ min: 2, max: 100 }).withMessage('Name must be 2 to 100 characters'),
   body('email').isEmail().normalizeEmail().withMessage('A valid email is required'),
   body('roleId').isMongoId().withMessage('A valid role is required'),
+  body('locationId').optional({ nullable: true }).isMongoId().withMessage('A valid location is required'),
   body('isActive').optional().isBoolean().toBoolean(),
 ];
 

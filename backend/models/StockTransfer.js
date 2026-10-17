@@ -14,9 +14,13 @@ const stockTransferSchema = new mongoose.Schema({
   status: { type: String, enum: ['Requested', 'Dispatched', 'Received', 'Discrepancy'], default: 'Requested' },
   lines: { type: [stockTransferLineSchema], required: true, validate: (lines) => lines.length > 0 },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  dispatchedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   receivedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  dispatchedAt: { type: Date },
+  receivedAt: { type: Date },
 }, { timestamps: true });
 
-stockTransferSchema.index({ createdAt: 1 });
+stockTransferSchema.index({ fromWarehouseId: 1, status: 1, createdAt: -1 });
+stockTransferSchema.index({ toWarehouseId: 1, status: 1, createdAt: -1 });
 
 module.exports = mongoose.models.StockTransfer || mongoose.model('StockTransfer', stockTransferSchema);

@@ -1,11 +1,12 @@
 const bcrypt = require('bcryptjs');
 const dotenv = require('dotenv');
+const path = require('path');
 const mongoose = require('mongoose');
 const connectDB = require('../config/db');
 const {
   Role, User, Unit, Category, Settings, Location,
 } = require('../models');
-
+dotenv.config({ path: path.join(__dirname, '../.env') });
 dotenv.config();
 
 const ROLE_SEEDS = [
@@ -14,13 +15,16 @@ const ROLE_SEEDS = [
     'dashboard:read', 'products:read', 'products:write', 'categories:read', 'categories:write',
     'brands:read', 'brands:write', 'units:read', 'units:write', 'stock:read', 'stock:write',
     'warehouse:read', 'warehouse:write', 'reports:sales-stock:read',
+    'stock:transfer:read', 'stock:transfer:write', 'stock:transfer:receive',
   ] },
   { name: 'Warehouse Staff', permissions: [
     'dashboard:read', 'products:read', 'stock:read', 'stock:write', 'warehouse:read', 'warehouse:write',
+    'stock:transfer:read', 'stock:transfer:write',
   ] },
   { name: 'Outlet Cashier', permissions: [
     'dashboard:read', 'pos:read', 'pos:write', 'orders:read', 'orders:write',
     'returns:read', 'returns:write', 'shifts:read', 'shifts:write',
+    'stock:transfer:read', 'stock:transfer:receive',
   ] },
   { name: 'Finance', permissions: [
     'dashboard:read', 'finance:read', 'finance:write', 'expenses:read', 'expenses:write',
@@ -74,9 +78,17 @@ async function seedDatabase() {
   const password = process.env.SUPER_ADMIN_PASSWORD;
   if (!password) throw new Error('SUPER_ADMIN_PASSWORD is required');
 
-  const roleOperations = ROLE_SEEDS.map((role) => ({
-    updateOne: { filter: { name: role.name }, update: { $setOnInsert: role }, upsert: true },
-  }));
+  const roleOperations = ROLE_SEEDS.map((role) => {
+    const transferPermissions = role.permissions.filter((permission) => permission.startsWith('stock:transfer:'));
+    const update = {
+      $setOnInsert: {
+        ...role,
+        permissions: role.permissions.filter((permission) => !permission.startsWith('stock:transfer:')),
+      },
+    };
+    if (transferPermissions.length) update.$addToSet = { permissions: { $each: transferPermissions } };
+    return { updateOne: { filter: { name: role.name }, update, upsert: true } };
+  });
   await Role.bulkWrite(roleOperations);
 
   await Unit.bulkWrite(UNIT_SEEDS.map((unit) => ({

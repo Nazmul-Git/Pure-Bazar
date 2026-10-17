@@ -3,6 +3,7 @@ const { body, param, query } = require('express-validator');
 const goodsReceiveController = require('../controllers/goodsReceiveController');
 const locationRoutes = require('./locationRoutes');
 const stockController = require('../controllers/stockController');
+const stockTransferController = require('../controllers/stockTransferController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const authorizeMiddleware = require('../middlewares/authorizeMiddleware');
 const validateRequest = require('../middlewares/validateRequest');
@@ -25,10 +26,47 @@ const vendorId = body('vendorId').optional({ nullable: true }).isMongoId()
   .withMessage('A valid vendor ID is required');
 const challan = body('vendorChallanNumber').optional({ nullable: true }).isString().trim().isLength({ max: 100 })
   .withMessage('Challan number must be at most 100 characters');
+const transferId = param('id').isMongoId().withMessage('A valid stock transfer ID is required');
+const transferLines = body('lines').isArray({ min: 1 }).withMessage('At least one product line is required');
+const transferProduct = body('lines.*.productId').isMongoId().withMessage('A valid product ID is required');
 
 router.get('/stock', read, [
   query('warehouseId').isMongoId().withMessage('A valid warehouse ID is required'),
 ], validateRequest, stockController.getWarehouseStock);
+router.get('/stock-transfers', [
+  authMiddleware, authorizeMiddleware({ permissions: ['stock:transfer:read'] }),
+  query('status').optional().isIn(['Requested', 'Dispatched', 'Received', 'Discrepancy'])
+    .withMessage('A valid transfer status is required'),
+], validateRequest, stockTransferController.listTransfers);
+router.post('/stock-transfers', [
+  authMiddleware, authorizeMiddleware({ permissions: ['stock:transfer:write'] }),
+  body('fromWarehouseId').isMongoId().withMessage('A valid source warehouse ID is required'),
+  body('toWarehouseId').isMongoId().withMessage('A valid destination outlet ID is required'),
+  transferLines,
+  transferProduct,
+  body('lines.*.requestedQuantity').isFloat({ min: 0.000001 }).toFloat()
+    .withMessage('Requested quantity must be greater than zero'),
+], validateRequest, stockTransferController.createTransfer);
+router.get('/stock-transfers/:id', [
+  authMiddleware, authorizeMiddleware({ permissions: ['stock:transfer:read'] }),
+  transferId,
+], validateRequest, stockTransferController.getTransfer);
+router.post('/stock-transfers/:id/dispatch', [
+  authMiddleware, authorizeMiddleware({ permissions: ['stock:transfer:write'] }),
+  transferId,
+  transferLines,
+  transferProduct,
+  body('lines.*.dispatchedQuantity').isFloat({ min: 0 }).toFloat()
+    .withMessage('Dispatched quantity must be zero or greater'),
+], validateRequest, stockTransferController.dispatchTransfer);
+router.post('/stock-transfers/:id/receive', [
+  authMiddleware, authorizeMiddleware({ permissions: ['stock:transfer:receive'] }),
+  transferId,
+  transferLines,
+  transferProduct,
+  body('lines.*.receivedQuantity').isFloat({ min: 0 }).toFloat()
+    .withMessage('Received quantity must be zero or greater'),
+], validateRequest, stockTransferController.receiveTransfer);
 router.get('/stock/products', read, [
   query('ownerType').isIn(['COMPANY', 'VENDOR']).withMessage('Owner type must be COMPANY or VENDOR'),
   query('vendorId').if(query('ownerType').equals('VENDOR')).isMongoId()

@@ -92,6 +92,10 @@
 	- Decisions: Use `CENTRAL`/`OUTLET` location types and load the seeded Central Warehouse ID automatically for both GRN creation and warehouse stock; expose vendor labels for historical GRNs while offering active vendors for new receipts.
 	- Validation: Frontend production build passes; focused backend tests pass (4 suites, 22 tests) covering locations, GRN/vendor APIs, model validation, and seed data.
 - [ ] 2.4
+- [x] 2.4a Transfer API
+	- Files: Central-to-outlet transfer requests, transactional dispatch/receipt stock movements, discrepancy tracking, per-location role scoping, user location assignment, and transfer integration tests.
+	- Decisions: Dispatch deducts actual dispatched quantities; outlet receipt posts actual received quantities. Any difference is recorded on the transfer, with no balancing stock movement.
+	- Validation: Full backend Jest suite passes (15 suites, 68 tests); exact transfers preserve total stock after receipt, shortage discrepancy is reconciled against the missing quantity, and cross-outlet reads/unauthorized dispatch are rejected.
 - [ ] 3.1
 - [ ] 3.2
 - [ ] 3.3
