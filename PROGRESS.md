@@ -104,6 +104,10 @@
 	- Files: Idempotent Central Warehouse model upsert used by the default seeder; central-location validation for GRN create/update; Location references for GRN, stock movement, and transfer warehouse fields; seeder, model, and GRN regression tests.
 	- Decisions: Keep seed execution explicit and idempotent; only accept existing CENTRAL locations for GRNs so movement-derived warehouse stock always uses the seeded warehouse.
 	- Validation: Seeder, model, location, GRN/stock, and outlet transfer tests pass (5 suites, 28 tests).
+- [x] 2.4d Fix roles seeder
+	- Files: Conflict-free, idempotent role permission updates; idempotent Demo Outlet creation alongside Central Warehouse; repeat-seeding regression test.
+	- Decisions: Seed all role permissions via `$addToSet` and initialize only the role name via `$setOnInsert`, avoiding overlapping update paths.
+	- Validation: Full backend Jest suite passes (15 suites, 72 tests); the seeder was not run against a database.
 - [ ] 3.1
 - [ ] 3.2
 - [ ] 3.3

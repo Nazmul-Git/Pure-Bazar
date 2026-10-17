@@ -78,14 +78,10 @@ async function seedDatabase() {
   if (!password) throw new Error('SUPER_ADMIN_PASSWORD is required');
 
   const roleOperations = ROLE_SEEDS.map((role) => {
-    const transferPermissions = role.permissions.filter((permission) => permission.startsWith('stock:transfer:'));
     const update = {
-      $setOnInsert: {
-        ...role,
-        permissions: role.permissions.filter((permission) => !permission.startsWith('stock:transfer:')),
-      },
+      $setOnInsert: { name: role.name },
+      $addToSet: { permissions: { $each: role.permissions } },
     };
-    if (transferPermissions.length) update.$addToSet = { permissions: { $each: transferPermissions } };
     return { updateOne: { filter: { name: role.name }, update, upsert: true } };
   });
   await Role.bulkWrite(roleOperations);
@@ -98,6 +94,11 @@ async function seedDatabase() {
   })));
 
   await Location.ensureCentralWarehouse();
+  await Location.updateOne(
+    { type: 'OUTLET', name: 'Demo Outlet' },
+    { $setOnInsert: { type: 'OUTLET', name: 'Demo Outlet' } },
+    { upsert: true, runValidators: true },
+  );
 
   await Settings.updateOne(
     { singleton: 'global' },
@@ -125,7 +126,12 @@ async function seedDatabase() {
     roles: await Role.countDocuments({ name: { $in: ROLE_SEEDS.map(({ name }) => name) } }),
     units: await Unit.countDocuments({ name: { $in: UNIT_SEEDS.map(({ name }) => name) } }),
     categories: await Category.countDocuments({ name: { $in: CATEGORY_SEEDS } }),
-    locations: await Location.countDocuments({ type: 'CENTRAL', name: 'Central Warehouse' }),
+    locations: await Location.countDocuments({
+      $or: [
+        { type: 'CENTRAL', name: 'Central Warehouse' },
+        { type: 'OUTLET', name: 'Demo Outlet' },
+      ],
+    }),
     settings: await Settings.countDocuments({ singleton: 'global' }),
     users: await User.countDocuments({ email: (process.env.SUPER_ADMIN_EMAIL || 'admin@purebazar.local').toLowerCase() }),
   };

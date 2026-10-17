@@ -4,7 +4,9 @@ jest.mock('../models', () => ({
   Unit: { bulkWrite: jest.fn(), countDocuments: jest.fn() },
   Category: { bulkWrite: jest.fn(), countDocuments: jest.fn() },
   Settings: { updateOne: jest.fn(), countDocuments: jest.fn() },
-  Location: { ensureCentralWarehouse: jest.fn(), countDocuments: jest.fn() },
+  Location: {
+    ensureCentralWarehouse: jest.fn(), updateOne: jest.fn(), countDocuments: jest.fn(),
+  },
 }));
 
 const { Role, User, Unit, Category, Settings, Location } = require('../models');
@@ -57,14 +59,35 @@ describe('default role seeder', () => {
     });
   });
 
-  it('ensures the Central Warehouse exists when seeding', async () => {
+  it('seeds roles without conflicting permission updates and ensures both locations', async () => {
+    Location.countDocuments.mockResolvedValue(2);
     const counts = await seedDatabase();
+    await seedDatabase();
 
-    expect(Location.ensureCentralWarehouse).toHaveBeenCalledTimes(1);
-    expect(Location.countDocuments).toHaveBeenCalledWith({
-      type: 'CENTRAL',
-      name: 'Central Warehouse',
+    const roleOperations = Role.bulkWrite.mock.calls[0][0];
+    roleOperations.forEach(({ updateOne: { update } }) => {
+      const pathsByOperator = Object.values(update).flatMap((operator) => Object.keys(operator));
+      expect(pathsByOperator).toHaveLength(new Set(pathsByOperator).size);
     });
-    expect(counts.locations).toBe(1);
+    expect(roleOperations[0].updateOne.update.$addToSet.permissions.$each).toContain('*');
+    expect(roleOperations[1].updateOne.update.$addToSet.permissions.$each).toContain(
+      'stock:transfer:read',
+    );
+
+    expect(Role.bulkWrite).toHaveBeenCalledTimes(2);
+    expect(Location.ensureCentralWarehouse).toHaveBeenCalledTimes(2);
+    expect(Location.updateOne).toHaveBeenCalledTimes(2);
+    expect(Location.updateOne).toHaveBeenNthCalledWith(1,
+      { type: 'OUTLET', name: 'Demo Outlet' },
+      { $setOnInsert: { type: 'OUTLET', name: 'Demo Outlet' } },
+      { upsert: true, runValidators: true },
+    );
+    expect(Location.countDocuments).toHaveBeenCalledWith({
+      $or: [
+        { type: 'CENTRAL', name: 'Central Warehouse' },
+        { type: 'OUTLET', name: 'Demo Outlet' },
+      ],
+    });
+    expect(counts.locations).toBe(2);
   });
 });
