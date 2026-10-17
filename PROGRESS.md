@@ -70,6 +70,10 @@
 	- Files: API-backed All Products table and Add New Product form with ownership, pricing, live margin warning, VAT, generated barcode, and category/brand/unit selectors with Quick Add.
 	- Decisions: Expose the configured margin-warning percentage with the product list response for matching live UI calculations; vendor-owned entry accepts a vendor record ID because the vendor directory API is not available yet.
 	- Validation: Frontend production build passes; product integration tests pass (1 suite, 4 tests); browser verified product form, Quick Add modal, and automatic margin warning.
+- [x] 2.2c Product barcode and SKU
+	- Files: EAN-13 barcode and linked SKU generation/validation, collision-aware product identifier migration command, and identifier/model tests.
+	- Decisions: Generate SKUs as `PB-<EAN-13>`; preserve existing non-empty SKUs and already-valid EAN-13 barcodes during migration. Run the migration explicitly with `--apply` against the intended database.
+	- Validation: Full backend Jest suite passes (12 suites, 51 tests).
 - [ ] 2.3
 - [ ] 2.4
 - [ ] 3.1

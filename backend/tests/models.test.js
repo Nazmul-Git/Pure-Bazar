@@ -48,7 +48,7 @@ describe('Mongoose models', () => {
     expect(category.commissionEnabled).toBe(false);
   });
 
-  it('generates a barcode and enforces barcode uniqueness', async () => {
+  it('generates a valid EAN-13 barcode and related SKU and enforces uniqueness', async () => {
     const product = new models.Product({
       name: 'Rice',
       categoryId: objectId(),
@@ -60,10 +60,31 @@ describe('Mongoose models', () => {
 
     await product.validate();
 
-    expect(product.barcode).toMatch(/^PB[0-9A-F]{24}$/);
+    expect(product.barcode).toMatch(/^\d{13}$/);
+    const weightedBody = [...product.barcode.slice(0, 12)].reduce((sum, digit, index) => (
+      sum + Number(digit) * (index % 2 === 0 ? 1 : 3)
+    ), 0);
+    expect((weightedBody + Number(product.barcode[12])) % 10).toBe(0);
+    expect(product.sku).toBe(`PB-${product.barcode}`);
     expect(models.Product.schema.indexes().some(([fields, options]) => (
       fields.barcode === 1 && options.unique
     ))).toBe(true);
+  });
+
+  it('rejects barcodes with an invalid EAN-13 check digit', async () => {
+    const product = new models.Product({
+      name: 'Rice',
+      categoryId: objectId(),
+      unitId: objectId(),
+      ownerType: 'COMPANY',
+      vendorPrice: 99,
+      mrp: 120,
+      barcode: '4006381333932',
+    });
+
+    await expect(product.validate()).rejects.toMatchObject({
+      errors: { barcode: expect.objectContaining({ message: 'Barcode must be a valid EAN-13 number' }) },
+    });
   });
 
   it('requires a reason for stock adjustments', async () => {

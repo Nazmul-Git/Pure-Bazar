@@ -33,7 +33,7 @@ function productSnapshot(product) {
   const data = productData(product);
   return Object.fromEntries([
     'name', 'categoryId', 'brandId', 'unitId', 'ownerType', 'vendorId',
-    'vendorPrice', 'mrp', 'margin', 'vatApplicable', 'vatRate', 'barcode',
+    'vendorPrice', 'mrp', 'margin', 'vatApplicable', 'vatRate', 'barcode', 'sku',
   ].filter((field) => data[field] !== undefined)
     .map((field) => [field, data[field]?.toString && field.endsWith('Id') ? data[field].toString() : data[field]]));
 }

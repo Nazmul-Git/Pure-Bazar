@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { generateEan13Barcode, generateSku, isValidEan13 } = require('../utils/productIdentifiers');
 
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
@@ -15,9 +16,19 @@ const productSchema = new mongoose.Schema({
   barcode: {
     type: String,
     trim: true,
-    default: () => `PB${new mongoose.Types.ObjectId().toString().toUpperCase()}`,
+    default: generateEan13Barcode,
+    validate: {
+      validator: isValidEan13,
+      message: 'Barcode must be a valid EAN-13 number',
+    },
   },
-  sku: { type: String, trim: true },
+  sku: {
+    type: String,
+    trim: true,
+    default() {
+      return generateSku(this.barcode);
+    },
+  },
   listedOnline: { type: Boolean, default: false },
 }, { timestamps: true });
 
