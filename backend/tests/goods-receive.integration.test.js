@@ -9,7 +9,7 @@ jest.mock('../models', () => ({
   Product: { find: jest.fn() },
   StockMovement: { aggregate: jest.fn(), create: jest.fn() },
   User: { findById: jest.fn() },
-  Vendor: { exists: jest.fn() },
+  Vendor: { exists: jest.fn(), find: jest.fn() },
 }));
 
 const { AuditLog, GoodsReceive, Product, StockMovement, User, Vendor } = require('../models');
@@ -90,6 +90,13 @@ describe('goods receive and movement-derived stock endpoints', () => {
     jest.spyOn(mongoose, 'startSession').mockResolvedValue(session);
     User.findById.mockReturnValue({ populate: jest.fn().mockResolvedValue(admin) });
     Vendor.exists.mockResolvedValue(true);
+    Vendor.find.mockReturnValue(productQuery([{
+      _id: new mongoose.Types.ObjectId(vendorId),
+      name: 'Example Vendor',
+      shopName: 'Example Shop',
+      memberId: 'V-001',
+      status: 'Active',
+    }]));
     Product.find.mockImplementation(() => productQuery([rice]));
     AuditLog.create.mockResolvedValue({});
     GoodsReceive.create.mockImplementation(async ([data]) => {
@@ -214,5 +221,15 @@ describe('goods receive and movement-derived stock endpoints', () => {
   it('restricts vendor product search to that vendor', async () => {
     await request(app).get(`/api/stock/products?ownerType=VENDOR&vendorId=${vendorId}`).set(auth);
     expect(Product.find).toHaveBeenCalledWith({ ownerType: 'VENDOR', vendorId });
+  });
+
+  it('returns active vendors for the GRN vendor selector', async () => {
+    const response = await request(app).get('/api/stock/vendors').set(auth);
+
+    expect(response.status).toBe(200);
+    expect(response.body.vendors).toEqual([expect.objectContaining({
+      id: vendorId, name: 'Example Vendor', shopName: 'Example Shop', memberId: 'V-001',
+    })]);
+    expect(Vendor.find).toHaveBeenCalledWith({});
   });
 });

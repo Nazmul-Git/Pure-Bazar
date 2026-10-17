@@ -11,6 +11,7 @@ module.exports = {
   StockTransfer: require('./StockTransfer'),
   StockAdjustment: require('./StockAdjustment'),
   StockCount: require('./StockCount'),
+  Location: require('./Location'),
   Order: require('./Order'),
   Return: require('./Return'),
   Vendor: require('./Vendor'),

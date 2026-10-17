@@ -2,7 +2,9 @@ const bcrypt = require('bcryptjs');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const connectDB = require('../config/db');
-const { Role, User, Unit, Category, Settings } = require('../models');
+const {
+  Role, User, Unit, Category, Settings, Location,
+} = require('../models');
 
 dotenv.config();
 
@@ -43,6 +45,7 @@ const UNIT_SEEDS = [
 ];
 
 const CATEGORY_SEEDS = ['Groceries', 'Beverages', 'Household', 'Personal Care'];
+const LOCATION_SEEDS = [{ type: 'CENTRAL', name: 'Central Warehouse' }];
 const SETTINGS_SEED = {
   singleton: 'global',
   shareholderDiscountPercent: 5,
@@ -83,6 +86,14 @@ async function seedDatabase() {
     updateOne: { filter: { name }, update: { $setOnInsert: { name } }, upsert: true },
   })));
 
+  await Location.bulkWrite(LOCATION_SEEDS.map((location) => ({
+    updateOne: {
+      filter: location,
+      update: { $setOnInsert: location },
+      upsert: true,
+    },
+  })));
+
   await Settings.updateOne(
     { singleton: 'global' },
     { $setOnInsert: SETTINGS_SEED },
@@ -109,6 +120,7 @@ async function seedDatabase() {
     roles: await Role.countDocuments({ name: { $in: ROLE_SEEDS.map(({ name }) => name) } }),
     units: await Unit.countDocuments({ name: { $in: UNIT_SEEDS.map(({ name }) => name) } }),
     categories: await Category.countDocuments({ name: { $in: CATEGORY_SEEDS } }),
+    locations: await Location.countDocuments({ type: 'CENTRAL', name: 'Central Warehouse' }),
     settings: await Settings.countDocuments({ singleton: 'global' }),
     users: await User.countDocuments({ email: (process.env.SUPER_ADMIN_EMAIL || 'admin@purebazar.local').toLowerCase() }),
   };
@@ -131,4 +143,6 @@ async function main() {
 
 if (require.main === module) main();
 
-module.exports = { ROLE_SEEDS, UNIT_SEEDS, CATEGORY_SEEDS, SETTINGS_SEED, assertTestDatabase, seedDatabase };
+module.exports = {
+  ROLE_SEEDS, UNIT_SEEDS, CATEGORY_SEEDS, LOCATION_SEEDS, SETTINGS_SEED, assertTestDatabase, seedDatabase,
+};

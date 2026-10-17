@@ -1,12 +1,14 @@
 const express = require('express');
 const { body, param, query } = require('express-validator');
 const goodsReceiveController = require('../controllers/goodsReceiveController');
+const locationRoutes = require('./locationRoutes');
 const stockController = require('../controllers/stockController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const authorizeMiddleware = require('../middlewares/authorizeMiddleware');
 const validateRequest = require('../middlewares/validateRequest');
 
 const router = express.Router();
+router.use(locationRoutes);
 const read = [authMiddleware, authorizeMiddleware({ permissions: ['stock:read'] })];
 const write = [authMiddleware, authorizeMiddleware({ permissions: ['stock:write'] })];
 const id = param('id').isMongoId().withMessage('A valid goods receive ID is required');
@@ -33,6 +35,7 @@ router.get('/stock/products', read, [
     .withMessage('Vendor purchases require a valid vendor ID'),
   query('q').optional().isString().trim().isLength({ max: 100 }).withMessage('Search must be at most 100 characters'),
 ], validateRequest, goodsReceiveController.searchProducts);
+router.get('/stock/vendors', read, goodsReceiveController.listVendors);
 router.get('/goods-receives', read, goodsReceiveController.listGoodsReceives);
 router.post('/goods-receives', write, [
   body('ownerType').isIn(['COMPANY', 'VENDOR']).withMessage('Owner type must be COMPANY or VENDOR'),

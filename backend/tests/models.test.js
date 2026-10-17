@@ -7,7 +7,7 @@ describe('Mongoose models', () => {
   it('registers every requested model', () => {
     expect(Object.keys(models).sort()).toEqual([
       'AuditLog', 'Brand', 'Category', 'DiscountLog', 'Employee', 'Expense', 'ExpenseCategory',
-      'GoodsReceive', 'Order', 'PriceHistory', 'Product', 'Return', 'Role', 'SalaryAdvance',
+      'GoodsReceive', 'Location', 'Order', 'PriceHistory', 'Product', 'Return', 'Role', 'SalaryAdvance',
       'SalarySheet', 'Settings', 'Shareholder', 'Shift', 'StockAdjustment', 'StockCount',
       'StockMovement', 'StockTransfer', 'Unit', 'User', 'Vendor', 'VendorLedger',
       'VendorStatement', 'WalletAuditLog', 'WalletLog',
@@ -118,6 +118,19 @@ describe('Mongoose models', () => {
     });
     await expect(grn.validate()).rejects.toMatchObject({
       errors: { lines: expect.objectContaining({ message: 'A product can only appear once on a goods receive' }) },
+    });
+  });
+
+  it('restricts locations to central warehouses or outlets and requires a name', async () => {
+    const central = new models.Location({ type: 'CENTRAL', name: 'Central Warehouse' });
+    const invalid = new models.Location({ type: 'WAREHOUSE', name: '' });
+
+    await expect(central.validate()).resolves.toBeUndefined();
+    await expect(invalid.validate()).rejects.toMatchObject({
+      errors: {
+        type: expect.objectContaining({ kind: 'enum' }),
+        name: expect.objectContaining({ kind: 'required' }),
+      },
     });
   });
 

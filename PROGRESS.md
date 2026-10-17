@@ -87,6 +87,10 @@
 	- Files: Movement-only warehouse stock aggregation, signed stock-movement quantities, transactional Goods Receive approval, vendor-scoped product search, GRN draft/edit/reject/print endpoints, and integration/model tests.
 	- Decisions: Merge repeated product lines into one GRN line; add accepted quantities as positive GRN movements only inside the approval transaction; remove the writable WarehouseStock model so stock has a single ledger source.
 	- Validation: Full backend Jest suite passes (13 suites, 59 tests); approval rollback, draft isolation, approved-GRN immutability, vendor filtering, printable GRN data, rejected receives, and direct stock-write absence covered.
+- [x] 2.3b GRN screens
+	- Files: New GRN form, GRN list/approval action, printable GRN view, Central Warehouse stock page, and stock API service; reusable Location model and authenticated locations API; active-vendor lookup for the GRN selector; idempotent Central Warehouse seed and focused tests.
+	- Decisions: Use `CENTRAL`/`OUTLET` location types and load the seeded Central Warehouse ID automatically for both GRN creation and warehouse stock; expose vendor labels for historical GRNs while offering active vendors for new receipts.
+	- Validation: Frontend production build passes; focused backend tests pass (4 suites, 22 tests) covering locations, GRN/vendor APIs, model validation, and seed data.
 - [ ] 2.4
 - [ ] 3.1
 - [ ] 3.2

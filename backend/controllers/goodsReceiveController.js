@@ -99,6 +99,27 @@ async function searchProducts(req, res, next) {
   }
 }
 
+async function listVendors(req, res, next) {
+  try {
+    const vendors = await Vendor.find({})
+      .select('_id name shopName memberId')
+      .sort({ name: 1 })
+      .lean();
+    return res.json({
+      success: true,
+      vendors: vendors.map((vendor) => ({
+        id: vendor._id.toString(),
+        name: vendor.name,
+        shopName: vendor.shopName,
+        memberId: vendor.memberId,
+        status: vendor.status,
+      })),
+    });
+  } catch (error) {
+    return next(error);
+  }
+}
+
 async function listGoodsReceives(req, res, next) {
   try {
     const receives = await GoodsReceive.find().sort({ createdAt: -1 }).lean();
@@ -249,6 +270,6 @@ async function rejectGoodsReceive(req, res, next) {
 }
 
 module.exports = {
-  searchProducts, listGoodsReceives, createGoodsReceive, updateGoodsReceive,
+  searchProducts, listVendors, listGoodsReceives, createGoodsReceive, updateGoodsReceive,
   getGoodsReceive, approveGoodsReceive, rejectGoodsReceive,
 };

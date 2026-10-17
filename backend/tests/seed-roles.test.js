@@ -1,4 +1,6 @@
-const { assertTestDatabase, ROLE_SEEDS, UNIT_SEEDS, CATEGORY_SEEDS, SETTINGS_SEED } = require('../seeders/seedRoles');
+const {
+  assertTestDatabase, ROLE_SEEDS, UNIT_SEEDS, CATEGORY_SEEDS, LOCATION_SEEDS, SETTINGS_SEED,
+} = require('../seeders/seedRoles');
 
 describe('default role seeder', () => {
   it('only permits database names containing a test segment', () => {
@@ -13,6 +15,7 @@ describe('default role seeder', () => {
     expect(ROLE_SEEDS[0].permissions).toContain('*');
     expect(UNIT_SEEDS.map(({ name }) => name)).toEqual(['Kg', 'Gram', 'Ltr', 'Pcs', 'Box', 'Pack', 'Dozen']);
     expect(CATEGORY_SEEDS.length).toBeGreaterThanOrEqual(3);
+    expect(LOCATION_SEEDS).toEqual([{ type: 'CENTRAL', name: 'Central Warehouse' }]);
     expect(SETTINGS_SEED).toMatchObject({
       shareholderDiscountPercent: 5,
       vatEnabled: false,
