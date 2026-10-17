@@ -130,11 +130,11 @@ describe('stock adjustment and count API', () => {
       }
       return {
         session: jest.fn(async () => {
-        const productIds = new Set(filter.productId.$in.map((id) => id.toString()));
+        const productIds = filter.productId.$in.filter((id) => id instanceof mongoose.Types.ObjectId);
         const stock = new Map();
         movements.filter((movement) => (
           movement.warehouseId.toString() === filter.warehouseId.toString()
-          && productIds.has(movement.productId.toString())
+          && productIds.some((id) => id.equals(movement.productId))
         )).forEach((movement) => {
           const id = movement.productId.toString();
           stock.set(id, (stock.get(id) || 0) + movement.quantity);
@@ -248,6 +248,62 @@ describe('stock adjustment and count API', () => {
     expect(response.body.message).toBe('Cannot remove more stock than is currently available at this location');
     expect(stockAt(ids.warehouse, ids.product)).toBe(10);
     expect(adjustments.size).toBe(0);
+  });
+
+  it.each([
+    [1, 22],
+    [23, 0],
+  ])('removes %i from location stock of 23 and leaves %i', async (quantity, expectedStock) => {
+    movements[0].quantity = 23;
+    Settings.findOne.mockReturnValue(query({ stockAdjustmentApprovalLimit: 1000 }));
+
+    const response = await request(app).post('/api/stock-adjustments').set(auth()).send({
+      warehouseId: ids.warehouse,
+      mode: 'REMOVE',
+      reason: 'Expired',
+      lines: [{ productId: ids.product, quantity }],
+    });
+
+    expect(response.status).toBe(201);
+    expect(response.body.stockAdjustment.status).toBe('Approved');
+    expect(stockAt(ids.warehouse, ids.product)).toBe(expectedStock);
+    expect(movements[movements.length - 1]).toMatchObject({
+      type: 'ADJUSTMENT',
+      quantity: -quantity,
+    });
+  });
+
+  it('rejects removing 24 from location stock of 23', async () => {
+    movements[0].quantity = 23;
+
+    const response = await request(app).post('/api/stock-adjustments').set(auth()).send({
+      warehouseId: ids.warehouse,
+      mode: 'REMOVE',
+      reason: 'Expired',
+      lines: [{ productId: ids.product, quantity: 24 }],
+    });
+
+    expect(response.status).toBe(409);
+    expect(response.body.message).toBe('Cannot remove more stock than is currently available at this location');
+    expect(stockAt(ids.warehouse, ids.product)).toBe(23);
+    expect(adjustments.size).toBe(0);
+  });
+
+  it('allows adding stock regardless of the current balance', async () => {
+    movements[0].quantity = 23;
+    Settings.findOne.mockReturnValue(query({ stockAdjustmentApprovalLimit: 1000 }));
+
+    const response = await request(app).post('/api/stock-adjustments').set(auth()).send({
+      warehouseId: ids.warehouse,
+      mode: 'ADD',
+      reason: 'Found extra stock',
+      lines: [{ productId: ids.product, quantity: 24 }],
+    });
+
+    expect(response.status).toBe(201);
+    expect(response.body.stockAdjustment.status).toBe('Approved');
+    expect(stockAt(ids.warehouse, ids.product)).toBe(47);
+    expect(movements[movements.length - 1]).toMatchObject({ type: 'ADJUSTMENT', quantity: 24 });
   });
 
   it('searches adjustment products on the server with location stock and remove-mode filtering', async () => {

@@ -124,6 +124,10 @@
 	- Files: Server-searched, barcode-scannable stock adjustment picker; location-aware stock results; mode-based positive quantities; reason/mode API validation and integration tests.
 	- Decisions: Reuse the stock product search endpoint and barcode scanner hook; cap adjustment search at 10 results; enforce location stock and reason compatibility on the server.
 	- Validation: Full backend tests pass (17 suites, 81 tests); frontend production build passes.
+- [x] 2.5d Fix remove stock check
+	- Files: Cast product IDs to ObjectIds when matching stock movement aggregates; added removal-boundary and stock-addition API regression tests.
+	- Decisions: Keep frontend quantities positive and apply the mode sign once in the API; compare removals against movement-derived stock at the selected location.
+	- Validation: Full backend Jest suite passes (17 suites, 85 tests).
 - [ ] 3.1
 - [ ] 3.2
 - [ ] 3.3

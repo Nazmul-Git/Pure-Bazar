@@ -33,7 +33,12 @@ async function loadProducts(productIds, session) {
 
 async function currentStock(warehouseId, productIds, session) {
   const stock = await StockMovement.aggregate([
-    { $match: { warehouseId: new mongoose.Types.ObjectId(warehouseId), productId: { $in: productIds } } },
+    {
+      $match: {
+        warehouseId: new mongoose.Types.ObjectId(warehouseId),
+        productId: { $in: productIds.map((productId) => new mongoose.Types.ObjectId(productId)) },
+      },
+    },
     { $group: { _id: '$productId', quantity: { $sum: '$quantity' } } },
   ]).session(session);
   return new Map(stock.map(({ _id, quantity }) => [_id.toString(), quantity]));
