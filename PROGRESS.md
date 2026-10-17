@@ -91,6 +91,10 @@
 	- Files: New GRN form, GRN list/approval action, printable GRN view, Central Warehouse stock page, and stock API service; reusable Location model and authenticated locations API; active-vendor lookup for the GRN selector; idempotent Central Warehouse seed and focused tests.
 	- Decisions: Use `CENTRAL`/`OUTLET` location types and load the seeded Central Warehouse ID automatically for both GRN creation and warehouse stock; expose vendor labels for historical GRNs while offering active vendors for new receipts.
 	- Validation: Frontend production build passes; focused backend tests pass (4 suites, 22 tests) covering locations, GRN/vendor APIs, model validation, and seed data.
+- [x] 2.3c Company purchase GRN
+	- Files: Added Company purchase and Vendor purchase selection to the GRN form, with owner-matched product search and vendor/challan fields required only for vendor receipts; extended GRN integration tests.
+	- Decisions: Default new GRNs to Company purchase so company-owned products can be received without a vendor; keep vendor receipts scoped to the selected vendor.
+	- Validation: Goods receive integration tests pass (1 suite, 10 tests); frontend production build passes.
 - [ ] 2.4
 - [x] 2.4a Transfer API
 	- Files: Central-to-outlet transfer requests, transactional dispatch/receipt stock movements, discrepancy tracking, per-location role scoping, user location assignment, and transfer integration tests.

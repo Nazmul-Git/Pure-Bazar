@@ -25,6 +25,7 @@ export default function GoodsReceiveForm() {
   const [location, setLocation] = useState(null);
   const [vendors, setVendors] = useState([]);
   const [stock, setStock] = useState([]);
+  const [ownerType, setOwnerType] = useState('COMPANY');
   const [vendorId, setVendorId] = useState('');
   const [challan, setChallan] = useState('');
   const [search, setSearch] = useState('');
@@ -56,24 +57,28 @@ export default function GoodsReceiveForm() {
   }, [canRead, initialized, token]);
 
   useEffect(() => {
-    if (!token || !vendorId || search.trim().length < 2) {
+    if (!token || (ownerType === 'VENDOR' && !vendorId) || search.trim().length < 2) {
       setMatches([]);
       setSearchError('');
       return undefined;
     }
     let active = true;
     const timeout = setTimeout(() => {
-      searchReceiveProducts(token, { vendorId, q: search.trim() })
+      searchReceiveProducts(token, {
+        ownerType,
+        ...(ownerType === 'VENDOR' ? { vendorId } : {}),
+        q: search.trim(),
+      })
         .then((response) => active && setMatches(response.data.products))
         .catch((requestError) => active && setSearchError(
-          requestError.response?.data?.message || 'Unable to search vendor products.',
+          requestError.response?.data?.message || 'Unable to search products.',
         ));
     }, 250);
     return () => {
       active = false;
       clearTimeout(timeout);
     };
-  }, [search, token, vendorId]);
+  }, [ownerType, search, token, vendorId]);
 
   const stockByProduct = useMemo(
     () => new Map(stock.map((item) => [item.productId, Number(item.quantity) || 0])),
@@ -111,8 +116,10 @@ export default function GoodsReceiveForm() {
   async function submit(event) {
     event.preventDefault();
     setError('');
-    if (!location || !vendorId || !challan.trim() || lines.length === 0) {
-      setError('Select a vendor, enter the challan number, and add at least one product.');
+    if (!location || (ownerType === 'VENDOR' && (!vendorId || !challan.trim())) || lines.length === 0) {
+      setError(ownerType === 'VENDOR'
+        ? 'Select a vendor, enter the challan number, and add at least one product.'
+        : 'Add at least one company product.');
       return;
     }
     const validLines = lines.every((line) => (
@@ -129,10 +136,9 @@ export default function GoodsReceiveForm() {
     setSaving(true);
     try {
       await createGoodsReceive(token, {
-        ownerType: 'VENDOR',
-        vendorId,
+        ownerType,
+        ...(ownerType === 'VENDOR' ? { vendorId, vendorChallanNumber: challan.trim() } : {}),
         warehouseId: location.id,
-        vendorChallanNumber: challan.trim(),
         lines: lines.map((line) => ({
           productId: line.productId,
           receivedQuantity: Number(line.receivedQuantity),
@@ -160,7 +166,7 @@ export default function GoodsReceiveForm() {
           </Link>
           <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Inventory</p>
           <h1 className="text-2xl font-semibold text-slate-900">New Goods Receive</h1>
-          <p className="mt-1 text-sm text-slate-600">Receive vendor goods into {location?.name}.</p>
+          <p className="mt-1 text-sm text-slate-600">Receive goods into {location?.name}.</p>
         </div>
         <Button type="submit" disabled={saving || !location}>
           {saving ? 'Saving...' : 'Save Draft'}
@@ -172,46 +178,69 @@ export default function GoodsReceiveForm() {
       <Card title="Receive details" description="The selected Central Warehouse is loaded automatically.">
         <div className="grid gap-4 md:grid-cols-2">
           <Select
-            label="Vendor"
-            name="vendorId"
-            value={vendorId}
+            label="Purchase type"
+            name="ownerType"
+            value={ownerType}
             onChange={(event) => {
-              setVendorId(event.target.value);
+              setOwnerType(event.target.value);
+              setVendorId('');
+              setChallan('');
               setLines([]);
               setMatches([]);
               setSearch('');
             }}
-            required
           >
-            <option value="">Select a vendor</option>
-            {activeVendors.map((vendor) => (
-              <option key={vendor.id} value={vendor.id}>
-                {vendor.name} — {vendor.shopName} ({vendor.memberId})
-              </option>
-            ))}
+            <option value="COMPANY">Company purchase</option>
+            <option value="VENDOR">Vendor purchase</option>
           </Select>
-          <Input
-            label="Vendor challan number"
-            name="challan"
-            value={challan}
-            onChange={(event) => setChallan(event.target.value)}
-            maxLength={100}
-            required
-            placeholder="Enter challan number"
-          />
+          {ownerType === 'VENDOR' && (
+            <>
+              <Select
+                label="Vendor"
+                name="vendorId"
+                value={vendorId}
+                onChange={(event) => {
+                  setVendorId(event.target.value);
+                  setLines([]);
+                  setMatches([]);
+                  setSearch('');
+                }}
+                required
+              >
+                <option value="">Select a vendor</option>
+                {activeVendors.map((vendor) => (
+                  <option key={vendor.id} value={vendor.id}>
+                    {vendor.name} — {vendor.shopName} ({vendor.memberId})
+                  </option>
+                ))}
+              </Select>
+              <Input
+                label="Vendor challan number"
+                name="challan"
+                value={challan}
+                onChange={(event) => setChallan(event.target.value)}
+                maxLength={100}
+                required
+                placeholder="Enter challan number"
+              />
+            </>
+          )}
         </div>
-        {!activeVendors.length && <p className="mt-3 text-sm text-slate-500">No active vendors are available.</p>}
+        {ownerType === 'VENDOR' && !activeVendors.length && (
+          <p className="mt-3 text-sm text-slate-500">No active vendors are available.</p>
+        )}
       </Card>
 
       <Card title="Add products" description="Search by product name or barcode. Current Central Warehouse stock is shown for each result.">
         <div className="max-w-lg">
           <Input
-            label="Search vendor products"
+            label={`Search ${ownerType === 'COMPANY' ? 'company' : 'vendor'} products`}
             name="productSearch"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder={vendorId ? 'Type at least 2 characters' : 'Select a vendor first'}
-            disabled={!vendorId}
+            placeholder={ownerType === 'COMPANY' || vendorId
+              ? 'Type at least 2 characters' : 'Select a vendor first'}
+            disabled={ownerType === 'VENDOR' && !vendorId}
           />
           <Search size={16} aria-hidden="true" className="pointer-events-none relative -mt-7 ml-auto mr-3 text-slate-400" />
         </div>
@@ -279,7 +308,9 @@ export default function GoodsReceiveForm() {
                     </button>
                   </td>
                 </tr>
-              )) : <tr><td className="table-empty" colSpan={6}>Search for a vendor product to add it to this receive.</td></tr>}
+              )) : <tr><td className="table-empty" colSpan={6}>
+                Search for a {ownerType === 'COMPANY' ? 'company' : 'vendor'} product to add it to this receive.
+              </td></tr>}
             </tbody>
           </table>
         </div>

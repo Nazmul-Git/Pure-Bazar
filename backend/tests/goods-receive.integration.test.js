@@ -169,6 +169,9 @@ describe('goods receive and movement-derived stock endpoints', () => {
   it('keeps a draft out of stock', async () => {
     const response = await createDraft();
     expect(response.status).toBe(201);
+    expect(response.body.goodsReceive).toMatchObject({
+      ownerType: 'COMPANY', vendorId: null, vendorChallanNumber: null,
+    });
     expect(currentStock()).toBe(0);
     expect(StockMovement.create).not.toHaveBeenCalled();
   });
@@ -239,6 +242,19 @@ describe('goods receive and movement-derived stock endpoints', () => {
   it('restricts vendor product search to that vendor', async () => {
     await request(app).get(`/api/stock/products?ownerType=VENDOR&vendorId=${vendorId}`).set(auth);
     expect(Product.find).toHaveBeenCalledWith({ ownerType: 'VENDOR', vendorId });
+  });
+
+  it('searches company-owned products for company purchases', async () => {
+    const response = await request(app).get('/api/stock/products?ownerType=COMPANY&q=Rice').set(auth);
+
+    expect(response.status).toBe(200);
+    expect(response.body.products).toEqual([expect.objectContaining({
+      id: productId, name: 'Rice', ownerType: 'COMPANY',
+    })]);
+    expect(Product.find).toHaveBeenCalledWith({
+      ownerType: 'COMPANY',
+      $or: [{ name: /Rice/i }, { barcode: /Rice/i }],
+    });
   });
 
   it('returns active vendors for the GRN vendor selector', async () => {
