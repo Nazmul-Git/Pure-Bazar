@@ -18,8 +18,15 @@ const settingsSchema = new mongoose.Schema({
   receiptLayout: { type: mongoose.Schema.Types.Mixed, default: {} },
   vendorTerms: { type: [vendorTermSchema], default: [] },
   probashiStatus: { type: String, enum: ['NotConfigured', 'Active', 'Inactive'], default: 'NotConfigured' },
-  vendorSettlementCyclePerMonth: { type: Number, min: 1, max: 31, default: 1 },
-  vendorPayoutCutoffDates: { type: [Number], default: [] },
+  vendorSettlementCyclePerMonth: { type: Number, enum: [1, 2], default: 1 },
+  vendorPayoutCutoffDates: {
+    type: [{ type: Number, min: 1, max: 31, validate: Number.isInteger }],
+    default: [],
+    validate: {
+      validator: (dates) => new Set(dates).size === dates.length,
+      message: 'Vendor payout cut-off dates must be unique',
+    },
+  },
   enabledVendorPayoutMethods: { type: [String], enum: ['Cash', 'Bank', 'bKash', 'Nagad'], default: ['Cash', 'Bank', 'bKash', 'Nagad'] },
   commissionEnabled: { type: Boolean, default: false },
   vendorWalletPayoutEnabled: { type: Boolean, default: false },

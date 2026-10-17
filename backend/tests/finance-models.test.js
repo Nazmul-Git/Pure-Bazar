@@ -74,4 +74,24 @@ describe('Finance and workforce models', () => {
     expect(settings.commissionEnabled).toBe(false);
     expect(settings.vendorWalletPayoutEnabled).toBe(false);
   });
+
+  it('limits vendor settlement to one or two cycles with unique cut-off dates', async () => {
+    const settings = new models.Settings({
+      vendorSettlementCyclePerMonth: 2,
+      vendorPayoutCutoffDates: [10, 25],
+    });
+    await settings.validate();
+    expect(settings.vendorSettlementCyclePerMonth).toBe(2);
+
+    settings.vendorSettlementCyclePerMonth = 3;
+    await expect(settings.validate()).rejects.toMatchObject({
+      errors: { vendorSettlementCyclePerMonth: expect.any(Object) },
+    });
+
+    settings.vendorSettlementCyclePerMonth = 2;
+    settings.vendorPayoutCutoffDates = [10, 10];
+    await expect(settings.validate()).rejects.toMatchObject({
+      errors: { vendorPayoutCutoffDates: expect.any(Object) },
+    });
+  });
 });

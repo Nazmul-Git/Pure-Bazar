@@ -44,6 +44,10 @@
 	- Files: Super Admin-only users/roles CRUD APIs with input validation, hashed passwords, audit events, integration tests, and API-backed frontend management pages.
 	- Decisions: Protect the Super Admin role from modification/deletion; prevent deleting assigned roles and the signed-in user; expose user records without password hashes.
 	- Validation: Backend tests pass (8 suites, 29 tests); frontend production build passes.
+- [x] 1.4a Settings API
+	- Files: Super Admin-only settings and filtered audit-log APIs, settings validation/model constraints, and integration/model tests.
+	- Decisions: Settings updates are whitelisted and audited with before/after snapshots; vendor terms versions are append-only; Probashi exposes status only, never credentials; vendor settlement supports one or two cycles with matching unique cut-off dates.
+	- Validation: Full backend Jest suite passes (9 suites, 35 tests).
 - [ ] 2.1
 - [ ] 2.2
 - [ ] 2.3

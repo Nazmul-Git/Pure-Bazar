@@ -8,6 +8,7 @@ const errorMiddleware = require('./middlewares/errorMiddleware');
 const authRoutes = require('./routes/authRoutes');
 const healthRoutes = require('./routes/healthRoutes');
 const roleRoutes = require('./routes/roleRoutes');
+const settingsRoutes = require('./routes/settingsRoutes');
 const userRoutes = require('./routes/userRoutes');
 
 const app = express();
@@ -19,6 +20,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/roles', roleRoutes);
+app.use('/api', settingsRoutes);
 app.use('/api', healthRoutes);
 app.use((req, res, next) => {
   const error = new Error('Route not found');
