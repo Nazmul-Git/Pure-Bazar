@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const stockMovementSchema = new mongoose.Schema({
   productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
-  warehouseId: { type: mongoose.Schema.Types.ObjectId, required: true },
+  warehouseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Location', required: true },
   quantity: {
     type: Number,
     required: true,

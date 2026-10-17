@@ -6,5 +6,13 @@ const locationSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 locationSchema.index({ type: 1, name: 1 }, { unique: true });
+locationSchema.statics.ensureCentralWarehouse = function ensureCentralWarehouse() {
+  const centralWarehouse = { type: 'CENTRAL', name: 'Central Warehouse' };
+  return this.findOneAndUpdate(
+    centralWarehouse,
+    { $setOnInsert: centralWarehouse },
+    { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true },
+  );
+};
 
 module.exports = mongoose.models.Location || mongoose.model('Location', locationSchema);

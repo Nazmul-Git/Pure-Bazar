@@ -9,8 +9,8 @@ const stockTransferLineSchema = new mongoose.Schema({
 });
 
 const stockTransferSchema = new mongoose.Schema({
-  fromWarehouseId: { type: mongoose.Schema.Types.ObjectId, required: true },
-  toWarehouseId: { type: mongoose.Schema.Types.ObjectId, required: true },
+  fromWarehouseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Location', required: true },
+  toWarehouseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Location', required: true },
   status: { type: String, enum: ['Requested', 'Dispatched', 'Received', 'Discrepancy'], default: 'Requested' },
   lines: { type: [stockTransferLineSchema], required: true, validate: (lines) => lines.length > 0 },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },

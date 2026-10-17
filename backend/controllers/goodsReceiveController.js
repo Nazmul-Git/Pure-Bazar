@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const {
-  AuditLog, GoodsReceive, Product, StockMovement, Vendor,
+  AuditLog, GoodsReceive, Location, Product, StockMovement, Vendor,
 } = require('../models');
 
 function statusError(message, status) {
@@ -40,6 +40,13 @@ async function validateProducts(ownerType, vendorId, lines) {
     && (ownerType === 'COMPANY' || product.vendorId?.toString() === vendorId.toString())
   ));
   if (!validProducts) throw statusError('Products must match the purchase owner and vendor', 400);
+}
+
+async function validateCentralWarehouse(warehouseId) {
+  const location = await Location.findById(warehouseId).select('_id type').lean();
+  if (!location || location.type !== 'CENTRAL') {
+    throw statusError('Goods receives must be recorded at a valid Central Warehouse', 400);
+  }
 }
 
 function receiveOutput(receive, products = []) {
@@ -132,6 +139,7 @@ async function listGoodsReceives(req, res, next) {
 async function createGoodsReceive(req, res, next) {
   try {
     const lines = normalizeLines(req.body.lines);
+    await validateCentralWarehouse(req.body.warehouseId);
     await validateProducts(req.body.ownerType, req.body.vendorId, lines);
     if (req.body.ownerType === 'VENDOR' && !req.body.vendorChallanNumber) {
       throw statusError('Vendor purchases require a challan number', 400);
@@ -164,6 +172,7 @@ async function updateGoodsReceive(req, res, next) {
     const ownerType = req.body.ownerType || receive.ownerType;
     const vendorId = Object.prototype.hasOwnProperty.call(req.body, 'vendorId') ? req.body.vendorId : receive.vendorId;
     const lines = req.body.lines ? normalizeLines(req.body.lines) : receive.lines;
+    await validateCentralWarehouse(req.body.warehouseId || receive.warehouseId);
     await validateProducts(ownerType, vendorId, lines);
     const challan = Object.prototype.hasOwnProperty.call(req.body, 'vendorChallanNumber')
       ? req.body.vendorChallanNumber : receive.vendorChallanNumber;

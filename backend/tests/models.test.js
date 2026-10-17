@@ -134,6 +134,20 @@ describe('Mongoose models', () => {
     });
   });
 
+  it('ensures the default central warehouse through an idempotent upsert', async () => {
+    const findOneAndUpdate = jest.spyOn(models.Location, 'findOneAndUpdate')
+      .mockResolvedValue({ type: 'CENTRAL', name: 'Central Warehouse' });
+
+    await models.Location.ensureCentralWarehouse();
+
+    expect(findOneAndUpdate).toHaveBeenCalledWith(
+      { type: 'CENTRAL', name: 'Central Warehouse' },
+      { $setOnInsert: { type: 'CENTRAL', name: 'Central Warehouse' } },
+      { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true },
+    );
+    findOneAndUpdate.mockRestore();
+  });
+
   it('declares requested product lookup indexes', () => {
     const indexes = models.Product.schema.indexes().map(([fields]) => fields);
 

@@ -49,7 +49,6 @@ const UNIT_SEEDS = [
 ];
 
 const CATEGORY_SEEDS = ['Groceries', 'Beverages', 'Household', 'Personal Care'];
-const LOCATION_SEEDS = [{ type: 'CENTRAL', name: 'Central Warehouse' }];
 const SETTINGS_SEED = {
   singleton: 'global',
   shareholderDiscountPercent: 5,
@@ -98,13 +97,7 @@ async function seedDatabase() {
     updateOne: { filter: { name }, update: { $setOnInsert: { name } }, upsert: true },
   })));
 
-  await Location.bulkWrite(LOCATION_SEEDS.map((location) => ({
-    updateOne: {
-      filter: location,
-      update: { $setOnInsert: location },
-      upsert: true,
-    },
-  })));
+  await Location.ensureCentralWarehouse();
 
   await Settings.updateOne(
     { singleton: 'global' },
@@ -156,5 +149,5 @@ async function main() {
 if (require.main === module) main();
 
 module.exports = {
-  ROLE_SEEDS, UNIT_SEEDS, CATEGORY_SEEDS, LOCATION_SEEDS, SETTINGS_SEED, assertTestDatabase, seedDatabase,
+  ROLE_SEEDS, UNIT_SEEDS, CATEGORY_SEEDS, SETTINGS_SEED, assertTestDatabase, seedDatabase,
 };

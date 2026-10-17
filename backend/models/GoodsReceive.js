@@ -16,7 +16,7 @@ goodsReceiveLineSchema.pre('validate', function validateLineQuantities() {
 const goodsReceiveSchema = new mongoose.Schema({
   ownerType: { type: String, enum: ['COMPANY', 'VENDOR'], required: true },
   vendorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Vendor' },
-  warehouseId: { type: mongoose.Schema.Types.ObjectId, required: true },
+  warehouseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Location', required: true },
   vendorChallanNumber: { type: String, trim: true },
   status: { type: String, enum: ['Draft', 'Approved', 'Rejected'], default: 'Draft' },
   lines: { type: [goodsReceiveLineSchema], required: true, validate: (lines) => lines.length > 0 },

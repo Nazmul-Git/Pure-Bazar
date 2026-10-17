@@ -6,13 +6,16 @@ const request = require('supertest');
 jest.mock('../models', () => ({
   AuditLog: { create: jest.fn() },
   GoodsReceive: { create: jest.fn(), find: jest.fn(), findById: jest.fn() },
+  Location: { findById: jest.fn() },
   Product: { find: jest.fn() },
   StockMovement: { aggregate: jest.fn(), create: jest.fn() },
   User: { findById: jest.fn() },
   Vendor: { exists: jest.fn(), find: jest.fn() },
 }));
 
-const { AuditLog, GoodsReceive, Product, StockMovement, User, Vendor } = require('../models');
+const {
+  AuditLog, GoodsReceive, Location, Product, StockMovement, User, Vendor,
+} = require('../models');
 const stockRoutes = require('../routes/stockRoutes');
 const errorMiddleware = require('../middlewares/errorMiddleware');
 
@@ -89,6 +92,9 @@ describe('goods receive and movement-derived stock endpoints', () => {
     };
     jest.spyOn(mongoose, 'startSession').mockResolvedValue(session);
     User.findById.mockReturnValue({ populate: jest.fn().mockResolvedValue(admin) });
+    Location.findById.mockReturnValue({
+      select: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue({ type: 'CENTRAL' }) }),
+    });
     Vendor.exists.mockResolvedValue(true);
     Vendor.find.mockReturnValue(productQuery([{
       _id: new mongoose.Types.ObjectId(vendorId),
@@ -165,6 +171,18 @@ describe('goods receive and movement-derived stock endpoints', () => {
     expect(response.status).toBe(201);
     expect(currentStock()).toBe(0);
     expect(StockMovement.create).not.toHaveBeenCalled();
+  });
+
+  it('rejects a goods receive that does not target the seeded central warehouse', async () => {
+    Location.findById.mockReturnValue({
+      select: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue({ type: 'OUTLET' }) }),
+    });
+
+    const response = await createDraft();
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe('Goods receives must be recorded at a valid Central Warehouse');
+    expect(GoodsReceive.create).not.toHaveBeenCalled();
   });
 
   it('returns printable line details and keeps rejected receives out of stock', async () => {

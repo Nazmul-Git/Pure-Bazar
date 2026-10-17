@@ -100,6 +100,10 @@
 	- Files: API-backed outlet transfer request, warehouse dispatch, and outlet receipt screens; status filtering and badges; transfer service methods and permission-aware navigation; transfer product labels in API responses and location lookup access for transfer readers.
 	- Decisions: Keep request, dispatch, and confirmation actions gated by existing permissions; preserve location-scoped transfer lists; let location lookup use either stock-read or transfer-read permission.
 	- Validation: Frontend production build passes; focused transfer and authorization tests pass (2 suites, 8 tests).
+- [x] 2.4c Central Warehouse seed reliability
+	- Files: Idempotent Central Warehouse model upsert used by the default seeder; central-location validation for GRN create/update; Location references for GRN, stock movement, and transfer warehouse fields; seeder, model, and GRN regression tests.
+	- Decisions: Keep seed execution explicit and idempotent; only accept existing CENTRAL locations for GRNs so movement-derived warehouse stock always uses the seeded warehouse.
+	- Validation: Seeder, model, location, GRN/stock, and outlet transfer tests pass (5 suites, 28 tests).
 - [ ] 3.1
 - [ ] 3.2
 - [ ] 3.3
