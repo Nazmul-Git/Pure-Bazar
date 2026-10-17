@@ -1,16 +1,17 @@
 const mongoose = require('mongoose');
 const {
-  AuditLog, Location, Settings, StockAdjustment, StockCount,
+  AuditLog, Location, Product, Settings, StockAdjustment, StockCount,
 } = require('../models');
 const {
-  statusError, canManageLocation, adjustmentValue, loadProducts, postMovements, objectOf,
+  statusError, canManageLocation, adjustmentValue, loadProducts, currentStock, postMovements, objectOf,
 } = require('../utils/stockAdjustments');
 
-function normalizeLines(lines) {
+function normalizeLines(lines, mode) {
   const quantities = new Map();
   for (const line of lines) {
     const id = line.productId.toString();
-    quantities.set(id, (quantities.get(id) || 0) + Number(line.quantity));
+    const direction = mode === 'REMOVE' ? -1 : 1;
+    quantities.set(id, (quantities.get(id) || 0) + direction * Number(line.quantity));
   }
   return [...quantities]
     .filter(([, quantity]) => quantity !== 0)
@@ -29,7 +30,24 @@ async function listAdjustments(req, res, next) {
       throw statusError('Insufficient role permissions', 403);
     }
     const adjustments = await StockAdjustment.find(filter).sort({ createdAt: -1 }).lean();
-    return res.json({ success: true, stockAdjustments: adjustments });
+    const productIds = [...new Set(adjustments.flatMap((adjustment) => (
+      adjustment.lines.map((line) => line.productId.toString())
+    )))];
+    const products = productIds.length
+      ? await Product.find({ _id: { $in: productIds } }).select('_id name barcode').lean()
+      : [];
+    const productsById = new Map(products.map((product) => [product._id.toString(), product]));
+    return res.json({
+      success: true,
+      stockAdjustments: adjustments.map((adjustment) => ({
+        ...adjustment,
+        lines: adjustment.lines.map((line) => ({
+          ...line,
+          productName: productsById.get(line.productId.toString())?.name,
+          barcode: productsById.get(line.productId.toString())?.barcode,
+        })),
+      })),
+    });
   } catch (error) {
     return next(error);
   }
@@ -43,7 +61,7 @@ async function createAdjustment(req, res, next) {
     if (!canManageLocation(req.user, warehouseId)) {
       throw statusError('You can only adjust stock at your assigned warehouse', 403);
     }
-    const lines = normalizeLines(req.body.lines);
+    const lines = normalizeLines(req.body.lines, req.body.mode);
     if (!lines.length) throw statusError('At least one non-zero adjustment line is required', 400);
 
     session = await mongoose.startSession();
@@ -53,11 +71,22 @@ async function createAdjustment(req, res, next) {
       if (!location) throw statusError('Warehouse or outlet not found', 404);
       const productIds = lines.map((line) => line.productId);
       const products = await loadProducts(productIds, session);
+      if (req.body.mode === 'REMOVE') {
+        const balances = await currentStock(warehouseId, productIds, session);
+        if (lines.some((line) => (
+          Math.abs(line.quantity) > (balances.get(line.productId.toString()) || 0)
+        ))) {
+          throw statusError('Cannot remove more stock than is currently available at this location', 409);
+        }
+      }
+      const reason = req.body.reason === 'Other'
+        ? `Other: ${req.body.reasonNote.trim()}`
+        : req.body.reason;
       const [settings, adjustment] = await Promise.all([
         Settings.findOne({ singleton: 'global' }).session(session).lean(),
         StockAdjustment.create([{
           warehouseId,
-          reason: req.body.reason,
+          reason,
           lines,
           createdBy: req.user._id,
           value: adjustmentValue(lines, products),

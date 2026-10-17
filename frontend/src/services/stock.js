@@ -32,7 +32,7 @@ export const postStockCount = (token, id) => api.post(`/stock-counts/${id}/post`
 export const getReceiveVendors = (token) => api.get('/stock/vendors', authConfig(token));
 export const searchReceiveProducts = (token, params) => api.get('/stock/products', {
   ...authConfig(token),
-  params: { ownerType: 'VENDOR', ...params },
+  params,
 });
 export const getGoodsReceives = (token) => api.get('/goods-receives', authConfig(token));
 export const createGoodsReceive = (token, payload) => api.post('/goods-receives', payload, authConfig(token));

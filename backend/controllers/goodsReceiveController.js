@@ -79,18 +79,34 @@ function receiveOutput(receive, products = []) {
 
 async function searchProducts(req, res, next) {
   try {
-    const { ownerType, vendorId, q } = req.query;
+    const {
+      ownerType, vendorId, q, warehouseId, mode,
+    } = req.query;
     if (ownerType === 'VENDOR' && !(await Vendor.exists({ _id: vendorId }))) {
       throw statusError('Vendor not found', 404);
     }
-    const filter = { ownerType };
+    const filter = {};
+    if (ownerType) filter.ownerType = ownerType;
     if (ownerType === 'VENDOR') filter.vendorId = vendorId;
     if (q) {
       const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       filter.$or = [{ name: new RegExp(escaped, 'i') }, { barcode: new RegExp(escaped, 'i') }];
     }
-    const products = await Product.find(filter).select('_id name barcode ownerType vendorId')
-      .sort({ name: 1 }).lean();
+    let stockByProduct = new Map();
+    if (warehouseId) {
+      const grouped = await StockMovement.aggregate([
+        { $match: { warehouseId: new mongoose.Types.ObjectId(warehouseId) } },
+        { $group: { _id: '$productId', quantity: { $sum: '$quantity' } } },
+      ]);
+      stockByProduct = new Map(grouped.map(({ _id, quantity }) => [_id.toString(), quantity]));
+      if (mode === 'REMOVE') {
+        filter._id = { $in: grouped.filter(({ quantity }) => quantity > 0).map(({ _id }) => _id) };
+      }
+    }
+    let productQuery = Product.find(filter).select('_id name barcode ownerType vendorId')
+      .sort({ name: 1 });
+    if (warehouseId) productQuery = productQuery.limit(Math.min(Number(req.query.limit) || 10, 10));
+    const products = await productQuery.lean();
     return res.json({
       success: true,
       products: products.map((product) => ({
@@ -99,6 +115,7 @@ async function searchProducts(req, res, next) {
         barcode: product.barcode,
         ownerType: product.ownerType,
         vendorId: product.vendorId?.toString() || null,
+        ...(warehouseId ? { stockQuantity: stockByProduct.get(product._id.toString()) || 0 } : {}),
       })),
     });
   } catch (error) {

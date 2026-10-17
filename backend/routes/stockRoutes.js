@@ -35,8 +35,23 @@ const adjustmentId = param('id').isMongoId().withMessage('A valid stock adjustme
 const countId = param('id').isMongoId().withMessage('A valid stock count ID is required');
 const adjustmentLines = body('lines').isArray({ min: 1 }).withMessage('At least one adjustment line is required');
 const adjustmentProducts = body('lines.*.productId').isMongoId().withMessage('A valid product ID is required');
-const adjustmentQuantities = body('lines.*.quantity').isFloat().toFloat()
-  .withMessage('Adjustment quantity must be a non-zero number');
+const adjustmentMode = body('mode').isIn(['ADD', 'REMOVE'])
+  .withMessage('Adjustment mode must be ADD or REMOVE');
+const adjustmentReason = body('reason').isIn([
+  'Damaged', 'Expired', 'Lost or stolen', 'Found extra stock', 'Data entry correction', 'Other',
+]).withMessage('Choose a valid stock adjustment reason');
+const adjustmentReasonMode = body('reason').custom((reason, { req }) => {
+  const mode = req.body.mode;
+  if (['Damaged', 'Expired', 'Lost or stolen'].includes(reason) && mode !== 'REMOVE') return false;
+  if (reason === 'Found extra stock' && mode !== 'ADD') return false;
+  return true;
+}).withMessage('This reason does not match the selected adjustment mode');
+const adjustmentReasonNote = body('reasonNote')
+  .if(body('reason').equals('Other'))
+  .isString().trim().isLength({ min: 1, max: 500 })
+  .withMessage('An Other reason note of 1 to 500 characters is required');
+const adjustmentQuantities = body('lines.*.quantity').isFloat({ min: 0.000001 }).toFloat()
+  .withMessage('Adjustment quantities must be greater than zero');
 const nonZeroAdjustmentLines = body('lines').custom((items) => (
   Array.isArray(items) && items.some((item) => Number(item.quantity) !== 0)
 )).withMessage('At least one non-zero adjustment line is required');
@@ -60,6 +75,10 @@ router.get('/stock-adjustments', read, [
 router.post('/stock-adjustments', write, [
   stockLocation,
   stockReason,
+  adjustmentMode,
+  adjustmentReason,
+  adjustmentReasonMode,
+  adjustmentReasonNote,
   adjustmentLines,
   adjustmentProducts,
   adjustmentQuantities,
@@ -121,10 +140,16 @@ router.post('/stock-transfers/:id/receive', [
     .withMessage('Received quantity must be zero or greater'),
 ], validateRequest, stockTransferController.receiveTransfer);
 router.get('/stock/products', read, [
-  query('ownerType').isIn(['COMPANY', 'VENDOR']).withMessage('Owner type must be COMPANY or VENDOR'),
+  query('ownerType').optional().isIn(['COMPANY', 'VENDOR']).withMessage('Owner type must be COMPANY or VENDOR'),
   query('vendorId').if(query('ownerType').equals('VENDOR')).isMongoId()
     .withMessage('Vendor purchases require a valid vendor ID'),
   query('q').optional().isString().trim().isLength({ max: 100 }).withMessage('Search must be at most 100 characters'),
+  query('warehouseId').optional().isMongoId().withMessage('A valid warehouse or outlet ID is required'),
+  query('mode').if(query('warehouseId').exists()).isIn(['ADD', 'REMOVE'])
+    .withMessage('A valid adjustment mode is required'),
+  query('q').custom((value, { req }) => !req.query.warehouseId || (typeof value === 'string' && value.trim().length > 0))
+    .withMessage('A search term is required for adjustment product search'),
+  query('limit').optional().isInt({ min: 1, max: 10 }).withMessage('Product search limit must be between 1 and 10'),
 ], validateRequest, goodsReceiveController.searchProducts);
 router.get('/stock/vendors', read, goodsReceiveController.listVendors);
 router.get('/goods-receives', read, goodsReceiveController.listGoodsReceives);

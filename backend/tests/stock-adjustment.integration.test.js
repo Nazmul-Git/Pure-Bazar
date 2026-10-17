@@ -42,6 +42,7 @@ function query(value) {
   const result = {
     select: jest.fn(() => result),
     sort: jest.fn(() => result),
+    limit: jest.fn(() => result),
     session: jest.fn(() => result),
     lean: jest.fn(() => Promise.resolve(value)),
     then: (resolve, reject) => Promise.resolve(value).then(resolve, reject),
@@ -109,12 +110,26 @@ describe('stock adjustment and count API', () => {
     jest.spyOn(mongoose, 'startSession').mockResolvedValue(session);
     User.findById.mockReturnValue({ populate: jest.fn().mockImplementation(async () => user) });
     Location.findById.mockImplementation(() => query({ _id: new mongoose.Types.ObjectId(ids.warehouse) }));
-    Product.find.mockReturnValue(query([product]));
+    Product.find.mockImplementation((filter) => query(
+      filter._id?.$in
+        ? [product].filter(({ _id }) => filter._id.$in.some((id) => id.toString() === _id.toString()))
+        : [product],
+    ));
     Settings.findOne.mockReturnValue(query({ stockAdjustmentApprovalLimit: 100 }));
     AuditLog.create.mockImplementation(async (logs) => { auditLogs.push(...logs); return logs; });
-    StockMovement.aggregate.mockImplementation((pipeline) => ({
-      session: jest.fn(async () => {
-        const filter = pipeline[0].$match;
+    StockMovement.aggregate.mockImplementation((pipeline) => {
+      const filter = pipeline[0].$match;
+      if (!filter.productId) {
+        const stock = new Map();
+        movements.filter((movement) => movement.warehouseId.toString() === filter.warehouseId.toString())
+          .forEach((movement) => {
+            const id = movement.productId.toString();
+            stock.set(id, (stock.get(id) || 0) + movement.quantity);
+          });
+        return [...stock].map(([id, quantity]) => ({ _id: new mongoose.Types.ObjectId(id), quantity }));
+      }
+      return {
+        session: jest.fn(async () => {
         const productIds = new Set(filter.productId.$in.map((id) => id.toString()));
         const stock = new Map();
         movements.filter((movement) => (
@@ -125,8 +140,9 @@ describe('stock adjustment and count API', () => {
           stock.set(id, (stock.get(id) || 0) + movement.quantity);
         });
         return [...stock].map(([id, quantity]) => ({ _id: new mongoose.Types.ObjectId(id), quantity }));
-      }),
-    }));
+        }),
+      };
+    });
     StockMovement.create.mockImplementation(async (docs) => { movements.push(...docs); return docs; });
     StockAdjustment.create.mockImplementation(async ([data]) => {
       const item = document({ status: 'Pending', ...data });
@@ -156,7 +172,8 @@ describe('stock adjustment and count API', () => {
 
     const atLimit = await request(app).post('/api/stock-adjustments').set(auth()).send({
       warehouseId: ids.warehouse,
-      reason: 'Cycle correction',
+      mode: 'ADD',
+      reason: 'Data entry correction',
       lines: [{ productId: ids.product, quantity: 5 }],
     });
     expect(atLimit.status).toBe(201);
@@ -165,8 +182,9 @@ describe('stock adjustment and count API', () => {
 
     const aboveLimit = await request(app).post('/api/stock-adjustments').set(auth()).send({
       warehouseId: ids.warehouse,
-      reason: 'Damaged stock',
-      lines: [{ productId: ids.product, quantity: -6 }],
+      mode: 'REMOVE',
+      reason: 'Damaged',
+      lines: [{ productId: ids.product, quantity: 6 }],
     });
     expect(aboveLimit.status).toBe(201);
     expect(aboveLimit.body.stockAdjustment).toMatchObject({ value: 120, status: 'Pending' });
@@ -187,6 +205,72 @@ describe('stock adjustment and count API', () => {
     expect(stockAt(ids.warehouse, ids.product)).toBe(9);
     expect(movements[movements.length - 1]).toMatchObject({ type: 'ADJUSTMENT', quantity: -6 });
     expect(auditLogs.some((entry) => entry.action === 'APPROVE' && entry.entity === 'StockAdjustment')).toBe(true);
+  });
+
+  it('rejects reason and mode mismatches and stores a required note for Other', async () => {
+    const invalidReasons = [
+      { mode: 'ADD', reason: 'Damaged' },
+      { mode: 'REMOVE', reason: 'Found extra stock' },
+      { mode: 'ADD', reason: 'Other' },
+    ];
+    for (const invalid of invalidReasons) {
+      const response = await request(app).post('/api/stock-adjustments').set(auth()).send({
+        warehouseId: ids.warehouse,
+        ...invalid,
+        lines: [{ productId: ids.product, quantity: 1 }],
+      });
+      expect(response.status).toBe(400);
+    }
+    expect(movements).toHaveLength(1);
+    expect(adjustments.size).toBe(0);
+
+    const validOther = await request(app).post('/api/stock-adjustments').set(auth()).send({
+      warehouseId: ids.warehouse,
+      mode: 'ADD',
+      reason: 'Other',
+      reasonNote: 'Unrecorded delivery',
+      lines: [{ productId: ids.product, quantity: 2 }],
+    });
+    expect(validOther.status).toBe(201);
+    expect(validOther.body.stockAdjustment.reason).toBe('Other: Unrecorded delivery');
+    expect(movements[movements.length - 1]).toMatchObject({ type: 'ADJUSTMENT', quantity: 2 });
+  });
+
+  it('blocks removing more than the current location stock', async () => {
+    const response = await request(app).post('/api/stock-adjustments').set(auth()).send({
+      warehouseId: ids.warehouse,
+      mode: 'REMOVE',
+      reason: 'Lost or stolen',
+      lines: [{ productId: ids.product, quantity: 11 }],
+    });
+
+    expect(response.status).toBe(409);
+    expect(response.body.message).toBe('Cannot remove more stock than is currently available at this location');
+    expect(stockAt(ids.warehouse, ids.product)).toBe(10);
+    expect(adjustments.size).toBe(0);
+  });
+
+  it('searches adjustment products on the server with location stock and remove-mode filtering', async () => {
+    const removeResults = await request(app).get('/api/stock/products').set(auth()).query({
+      warehouseId: ids.warehouse, mode: 'REMOVE', q: 'Sample', limit: 10,
+    });
+    expect(removeResults.status).toBe(200);
+    expect(removeResults.body.products).toMatchObject([{
+      id: ids.product, name: 'Sample Product', stockQuantity: 10,
+    }]);
+
+    movements = [];
+    const addResults = await request(app).get('/api/stock/products').set(auth()).query({
+      warehouseId: ids.warehouse, mode: 'ADD', q: 'Sample', limit: 10,
+    });
+    expect(addResults.status).toBe(200);
+    expect(addResults.body.products).toMatchObject([{ id: ids.product, stockQuantity: 0 }]);
+
+    const emptyRemoveResults = await request(app).get('/api/stock/products').set(auth()).query({
+      warehouseId: ids.warehouse, mode: 'REMOVE', q: 'Sample', limit: 10,
+    });
+    expect(emptyRemoveResults.status).toBe(200);
+    expect(emptyRemoveResults.body.products).toEqual([]);
   });
 
   it('records system and counted quantities then posts only the calculated difference', async () => {
