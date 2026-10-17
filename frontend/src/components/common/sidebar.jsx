@@ -26,20 +26,38 @@ export default function Sidebar({ open, onClose }) {
         </div>
         <nav className="sidebar-nav">
           <p className="nav-caption">WORKSPACE</p>
-          {visibleItems.map(({ label, href, icon: Icon }) => {
+          {visibleItems.map(({ label, href, icon: Icon, children = [] }) => {
             const section = href.split('/')[1];
-            const active = pathname === href || pathname.startsWith(`/${section}/`);
+            const active = pathname === href
+              || (!children.length && pathname.startsWith(`/${section}/`));
+            const visibleChildren = children.filter((child) => canAccess(child.permissions));
             return (
-              <Link
-                href={href}
-                key={label}
-                className={`nav-link${active ? ' nav-link-active' : ''}`}
-                aria-current={active ? 'page' : undefined}
-                onClick={onClose}
-              >
-                <Icon size={19} strokeWidth={1.8} aria-hidden="true" />
-                <span>{label}</span>
-              </Link>
+              <div key={label}>
+                <Link
+                  href={href}
+                  className={`nav-link${active ? ' nav-link-active' : ''}`}
+                  aria-current={pathname === href ? 'page' : undefined}
+                  onClick={onClose}
+                >
+                  <Icon size={19} strokeWidth={1.8} aria-hidden="true" />
+                  <span>{label}</span>
+                </Link>
+                {visibleChildren.map(({ label: childLabel, href: childHref, icon: ChildIcon }) => {
+                  const childActive = pathname === childHref;
+                  return (
+                    <Link
+                      href={childHref}
+                      key={childHref}
+                      className={`nav-link ml-4 min-h-[36px] text-sm${childActive ? ' nav-link-active' : ''}`}
+                      aria-current={childActive ? 'page' : undefined}
+                      onClick={onClose}
+                    >
+                      <ChildIcon size={17} strokeWidth={1.8} aria-hidden="true" />
+                      <span>{childLabel}</span>
+                    </Link>
+                  );
+                })}
+              </div>
             );
           })}
         </nav>

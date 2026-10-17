@@ -48,6 +48,10 @@
 	- Files: Super Admin-only settings and filtered audit-log APIs, settings validation/model constraints, and integration/model tests.
 	- Decisions: Settings updates are whitelisted and audited with before/after snapshots; vendor terms versions are append-only; Probashi exposes status only, never credentials; vendor settlement supports one or two cycles with matching unique cut-off dates.
 	- Validation: Full backend Jest suite passes (9 suites, 35 tests).
+- [x] 1.4b Settings screens
+	- Files: API-backed Settings screen with grouped controls for all settings fields; Reports > Audit Trail screen with user, action/area, and date filters; service methods and Super Admin navigation guards.
+	- Decisions: Keep structured receipt, role-discount, and outlet settings editable as validated JSON; prevent saving defaults if settings fail to load; show only Probashi status, never credentials.
+	- Validation: Frontend production build passes; focused settings and audit API tests pass (1 suite, 5 tests).
 - [ ] 2.1
 - [ ] 2.2
 - [ ] 2.3

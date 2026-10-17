@@ -3,6 +3,7 @@ import {
   BriefcaseBusiness,
   ChartNoAxesCombined,
   CircleDollarSign,
+  ClipboardList,
   LayoutDashboard,
   Package,
   Settings,
@@ -23,8 +24,14 @@ export const navigationItems = [
   { label: 'Shareholders', href: '/shareholders/directory', icon: Users, permissions: ['shareholders:read', 'wallet-logs:read'] },
   { label: 'Roles', href: '/roles/manage', icon: BarChart3, permissions: ['*'] },
   { label: 'Finance', href: '/finance/revenue', icon: CircleDollarSign, permissions: ['finance:read', 'expenses:read'] },
-  { label: 'Reports', href: '/reports/sales-stock', icon: ChartNoAxesCombined, permissions: ['reports:read', 'reports:sales-stock:read'] },
-  { label: 'Settings', href: '/settings', icon: Settings, permissions: ['settings:read'] },
+  {
+    label: 'Reports',
+    href: '/reports/sales-stock',
+    icon: ChartNoAxesCombined,
+    permissions: ['reports:read', 'reports:sales-stock:read'],
+    children: [{ label: 'Audit Trail', href: '/reports/audit-trail', icon: ClipboardList, permissions: ['*'] }],
+  },
+  { label: 'Settings', href: '/settings', icon: Settings, permissions: ['*'] },
 ];
 
 export const routePermissions = [
@@ -47,8 +54,9 @@ export const routePermissions = [
   { prefix: '/finance/batch-payout', permissions: ['vendor-payouts:read', 'finance:read'] },
   { prefix: '/reports/sales-stock', permissions: ['reports:read', 'reports:sales-stock:read'] },
   { prefix: '/reports/vendor-profit', permissions: ['reports:read'] },
+  { prefix: '/reports/audit-trail', permissions: ['*'] },
   { prefix: '/roles', permissions: ['*'] },
-  { prefix: '/settings', permissions: ['settings:read'] },
+  { prefix: '/settings', permissions: ['*'] },
 ];
 
 export function getRoutePermissions(pathname) {

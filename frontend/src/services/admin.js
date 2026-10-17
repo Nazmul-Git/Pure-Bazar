@@ -13,3 +13,10 @@ export const getRoles = (token) => api.get('/roles', authConfig(token));
 export const createRole = (token, payload) => api.post('/roles', payload, authConfig(token));
 export const updateRole = (token, id, payload) => api.put(`/roles/${id}`, payload, authConfig(token));
 export const deleteRole = (token, id) => api.delete(`/roles/${id}`, authConfig(token));
+
+export const getSettings = (token) => api.get('/settings', authConfig(token));
+export const updateSettings = (token, payload) => api.put('/settings', payload, authConfig(token));
+export const getAuditLogs = (token, filters = {}) => api.get('/audit-logs', {
+  ...authConfig(token),
+  params: Object.fromEntries(Object.entries(filters).filter(([, value]) => value !== '')),
+});
