@@ -178,6 +178,10 @@
 	- Decisions: Returns cover a whole bill; exchanges require a return followed by a new POS sale; wallet refund status records completion without initiating a provider transaction.
 	- Validation: POS screen utility tests pass (3 tests); frontend production build passes; `git diff --check` passes.
 - [ ] 4.1
+- [x] 4.1a Vendors API
+	- Files: Authenticated vendor registration and directory APIs, Member Verify eligibility checks, audited status updates, Finance vendor-write permission, and GRN restrictions for suspended/closed vendors.
+	- Decisions: Create vendors only for valid, active, wallet-enabled members who accepted a captured terms version; only Active vendors can start or approve GRNs, while existing sales remain permitted for suspended vendors.
+	- Validation: Full backend Jest suite passes (24 suites, 141 tests), covering eligible, invalid, and inactive member registration plus suspended-vendor GRN creation and approval blocks.
 - [ ] 4.2
 - [ ] 4.3
 - [ ] 4.4

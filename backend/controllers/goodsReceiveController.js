@@ -26,7 +26,9 @@ function normalizeLines(lines) {
 async function validateProducts(ownerType, vendorId, lines) {
   if (ownerType === 'VENDOR') {
     if (!vendorId) throw statusError('Vendor purchases require a vendor', 400);
-    if (!(await Vendor.exists({ _id: vendorId }))) throw statusError('Vendor not found', 400);
+    const vendor = await Vendor.findById(vendorId).lean();
+    if (!vendor) throw statusError('Vendor not found', 400);
+    if (vendor.status !== 'Active') throw statusError('Only active vendors can receive new goods', 409);
   } else if (vendorId) {
     throw statusError('Company purchases cannot have a vendor', 400);
   }
@@ -82,8 +84,10 @@ async function searchProducts(req, res, next) {
     const {
       ownerType, vendorId, q, warehouseId, mode,
     } = req.query;
-    if (ownerType === 'VENDOR' && !(await Vendor.exists({ _id: vendorId }))) {
-      throw statusError('Vendor not found', 404);
+    if (ownerType === 'VENDOR') {
+      const vendor = await Vendor.findById(vendorId).lean();
+      if (!vendor) throw statusError('Vendor not found', 404);
+      if (vendor.status !== 'Active') throw statusError('Only active vendors can receive new goods', 409);
     }
     const filter = {};
     if (ownerType) filter.ownerType = ownerType;
@@ -125,7 +129,7 @@ async function searchProducts(req, res, next) {
 
 async function listVendors(req, res, next) {
   try {
-    const vendors = await Vendor.find({})
+    const vendors = await Vendor.find({ status: 'Active' })
       .select('_id name shopName memberId')
       .sort({ name: 1 })
       .lean();
@@ -245,6 +249,13 @@ async function approveGoodsReceive(req, res, next) {
       const receive = await GoodsReceive.findById(req.params.id).session(session);
       if (!receive) throw statusError('Goods receive not found', 404);
       if (receive.status !== 'Draft') throw statusError('Only draft goods receives can be approved', 409);
+      if (receive.ownerType === 'VENDOR') {
+        const vendor = await Vendor.findById(receive.vendorId).lean();
+        if (!vendor) throw statusError('Vendor not found', 404);
+        if (vendor.status !== 'Active') {
+          throw statusError('Only active vendors can receive new goods', 409);
+        }
+      }
 
       const before = receive.toObject();
       receive.status = 'Approved';

@@ -28,7 +28,7 @@ const ROLE_SEEDS = [
   ] },
   { name: 'Finance', permissions: [
     'dashboard:read', 'finance:read', 'finance:write', 'expenses:read', 'expenses:write',
-    'vendors:read', 'vendor-payouts:read', 'vendor-payouts:write', 'shareholders:read',
+    'vendors:read', 'vendors:write', 'vendor-payouts:read', 'vendor-payouts:write', 'shareholders:read',
     'wallet-logs:read', 'reports:read', 'auditlogs:read',
   ] },
   { name: 'HR/Payroll', permissions: [

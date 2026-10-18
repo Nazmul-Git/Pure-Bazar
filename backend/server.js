@@ -18,6 +18,7 @@ const settingsRoutes = require('./routes/settingsRoutes');
 const shareholderRoutes = require('./routes/shareholderRoutes');
 const stockRoutes = require('./routes/stockRoutes');
 const userRoutes = require('./routes/userRoutes');
+const vendorRoutes = require('./routes/vendorRoutes');
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/roles', roleRoutes);
 app.use('/api', settingsRoutes);
 app.use('/api/shareholders', shareholderRoutes);
+app.use('/api/vendors', vendorRoutes);
 app.use('/api', stockRoutes);
 app.use('/api', healthRoutes);
 app.use((req, res, next) => {

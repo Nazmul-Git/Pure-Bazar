@@ -10,7 +10,7 @@ jest.mock('../models', () => ({
   Product: { find: jest.fn() },
   StockMovement: { aggregate: jest.fn(), create: jest.fn() },
   User: { findById: jest.fn() },
-  Vendor: { exists: jest.fn(), find: jest.fn() },
+  Vendor: { find: jest.fn(), findById: jest.fn() },
 }));
 
 const {
@@ -66,6 +66,7 @@ describe('goods receive and movement-derived stock endpoints', () => {
   let receives;
   let movements;
   let session;
+  let vendorStatus;
 
   function currentStock() {
     return movements.reduce((sum, movement) => sum + movement.quantity, 0);
@@ -76,6 +77,7 @@ describe('goods receive and movement-derived stock endpoints', () => {
     jest.clearAllMocks();
     receives = new Map();
     movements = [];
+    vendorStatus = 'Active';
     session = {
       withTransaction: jest.fn(async (callback) => {
         const savedReceives = new Map([...receives].map(([key, value]) => [key, { ...value }]));
@@ -95,7 +97,6 @@ describe('goods receive and movement-derived stock endpoints', () => {
     Location.findById.mockReturnValue({
       select: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue({ type: 'CENTRAL' }) }),
     });
-    Vendor.exists.mockResolvedValue(true);
     Vendor.find.mockReturnValue(productQuery([{
       _id: new mongoose.Types.ObjectId(vendorId),
       name: 'Example Vendor',
@@ -103,6 +104,12 @@ describe('goods receive and movement-derived stock endpoints', () => {
       memberId: 'V-001',
       status: 'Active',
     }]));
+    Vendor.findById.mockImplementation((id) => ({
+      select: jest.fn(() => ({
+        lean: jest.fn(async () => ({ _id: id, status: vendorStatus })),
+      })),
+      lean: jest.fn(async () => ({ _id: id, status: vendorStatus })),
+    }));
     Product.find.mockImplementation(() => productQuery([rice]));
     AuditLog.create.mockResolvedValue({});
     GoodsReceive.create.mockImplementation(async ([data]) => {
@@ -264,6 +271,43 @@ describe('goods receive and movement-derived stock endpoints', () => {
     expect(response.body.vendors).toEqual([expect.objectContaining({
       id: vendorId, name: 'Example Vendor', shopName: 'Example Shop', memberId: 'V-001',
     })]);
-    expect(Vendor.find).toHaveBeenCalledWith({});
+    expect(Vendor.find).toHaveBeenCalledWith({ status: 'Active' });
+  });
+
+  it('blocks a suspended vendor from receiving a new GRN', async () => {
+    vendorStatus = 'Suspended';
+
+    const response = await request(app).post('/api/goods-receives').set(auth).send({
+      ownerType: 'VENDOR',
+      vendorId,
+      vendorChallanNumber: 'CH-1',
+      warehouseId,
+      lines: [{ productId, receivedQuantity: 1, acceptedQuantity: 1, rejectedQuantity: 0 }],
+    });
+
+    expect(response.status).toBe(409);
+    expect(response.body.message).toMatch(/active vendors/i);
+    expect(GoodsReceive.create).not.toHaveBeenCalled();
+  });
+
+  it('blocks approval when a vendor is suspended after a GRN draft is created', async () => {
+    Product.find.mockImplementation(() => productQuery([{
+      ...rice, ownerType: 'VENDOR', vendorId,
+    }]));
+    const created = await request(app).post('/api/goods-receives').set(auth).send({
+      ownerType: 'VENDOR',
+      vendorId,
+      vendorChallanNumber: 'CH-1',
+      warehouseId,
+      lines: [{ productId, receivedQuantity: 1, acceptedQuantity: 1, rejectedQuantity: 0 }],
+    });
+    expect(created.status).toBe(201);
+    vendorStatus = 'Suspended';
+
+    const response = await request(app)
+      .post(`/api/goods-receives/${created.body.goodsReceive.id}/approve`).set(auth);
+
+    expect(response.status).toBe(409);
+    expect(StockMovement.create).not.toHaveBeenCalled();
   });
 });
