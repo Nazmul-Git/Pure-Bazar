@@ -5,6 +5,9 @@ function discountPayload(discount, label) {
     throw new Error(`${label} must be a valid amount${discount.type === 'PERCENT' ? ' up to 100%' : ''}.`);
   }
   if (!discount.reason?.trim()) throw new Error(`A reason is required for the ${label.toLowerCase()}.`);
+  if (/\bshareholder\b/i.test(discount.reason)) {
+    throw new Error('Shareholder discounts are automatic and cannot be entered as manual discounts.');
+  }
   return { type: discount.type, value, reason: discount.reason.trim() };
 }
 

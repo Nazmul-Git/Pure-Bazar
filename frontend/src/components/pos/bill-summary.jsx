@@ -32,11 +32,39 @@ export default function BillSummary({
         {previewError && <p role="alert" className="mt-3 text-sm text-red-700">{previewError}</p>}
       </section>
 
+      <section className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 shadow-sm">
+        <h2 className="font-semibold text-slate-900">Shareholder status &amp; auto discount</h2>
+        {shareholder ? (
+          <div className="mt-3 rounded-lg bg-emerald-50 p-3">
+            <p className="flex items-center gap-1 font-medium text-emerald-900"><BadgeCheck size={16} />{shareholder.name}</p>
+            <p className="text-xs text-emerald-800">{shareholder.memberId} · Verified and active</p>
+            <div className="mt-3 flex items-center justify-between border-t border-emerald-200 pt-2 text-sm">
+              <span className="text-slate-700">Auto discount (WALLET only)</span>
+              <strong className="text-emerald-800">− ৳{money(bill?.shareholderDiscountAmount)}</strong>
+            </div>
+            <button type="button" className="mt-2 text-sm text-red-700 underline" onClick={onRemoveShareholder}>Remove shareholder</button>
+          </div>
+        ) : (
+          <>
+            <p className="mt-2 text-sm text-slate-600">
+              Verify a shareholder to calculate the automatic discount for an eligible WALLET payment.
+            </p>
+            <Button className="mt-3 w-full" type="button" variant="secondary" onClick={onChooseShareholder}>
+              <UserRoundPlus size={17} /> Verify and attach
+            </Button>
+          </>
+        )}
+        <p className="mt-2 text-xs text-slate-600">This discount is calculated automatically and cannot be entered or adjusted manually.</p>
+      </section>
+
       <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="flex items-center justify-between gap-2">
-          <h2 className="font-semibold text-slate-900">Bill discount</h2>
+          <h2 className="font-semibold text-slate-900">Manual / other bill discount</h2>
           <Percent size={17} className="text-slate-500" />
         </div>
+        <p className="mt-2 text-sm text-slate-600">
+          Discretionary bill-level discounts only. The automatic shareholder discount is calculated separately.
+        </p>
         <div className="mt-3 grid grid-cols-2 gap-3">
           <Select label="Discount type" value={billDiscount?.type || 'PERCENT'} onChange={(event) => onBillDiscount({ type: event.target.value })}>
             <option value="PERCENT">Percent</option>
@@ -56,26 +84,9 @@ export default function BillSummary({
           label="Reason"
           value={billDiscount?.reason || ''}
           onChange={(event) => onBillDiscount({ reason: event.target.value })}
-          placeholder="Required when discount is applied"
+          placeholder="Required when discount is applied (not Shareholder)"
           maxLength={300}
         />
-      </section>
-
-      <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="font-semibold text-slate-900">Shareholder</h2>
-        {shareholder ? (
-          <div className="mt-3 flex items-start justify-between gap-2 rounded-lg bg-emerald-50 p-3">
-            <div>
-              <p className="flex items-center gap-1 font-medium text-emerald-900"><BadgeCheck size={16} />{shareholder.name}</p>
-              <p className="text-xs text-emerald-800">{shareholder.memberId} · Verified and active</p>
-            </div>
-            <button type="button" className="text-sm text-red-700 underline" onClick={onRemoveShareholder}>Remove</button>
-          </div>
-        ) : (
-          <Button className="mt-3 w-full" type="button" variant="secondary" onClick={onChooseShareholder}>
-            <UserRoundPlus size={17} /> Verify and attach
-          </Button>
-        )}
       </section>
 
       {approvalRequired && (

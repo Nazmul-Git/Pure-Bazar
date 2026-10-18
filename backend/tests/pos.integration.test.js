@@ -68,6 +68,7 @@ describe('POS checkout API', () => {
     Authorization: `Bearer ${jwt.sign({ sub: user._id.toString() }, secret)}`,
   });
   const line = (quantity = 1) => [{ productId: productId.toString(), quantity }];
+  const preview = (body) => request(app).post('/api/pos/bill').set(auth()).send(body);
   const checkout = (body) => request(app).post('/api/pos/checkout').set(auth()).send(body);
 
   beforeEach(() => {
@@ -171,6 +172,70 @@ describe('POS checkout API', () => {
     expect(walletService.checkWalletBalance).not.toHaveBeenCalled();
   });
 
+  it('persists a successful member verification as verified for automatic discounts', async () => {
+    const verified = {
+      _id: shareholderId,
+      memberId: 'PB-001',
+      name: 'Verified Member',
+      mobile: '01700000000',
+      valid: true,
+      active: true,
+      walletEnabled: true,
+      verified: true,
+    };
+    walletService.verifyMember.mockResolvedValue({
+      memberId: verified.memberId,
+      name: verified.name,
+      mobile: verified.mobile,
+      valid: true,
+      active: true,
+      walletEnabled: true,
+    });
+    models.Shareholder.findOneAndUpdate.mockResolvedValue(verified);
+
+    const response = await request(app)
+      .post('/api/pos/verify-member')
+      .set(auth())
+      .send({ memberId: verified.memberId });
+
+    expect(response.status).toBe(200);
+    expect(models.Shareholder.findOneAndUpdate).toHaveBeenCalledWith(
+      { memberId: verified.memberId },
+      { $set: expect.objectContaining({ valid: true, verified: true }) },
+      expect.objectContaining({ upsert: true, runValidators: true }),
+    );
+    expect(response.body.shareholder).toMatchObject({ verified: true, active: true });
+  });
+
+  it('automatically calculates verified shareholder discount after manual discounts', async () => {
+    const response = await preview({
+      items: line(),
+      billDiscount: { type: 'PERCENT', value: 10, reason: 'Promotion' },
+      payments: [{ method: 'WALLET' }],
+      shareholderId: shareholderId.toString(),
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body.bill).toMatchObject({
+      subtotal: 100,
+      otherDiscountAmount: 10,
+      shareholderDiscountAmount: 4.5,
+      grandTotal: 85.5,
+      discountApprovalRequired: true,
+    });
+  });
+
+  it('rejects shareholder as a reason for a manual discount', async () => {
+    const response = await preview({
+      items: line(),
+      billDiscount: { type: 'PERCENT', value: 5, reason: 'Shareholder' },
+      payments: [{ method: 'CASH' }],
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toMatch(/Shareholder discounts are automatic/);
+  });
+
   it('checks the final wallet total and returns MRP pricing when balance is insufficient', async () => {
     walletService.checkWalletBalance.mockResolvedValue({ sufficient: false });
     const response = await checkout({
@@ -237,6 +302,21 @@ describe('POS checkout API', () => {
     const approved = await checkout({ ...body, discountApproved: true });
     expect(approved.status).toBe(201);
     expect(db.discounts[0].approvedBy.toString()).toBe(adminId.toString());
+  });
+
+  it('does not count the automatic shareholder discount toward the manual discount limit', async () => {
+    const response = await preview({
+      items: line(),
+      payments: [{ method: 'WALLET' }],
+      shareholderId: shareholderId.toString(),
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body.bill).toMatchObject({
+      shareholderDiscountAmount: 5,
+      otherDiscountAmount: 0,
+      discountApprovalRequired: false,
+    });
   });
 
   it('syncs non-wallet offline bills idempotently and preserves the sale time', async () => {

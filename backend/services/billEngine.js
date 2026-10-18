@@ -20,6 +20,9 @@ function discountCents(discount, baseCents, name) {
   if (value > 0 && (typeof discount.reason !== 'string' || !discount.reason.trim())) {
     throw new TypeError(`${name} reason is required`);
   }
+  if (value > 0 && /\bshareholder\b/i.test(discount.reason)) {
+    throw new TypeError(`${name} reason cannot refer to a shareholder discount; it is applied automatically`);
+  }
   const amount = discount.type === 'PERCENT'
     ? Math.round(baseCents * value / 100)
     : toCents(value);

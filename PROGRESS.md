@@ -157,6 +157,10 @@
 	- Files: POS barcode scanner and cart; quantity, removal, item/bill discount inputs; verified shareholder modal; non-wallet split tender and full-wallet balance check; live server-priced bill summary and checkout; POS API service and billing validation tests.
 	- Decisions: Keep bill totals and role-limit approval decisions server-authoritative; require a discount reason; never allow wallet split tender; require positive split amounts that equal the final total; show wallet sufficiency without exposing the balance.
 	- Validation: POS billing frontend tests pass (4 tests); frontend production build passes.
+- [x] 3.4a Fix POS discount engine and prevent double shareholder discount
+	- Files: Automatic verified-shareholder discount ordering and manual-reason rejection in POS bill calculations and validation; separated shareholder auto-discount and manual bill-discount UI; engine, API, and frontend validation tests.
+	- Decisions: Apply eligible WALLET shareholder discounts after item and manual bill discounts; keep automatic shareholder discounts outside discretionary discount role limits and approval; reject manual discount reasons mentioning shareholders.
+	- Validation: POS backend tests pass (2 suites, 17 tests); frontend billing tests pass (4 tests); role-limit and Super Admin approval behavior verified; frontend production build passes.
 - [ ] 4.1
 - [ ] 4.2
 - [ ] 4.3

@@ -45,7 +45,7 @@ async function verifyMember(req, res, next) {
     }
     shareholder = await Shareholder.findOneAndUpdate(
       { memberId: member.memberId },
-      { $set: member },
+      { $set: { ...member, verified: member.valid === true } },
       { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true },
     );
     if (!shareholder) throw statusError('Unable to attach the verified shareholder', 500);

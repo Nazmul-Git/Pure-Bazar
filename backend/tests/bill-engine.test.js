@@ -58,6 +58,28 @@ describe('bill engine', () => {
     expect(bill.ledgerLines.reduce((total, line) => total + line.companyNet, 0)).toBe(-3);
   });
 
+  it('applies the automatic shareholder discount after item and bill discounts', () => {
+    const bill = calculateBill({
+      items: items.map((item, index) => ({
+        ...item,
+        discount: index === 0 ? { type: 'PERCENT', value: 10, reason: 'Damaged packaging' } : undefined,
+      })),
+      paymentMethod: 'WALLET',
+      shareholder: { verified: true },
+      billDiscount: { type: 'FIXED', value: 70, reason: 'Manager promotion' },
+      settings: walletSettings,
+    });
+
+    expect(bill).toMatchObject({
+      subtotal: 1270,
+      otherDiscountAmount: 155,
+      shareholderDiscountAmount: 55.75,
+      grandTotal: 1059.25,
+    });
+    expect(bill.ledgerLines.reduce((sum, line) => sum + line.discountAmount, 0)).toBe(210.75);
+    expect(bill.otherDiscountAmount + bill.shareholderDiscountAmount).toBeLessThanOrEqual(bill.subtotal);
+  });
+
   it('does not apply a shareholder discount to cash bills', () => {
     const bill = calculateBill({
       items,
@@ -76,6 +98,23 @@ describe('bill engine', () => {
         { vendorPayable: 378, companyNet: 42 },
       ],
     });
+  });
+
+  it('requires verified status and rejects manual shareholder discounts', () => {
+    const unverifiedBill = calculateBill({
+      items,
+      paymentMethod: 'WALLET',
+      shareholder: { verified: false },
+      settings: walletSettings,
+    });
+    expect(unverifiedBill.shareholderDiscountAmount).toBe(0);
+    expect(unverifiedBill.grandTotal).toBe(unverifiedBill.subtotal);
+
+    expect(() => calculateBill({
+      items: [{ ...items[0], discount: { type: 'FIXED', value: 5, reason: 'Shareholder' } }],
+      paymentMethod: 'WALLET',
+      shareholder: { verified: true },
+    })).toThrow(/cannot refer to a shareholder discount/);
   });
 
   it('supports percentage and fixed item/bill discounts and honors VAT order', () => {

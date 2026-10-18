@@ -5,15 +5,22 @@ const {
 const { calculateBill } = require('./billEngine');
 
 const methods = ['CASH', 'BKASH', 'NAGAD', 'CARD', 'WALLET'];
+const manualDiscountSchema = Joi.object({
+  type: Joi.string().valid('PERCENT', 'FIXED').required(),
+  value: Joi.number().min(0).required(),
+  reason: Joi.string().trim().min(1).max(300).required().custom((reason, helpers) => (
+    /\bshareholder\b/i.test(reason)
+      ? helpers.error('any.invalid')
+      : reason
+  )).messages({
+    'any.invalid': 'Shareholder discounts are automatic and cannot be entered as manual discounts',
+  }),
+}).unknown(false);
 const billSchema = Joi.object({
   items: Joi.array().min(1).items(Joi.object({
     productId: Joi.string().hex().length(24).lowercase().required(),
     quantity: Joi.number().positive().required(),
-    discount: Joi.object({
-      type: Joi.string().valid('PERCENT', 'FIXED').required(),
-      value: Joi.number().min(0).required(),
-      reason: Joi.string().trim().min(1).max(300).required(),
-    }).optional(),
+    discount: manualDiscountSchema.optional(),
   }).unknown(false)).required(),
   payments: Joi.array().min(1).items(Joi.object({
     method: Joi.string().valid(...methods).required(),
@@ -21,11 +28,7 @@ const billSchema = Joi.object({
   }).unknown(false)),
   paymentMethod: Joi.string().valid(...methods),
   shareholderId: Joi.string().hex().length(24).lowercase(),
-  billDiscount: Joi.object({
-    type: Joi.string().valid('PERCENT', 'FIXED').required(),
-    value: Joi.number().min(0).required(),
-    reason: Joi.string().trim().min(1).max(300).required(),
-  }),
+  billDiscount: manualDiscountSchema,
   discountApproved: Joi.boolean(),
   outletId: Joi.string().hex().length(24),
   offlineId: Joi.string().trim().min(1).max(120),

@@ -41,6 +41,10 @@ test('requires reasons for nonzero discounts and rejects percentage values over 
     () => createPreviewPayload([{ ...scannedItem, discount: { type: 'PERCENT', value: '101', reason: 'Sale' } }], null, ['CASH']),
     /up to 100%/,
   );
+  assert.throws(
+    () => createPreviewPayload([scannedItem], { type: 'FIXED', value: '5', reason: 'Shareholder' }, ['CASH']),
+    /Shareholder discounts are automatic/,
+  );
 });
 
 test('rejects invalid quantities and wallet split tenders', () => {
