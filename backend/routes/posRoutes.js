@@ -1,6 +1,7 @@
 const express = require('express');
-const { body, param } = require('express-validator');
+const { body, param, query } = require('express-validator');
 const posController = require('../controllers/posController');
+const posHistoryController = require('../controllers/posHistoryController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const authorizeMiddleware = require('../middlewares/authorizeMiddleware');
 const validateRequest = require('../middlewares/validateRequest');
@@ -8,7 +9,39 @@ const validateRequest = require('../middlewares/validateRequest');
 const router = express.Router();
 const read = [authMiddleware, authorizeMiddleware({ permissions: ['pos:read'] })];
 const write = [authMiddleware, authorizeMiddleware({ permissions: ['pos:write'] })];
+const paymentMethods = ['CASH', 'BKASH', 'NAGAD', 'CARD', 'WALLET'];
+const validDate = (value) => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const parsed = new Date(`${value}T00:00:00.000Z`);
+  return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+};
 
+router.get('/history', read, [
+  query('outlet').optional().isMongoId(),
+  query('cashier').optional().isMongoId(),
+  query('shareholderId').optional().isMongoId(),
+  query('vendor').optional().isMongoId(),
+  query('paymentMethod').optional().isIn(paymentMethods),
+  query('date').optional().custom(validDate).withMessage('Date must be a valid YYYY-MM-DD date'),
+  query('from').optional().isISO8601({ strict: true, strictSeparator: true }),
+  query('to').optional().isISO8601({ strict: true, strictSeparator: true }),
+  query().custom((value) => !(value.date && (value.from || value.to)))
+    .withMessage('Use date or from/to, not both'),
+  query().custom((value) => (
+    !value.from || !value.to || new Date(value.from) <= new Date(value.to)
+  )).withMessage('from must be before or equal to to'),
+], validateRequest, posHistoryController.listSalesHistory);
+router.post('/:orderId/return', write, [
+  param('orderId').isMongoId(),
+  body('walletRefunded').optional().isBoolean().toBoolean(),
+  body('walletRefundMethod').optional().isIn(['MANUAL', 'API']),
+  body().custom((value) => (
+    value.walletRefunded !== true || Boolean(value.walletRefundMethod)
+  )).withMessage('walletRefundMethod is required when walletRefunded is true'),
+  body().custom((value) => (
+    value.walletRefunded === true || !value.walletRefundMethod
+  )).withMessage('walletRefundMethod requires walletRefunded to be true'),
+], validateRequest, posHistoryController.returnBill);
 router.get('/scan/:barcode', read, [
   param('barcode').isString().trim().isLength({ min: 1, max: 100 }),
 ], validateRequest, posController.scanItem);

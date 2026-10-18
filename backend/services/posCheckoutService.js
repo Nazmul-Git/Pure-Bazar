@@ -262,5 +262,6 @@ async function commitBill(req, res, next, offline) {
 
 module.exports = {
   finalizeBill: (req, res, next) => commitBill(req, res, next, false),
+  resolveOutlet,
   syncOfflineBill: (req, res, next) => commitBill(req, res, next, true),
 };

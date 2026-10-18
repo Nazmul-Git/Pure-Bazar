@@ -165,6 +165,10 @@
 	- Files: Active/primary POS outlet fields and lookup; default outlet seeding and backfill for unassigned Cashier/Outlet Cashier accounts; default assignment for newly created cashiers; checkout outlet fallback and order/SALE movement regression tests.
 	- Decisions: Seed Demo Outlet as active and primary; preserve existing cashier assignments; use the highest-priority active outlet when checkout has no assigned outlet; reject inactive or non-outlet cashier assignments.
 	- Validation: Full backend Jest suite passes (21 suites, 126 tests); `git diff --check` passes.
+- [x] 3.5a History returns API
+	- Files: POS sales-history API with outlet, cashier, date, payment method, vendor, and shareholder filters; transactional full-bill returns, automatic stock restoration, vendor-ledger reversal, wallet-refund tracking, and integration/model tests.
+	- Decisions: Limit non-admin history and returns to the assigned outlet; allow one return per bill; record manual/API wallet refund completion without calling Probashi because orders do not store provider transaction IDs.
+	- Validation: Full backend Jest suite passes (22 suites, 130 tests); focused POS/return/model tests pass (3 suites, 20 tests); `git diff --check` passes.
 - [ ] 4.1
 - [ ] 4.2
 - [ ] 4.3

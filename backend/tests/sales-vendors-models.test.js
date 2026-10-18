@@ -32,6 +32,7 @@ describe('Sales and vendor models', () => {
       errors: {
         returnNumber: expect.objectContaining({ kind: 'required' }),
         orderId: expect.objectContaining({ kind: 'required' }),
+        refundAmount: expect.objectContaining({ kind: 'required' }),
         createdBy: expect.objectContaining({ kind: 'required' }),
       },
     });
@@ -135,11 +136,15 @@ describe('Sales and vendor models', () => {
 
   it('declares requested sales and vendor lookup indexes', () => {
     const orderIndexes = models.Order.schema.indexes().map(([fields]) => fields);
+    const returnIndexes = models.Return.schema.indexes().map(([fields, options]) => ({ fields, options }));
     const ledgerIndexes = models.VendorLedger.schema.indexes().map(([fields]) => fields);
     const statementIndexes = models.VendorStatement.schema.indexes().map(([fields]) => fields);
 
     expect(orderIndexes).toEqual(expect.arrayContaining([
       { orderNumber: 1 }, { memberId: 1 }, { createdAt: 1 },
+    ]));
+    expect(returnIndexes).toEqual(expect.arrayContaining([
+      { fields: { orderId: 1 }, options: expect.objectContaining({ unique: true }) },
     ]));
     expect(ledgerIndexes).toEqual(expect.arrayContaining([{ vendorId: 1 }, { createdAt: 1 }]));
     expect(statementIndexes).toEqual(expect.arrayContaining([{ vendorId: 1 }, { createdAt: 1 }]));
