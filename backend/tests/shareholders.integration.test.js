@@ -51,29 +51,82 @@ function createApp() {
 
 describe('shareholder endpoints', () => {
   const app = createApp();
+  const mirroredShareholders = new Map();
   const auth = { Authorization: `Bearer ${jwt.sign({ sub: actorId }, secret)}` };
 
   beforeEach(() => {
     process.env.JWT_SECRET = secret;
     process.env.PROBASHI_MODE = 'mock';
     jest.clearAllMocks();
+    mirroredShareholders.clear();
     User.findById.mockReturnValue({ populate: jest.fn().mockResolvedValue(actor) });
     WalletAuditLog.create.mockResolvedValue({});
-    Shareholder.findOneAndUpdate.mockResolvedValue({});
+    Shareholder.findOneAndUpdate.mockImplementation(async (selector, update) => {
+      const record = { _id: shareholderId, ...update.$set };
+      mirroredShareholders.set(selector.memberId, record);
+      return record;
+    });
+    Order.find.mockReturnValue(createChain([]));
   });
 
-  it('searches mirrored shareholders by member ID or mobile', async () => {
-    const results = [{ memberId: 'PB-1', mobile: '01700000001' }];
-    Shareholder.find.mockReturnValue(createChain(results));
-
+  it('verifies and mirrors searches by member ID or mobile', async () => {
     const byId = await request(app).get('/api/shareholders?memberId=PB-1').set(auth);
     const byMobile = await request(app).get('/api/shareholders?mobile=01700000001').set(auth);
 
     expect(byId.status).toBe(200);
     expect(byMobile.status).toBe(200);
-    expect(Shareholder.find).toHaveBeenNthCalledWith(1, { memberId: 'PB-1' });
-    expect(Shareholder.find).toHaveBeenNthCalledWith(2, { mobile: '01700000001' });
+    expect(byId.body.shareholders[0]).toMatchObject({
+      memberId: 'PB-1',
+      status: 'valid',
+      purchases: [],
+    });
+    expect(Shareholder.findOneAndUpdate).toHaveBeenNthCalledWith(
+      1,
+      { memberId: 'PB-1' },
+      { $set: expect.objectContaining({ memberId: 'PB-1', verified: true }) },
+      expect.objectContaining({ upsert: true, runValidators: true }),
+    );
+    expect(Shareholder.findOneAndUpdate).toHaveBeenNthCalledWith(
+      2,
+      { memberId: 'MOCK-01700000001' },
+      { $set: expect.objectContaining({ mobile: '01700000001', verified: true }) },
+      expect.objectContaining({ upsert: true, runValidators: true }),
+    );
     expect((await request(app).get('/api/shareholders').set(auth)).status).toBe(400);
+  });
+
+  it.each([
+    ['PB0007', 'valid'],
+    ['INACTIVE001', 'inactive'],
+    ['INVALID001', 'invalid'],
+    ['WALLET_DISABLED01', 'wallet disabled'],
+  ])('returns %s with %s status and purchase history', async (memberId, status) => {
+    const purchases = [{ orderNumber: `ORDER-${memberId}` }];
+    Order.find.mockReturnValue(createChain(purchases));
+
+    const response = await request(app).get(`/api/shareholders?memberId=${memberId}`).set(auth);
+
+    expect(response.status).toBe(200);
+    expect(response.body.shareholders).toHaveLength(1);
+    expect(response.body.shareholders[0]).toMatchObject({
+      memberId,
+      status,
+      purchases,
+    });
+    expect(Shareholder.findOneAndUpdate).toHaveBeenCalledWith(
+      { memberId },
+      { $set: expect.objectContaining({ memberId }) },
+      expect.objectContaining({ upsert: true, runValidators: true }),
+    );
+  });
+
+  it('keeps one mirrored record after repeated searches', async () => {
+    await request(app).get('/api/shareholders?memberId=PB0007').set(auth);
+    await request(app).get('/api/shareholders?memberId=PB0007').set(auth);
+
+    expect(Shareholder.findOneAndUpdate).toHaveBeenCalledTimes(2);
+    expect(mirroredShareholders.size).toBe(1);
+    expect(mirroredShareholders.has('PB0007')).toBe(true);
   });
 
   it('verifies and mirrors a valid shareholder and audits the call', async () => {

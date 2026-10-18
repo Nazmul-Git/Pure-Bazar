@@ -29,10 +29,43 @@ async function searchShareholders(req, res, next) {
     if (Boolean(memberId) === Boolean(mobile)) {
       throw statusError('Supply exactly one of memberId or mobile', 400);
     }
-    const shareholders = await Shareholder.find(memberId ? { memberId } : { mobile })
-      .select('memberId name mobile verified active walletEnabled')
-      .sort({ name: 1 })
-      .lean();
+    const identifier = String(memberId || mobile).trim();
+    const shareholders = await auditedRequest(req, 'MEMBER_VERIFY', identifier, async () => {
+      const member = await probashiWalletService.verifyMember({
+        ...(memberId ? { memberId } : { mobile }),
+      });
+      const mirroredMemberId = member.memberId || memberId || `MOBILE-${mobile}`;
+      const shareholder = await Shareholder.findOneAndUpdate(
+        { memberId: mirroredMemberId },
+        {
+          $set: {
+            memberId: mirroredMemberId,
+            name: member.name || mirroredMemberId,
+            mobile: member.mobile || undefined,
+            verified: member.valid,
+            active: member.active,
+            walletEnabled: member.walletEnabled,
+          },
+        },
+        { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true },
+      );
+      if (!shareholder) throw statusError('Unable to mirror the verified shareholder', 500);
+      const purchases = await Order.find({ memberId: shareholder._id })
+        .sort({ createdAt: -1 })
+        .limit(100)
+        .lean();
+      const status = !member.valid
+        ? 'invalid'
+        : !member.active
+          ? 'inactive'
+          : !member.walletEnabled
+            ? 'wallet disabled'
+            : 'valid';
+      const record = typeof shareholder.toObject === 'function'
+        ? shareholder.toObject()
+        : shareholder;
+      return [{ ...record, status, purchases }];
+    });
     return res.json({ success: true, shareholders });
   } catch (error) {
     return next(error);

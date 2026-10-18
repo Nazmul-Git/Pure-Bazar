@@ -17,6 +17,13 @@ const formatMoney = (value) => new Intl.NumberFormat('en-BD', {
 }).format(Number(value) || 0);
 
 function shareholderStatus(shareholder) {
+  const statuses = {
+    valid: { label: 'Valid', tone: 'success' },
+    invalid: { label: 'Invalid', tone: 'danger' },
+    inactive: { label: 'Inactive', tone: 'neutral' },
+    'wallet disabled': { label: 'Wallet disabled', tone: 'neutral' },
+  };
+  if (statuses[shareholder.status]) return statuses[shareholder.status];
   if (!shareholder.active) return { label: 'Inactive', tone: 'neutral' };
   return shareholder.verified
     ? { label: 'Valid', tone: 'success' }

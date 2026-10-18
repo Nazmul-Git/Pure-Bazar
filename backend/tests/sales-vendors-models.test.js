@@ -80,7 +80,7 @@ describe('Sales and vendor models', () => {
   it('requires ledger, shareholder, wallet, audit, and discount fields', async () => {
     const cases = [
       [new models.VendorLedger(), ['vendorId', 'orderId', 'productId', 'quantity', 'entryType', 'vendorPayable', 'companyNet']],
-      [new models.Shareholder(), ['memberId', 'name', 'mobile', 'verified', 'active', 'walletEnabled']],
+      [new models.Shareholder(), ['memberId', 'name', 'verified', 'active', 'walletEnabled']],
       [new models.WalletLog(), ['memberId', 'orderId', 'amount', 'type']],
       [new models.WalletAuditLog(), ['memberId', 'action', 'succeeded', 'createdBy']],
       [new models.DiscountLog(), ['orderId', 'scope', 'discountType', 'amount', 'reason', 'appliedBy']],
@@ -109,6 +109,28 @@ describe('Sales and vendor models', () => {
       const error = await document.validate().catch((validationError) => validationError);
       for (const field of fields) expect(error.errors[field].kind).toBe('enum');
     }
+  });
+
+  it('allows invalid mirrored shareholders without a mobile number', async () => {
+    const invalidMember = new models.Shareholder({
+      memberId: 'INVALID001',
+      name: 'INVALID001',
+      verified: false,
+      active: false,
+      walletEnabled: false,
+    });
+    const validMember = new models.Shareholder({
+      memberId: 'PB0007',
+      name: 'Mock Shareholder',
+      verified: true,
+      active: true,
+      walletEnabled: true,
+    });
+
+    await expect(invalidMember.validate()).resolves.toBeUndefined();
+    await expect(validMember.validate()).rejects.toMatchObject({
+      errors: { mobile: expect.objectContaining({ kind: 'required' }) },
+    });
   });
 
   it('declares requested sales and vendor lookup indexes', () => {

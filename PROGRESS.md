@@ -144,6 +144,10 @@
 	- Files: API-backed shareholder directory with mobile/member ID search, valid/invalid/inactive status badges, and purchase history.
 	- Decisions: Require an explicit search identifier type; display purchase dates, totals, order numbers, and payment statuses returned by the existing API.
 	- Validation: Frontend production build passes; `/shareholders/directory` is generated successfully.
+- [x] 3.2c Fix shareholder search
+	- Files: Probashi-backed shareholder directory search, idempotent shareholder mirror upserts, explicit member status and purchase history in results, and search/model regression tests.
+	- Decisions: Verify each search through the server-side Probashi service; preserve invalid members in the mirror and allow them to lack a mobile number.
+	- Validation: Full backend Jest suite passes (20 suites, 111 tests); frontend production build passes; Probashi credentials remain server-side only.
 - [ ] 3.2
 - [ ] 3.3
 - [ ] 3.4
