@@ -149,7 +149,10 @@
 	- Decisions: Verify each search through the server-side Probashi service; preserve invalid members in the mirror and allow them to lack a mobile number.
 	- Validation: Full backend Jest suite passes (20 suites, 111 tests); frontend production build passes; Probashi credentials remain server-side only.
 - [ ] 3.2
-- [ ] 3.3
+- [x] 3.3 POS backend
+	- Files: Authenticated POS scan, bill preview, verified-shareholder attach, checkout, and offline sync APIs; order line snapshots and offline idempotency; transactional stock movements, vendor ledgers, wallet and discount logs, audit records, and receipt data; POS integration tests.
+	- Decisions: Calculate prices from server-side product data and bill engine rules; wallet is single-method and requires an active, verified, wallet-enabled member plus final-total balance sufficiency; insufficient wallet returns an MRP-repriced bill. Split only non-wallet payments. Discount limits use role percentages; above-limit checkout requires the request actor to be Super Admin and explicitly approve. Offline sync accepts non-wallet payments only and deduplicates by client offline ID.
+	- Validation: Full backend Jest suite passes (21 suites, 117 tests), including wallet eligibility/insufficient balance, full rollback, stock and vendor ledger matching, discount approval, and idempotent non-wallet offline sync.
 - [ ] 3.4
 - [ ] 4.1
 - [ ] 4.2
