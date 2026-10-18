@@ -169,6 +169,10 @@
 	- Files: POS sales-history API with outlet, cashier, date, payment method, vendor, and shareholder filters; transactional full-bill returns, automatic stock restoration, vendor-ledger reversal, wallet-refund tracking, and integration/model tests.
 	- Decisions: Limit non-admin history and returns to the assigned outlet; allow one return per bill; record manual/API wallet refund completion without calling Probashi because orders do not store provider transaction IDs.
 	- Validation: Full backend Jest suite passes (22 suites, 130 tests); focused POS/return/model tests pass (3 suites, 20 tests); `git diff --check` passes.
+- [x] 3.5b Shifts API
+	- Files: POS cashier shift open/current/report/close APIs; unique open-shift constraint; opening cash, bill-tender summaries by payment method, expected/actual closing cash, cash difference, audit events, and integration tests.
+	- Decisions: Attribute paid bills to the cashier, outlet, and backend creation time within the shift; expected cash equals opening float plus paid cash tenders; non-cash actuals reflect paid bill tenders, while cash actual is the counted drawer balance.
+	- Validation: Full backend Jest suite passes (23 suites, 133 tests); shift tests verify expected cash against multiple bills and payment methods; `git diff --check` passes.
 - [ ] 4.1
 - [ ] 4.2
 - [ ] 4.3

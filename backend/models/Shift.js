@@ -34,5 +34,9 @@ shiftSchema.pre('validate', function calculateCashDifference() {
 
 shiftSchema.index({ outletId: 1, status: 1 });
 shiftSchema.index({ cashierId: 1, openedAt: -1 });
+shiftSchema.index({ cashierId: 1 }, {
+  unique: true,
+  partialFilterExpression: { status: 'OPEN' },
+});
 
 module.exports = mongoose.models.Shift || mongoose.model('Shift', shiftSchema);
