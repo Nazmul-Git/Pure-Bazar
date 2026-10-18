@@ -1,5 +1,5 @@
-import PagePlaceholder from '@/components/page-placeholder';
+import PosReturnsPage from '@/components/pos/returns-page';
 
 export default function ReturnsPage() {
-  return <PagePlaceholder title="Returns" />;
+  return <PosReturnsPage />;
 }

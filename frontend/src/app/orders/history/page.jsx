@@ -1,5 +1,5 @@
-import PagePlaceholder from '@/components/page-placeholder';
+import SalesHistoryPage from '@/components/pos/sales-history-page';
 
 export default function OrderHistoryPage() {
-  return <PagePlaceholder title="Order History" />;
+  return <SalesHistoryPage />;
 }

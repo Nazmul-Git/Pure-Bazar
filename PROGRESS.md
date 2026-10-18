@@ -173,6 +173,10 @@
 	- Files: POS cashier shift open/current/report/close APIs; unique open-shift constraint; opening cash, bill-tender summaries by payment method, expected/actual closing cash, cash difference, audit events, and integration tests.
 	- Decisions: Attribute paid bills to the cashier, outlet, and backend creation time within the shift; expected cash equals opening float plus paid cash tenders; non-cash actuals reflect paid bill tenders, while cash actual is the counted drawer balance.
 	- Validation: Full backend Jest suite passes (23 suites, 133 tests); shift tests verify expected cash against multiple bills and payment methods; `git diff --check` passes.
+- [x] 3.5c Sales screens
+	- Files: POS sales history filters and bill details; full-bill returns with wallet-refund status tracking; cashier shift opening, tender reconciliation, and day close; sales navigation and screen utility tests.
+	- Decisions: Returns cover a whole bill; exchanges require a return followed by a new POS sale; wallet refund status records completion without initiating a provider transaction.
+	- Validation: POS screen utility tests pass (3 tests); frontend production build passes; `git diff --check` passes.
 - [ ] 4.1
 - [ ] 4.2
 - [ ] 4.3
