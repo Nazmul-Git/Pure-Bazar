@@ -41,9 +41,9 @@
 	- Decisions: Keep the short-lived JWT in sessionStorage across reloads; use the backend role permissions for menu and route visibility, and restrict role administration to Super Admin.
 	- Validation: Backend tests pass (7 suites, 23 tests); frontend production build passes. Playwright browser flow verified sign-in, sign-out, session restore, live role/user API pages, route denial, and 9 Super Admin menus versus 2 cashier menus.
 - [x] 1.4 Users and roles management
-	- Files: Super Admin-only users/roles CRUD APIs with input validation, hashed passwords, audit events, integration tests, and API-backed frontend management pages.
-	- Decisions: Protect the Super Admin role from modification/deletion; prevent deleting assigned roles and the signed-in user; expose user records without password hashes.
-	- Validation: Backend tests pass (8 suites, 29 tests); frontend production build passes.
+	- Files: Super Admin-only users/roles CRUD APIs with input validation, hashed passwords, audit events, integration tests, and API-backed frontend management pages; grouped role-permission controls, safe presets, sensitive-access warnings, and a backend permission allowlist.
+	- Decisions: Protect the Super Admin role from modification/deletion; prevent deleting assigned roles and the signed-in user; expose user records without password hashes; preserve established permission keys and reject unsupported or duplicate permission values.
+	- Validation: Focused role/user API tests pass (1 suite, 10 tests), including permission saving and validation; frontend production build passes.
 - [x] 1.4a Settings API
 	- Files: Super Admin-only settings and filtered audit-log APIs, settings validation/model constraints, and integration/model tests.
 	- Decisions: Settings updates are whitelisted and audited with before/after snapshots; vendor terms versions are append-only; Probashi exposes status only, never credentials; vendor settlement supports one or two cycles with matching unique cut-off dates.

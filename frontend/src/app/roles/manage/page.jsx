@@ -3,11 +3,11 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSelector } from 'react-redux';
-import { KeyRound, Pencil, Plus, Shield, Trash2 } from 'lucide-react';
+import { AlertTriangle, KeyRound, Pencil, Plus, Shield, Trash2 } from 'lucide-react';
 import { Button, Input, Modal } from '@/components/ui';
 import { createRole, deleteRole, getRoles, getUsers, updateRole } from '@/services/admin';
-
-const emptyForm = { name: '', permissions: '' };
+import { permissionGroups, presets, sensitivePrefixes } from './permission-options';
+const emptyForm = { name: '', permissions: [] };
 
 export default function RoleManagementPage() {
   const token = useSelector((state) => state.auth.token);
@@ -49,18 +49,35 @@ export default function RoleManagementPage() {
 
   function startEdit(role) {
     setEditingRole(role);
-    setForm({ name: role.name, permissions: (role.permissions || []).join('\n') });
+    setForm({ name: role.name, permissions: role.permissions || [] });
     setError('');
     setDialogOpen(true);
   }
 
+  function togglePermissions(permissionList, enabled) {
+    setForm((current) => ({
+      ...current,
+      permissions: enabled
+        ? [...new Set([...current.permissions, ...permissionList])]
+        : current.permissions.filter((permission) => !permissionList.includes(permission)),
+    }));
+  }
+
   async function submit(event) {
     event.preventDefault();
-    setSaving(true);
     setError('');
+    const isSuperAdmin = form.name.trim() === 'Super Admin';
+    const sensitivePermissions = form.permissions.filter((permission) => (
+      sensitivePrefixes.some((prefix) => permission.startsWith(prefix))
+    ));
+    if (sensitivePermissions.length && !isSuperAdmin && !window.confirm(
+      `High-risk access selected (${sensitivePermissions.join(', ')}). Save these permissions for this non-Super Admin role?`,
+    )) return;
+
+    setSaving(true);
     const payload = {
       name: form.name,
-      permissions: form.permissions.split('\n').map((permission) => permission.trim()).filter(Boolean),
+      permissions: [...new Set(form.permissions)],
     };
     try {
       if (editingRole) await updateRole(token, editingRole._id, payload);
@@ -150,10 +167,67 @@ export default function RoleManagementPage() {
       <Modal open={dialogOpen} onClose={() => setDialogOpen(false)} title={editingRole ? 'Edit role' : 'Add role'}>
         <form className="space-y-4" onSubmit={submit}>
           <Input label="Role name" name="name" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} required minLength={2} maxLength={80} />
-          <label className="flex flex-col gap-1.5">
-            <span className="text-xs font-semibold text-slate-700">Permissions</span>
-            <textarea name="permissions" rows={7} value={form.permissions} onChange={(event) => setForm({ ...form, permissions: event.target.value })} placeholder={'products:read\nproducts:write'} className="w-full resize-y rounded-md border border-slate-300 px-3 py-2 font-mono text-sm text-slate-800 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-100" />
-          </label>
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-xs font-semibold text-slate-700">Permissions</span>
+              <div className="flex flex-wrap gap-2">
+                {Object.entries(presets).map(([name, permissions]) => (
+                  <Button
+                    key={name}
+                    type="button"
+                    variant="secondary"
+                    onClick={() => setForm((current) => ({ ...current, permissions }))}
+                  >
+                    {name}
+                  </Button>
+                ))}
+              </div>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {permissionGroups.map((group) => (
+                <fieldset key={group.name} className="rounded-md border border-slate-200 p-3">
+                  <legend className="px-1 text-sm font-semibold text-slate-800">{group.name}</legend>
+                  <div className="grid grid-cols-[minmax(0,1fr)_3.5rem_3.5rem] gap-x-2 gap-y-3">
+                    <span />
+                    <span className="text-center text-xs font-medium text-slate-500">Read</span>
+                    <span className="text-center text-xs font-medium text-slate-500">Write</span>
+                    {group.rows.map((row) => (
+                      <div key={row.label} className="col-span-3 grid grid-cols-subgrid items-center gap-x-2">
+                        <span className="text-xs text-slate-700">{row.label}</span>
+                        {['read', 'write'].map((level) => {
+                          const permissionList = row[level];
+                          const selectedCount = permissionList.filter((permission) => form.permissions.includes(permission)).length;
+                          const checked = selectedCount === permissionList.length;
+                          return (
+                            <label key={level} className="flex justify-center">
+                              <input
+                                type="checkbox"
+                                aria-label={`${row.label} ${level} permission`}
+                                ref={(element) => {
+                                  if (element) element.indeterminate = selectedCount > 0 && !checked;
+                                }}
+                                checked={checked}
+                                onChange={(event) => togglePermissions(permissionList, event.target.checked)}
+                                className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                              />
+                            </label>
+                          );
+                        })}
+                      </div>
+                    ))}
+                  </div>
+                </fieldset>
+              ))}
+            </div>
+          </div>
+          {form.name.trim() !== 'Super Admin' && form.permissions.some((permission) => (
+            sensitivePrefixes.some((prefix) => permission.startsWith(prefix))
+          )) && (
+            <div role="alert" className="flex gap-2 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
+              <AlertTriangle size={18} className="mt-0.5 shrink-0" />
+              <p><strong>High-risk permissions selected.</strong> This non-Super Admin role will receive sensitive permissions for settings, role administration, vendor payouts, or audit logs. You will be asked to confirm before saving.</p>
+            </div>
+          )}
           {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
           <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
             <Button variant="secondary" type="button" onClick={() => setDialogOpen(false)}>Cancel</Button>

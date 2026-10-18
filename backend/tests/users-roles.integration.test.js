@@ -185,16 +185,35 @@ describe('users and roles endpoints', () => {
   });
 
   it('creates, updates, and deletes roles with audit records', async () => {
-    const created = await request(app).post('/api/roles').set(auth).send({ name: 'Stock Viewer', permissions: ['stock:read'] });
-    const updated = await request(app).put(`/api/roles/${roleId}`).set(auth).send({ name: 'Inventory Team', permissions: ['products:read'] });
+    const createPermissions = ['pos:read', 'vendor-payouts:write'];
+    const updatePermissions = ['products:read', 'settings:write'];
+    const created = await request(app).post('/api/roles').set(auth).send({ name: 'Stock Viewer', permissions: createPermissions });
+    const updated = await request(app).put(`/api/roles/${roleId}`).set(auth).send({ name: 'Inventory Team', permissions: updatePermissions });
     const removed = await request(app).delete(`/api/roles/${roleId}`).set(auth);
 
     expect(created.status).toBe(201);
     expect(updated.status).toBe(200);
     expect(removed.status).toBe(200);
+    expect(Role.create).toHaveBeenCalledWith({ name: 'Stock Viewer', permissions: createPermissions });
+    expect(Role.findByIdAndUpdate).toHaveBeenCalledWith(roleId, {
+      name: 'Inventory Team', permissions: updatePermissions,
+    }, { new: true, runValidators: true });
     expect(AuditLog.create).toHaveBeenCalledWith(expect.objectContaining({ action: 'CREATE', entity: 'Role' }));
     expect(AuditLog.create).toHaveBeenCalledWith(expect.objectContaining({ action: 'UPDATE', entity: 'Role' }));
     expect(AuditLog.create).toHaveBeenCalledWith(expect.objectContaining({ action: 'DELETE', entity: 'Role' }));
+  });
+
+  it('rejects unknown and duplicate role permissions', async () => {
+    const unknown = await request(app).post('/api/roles').set(auth).send({
+      name: 'Unknown Access', permissions: ['system:root'],
+    });
+    const duplicate = await request(app).post('/api/roles').set(auth).send({
+      name: 'Duplicate Access', permissions: ['stock:read', 'stock:read'],
+    });
+
+    expect(unknown.status).toBe(400);
+    expect(duplicate.status).toBe(400);
+    expect(Role.create).not.toHaveBeenCalled();
   });
 
   it('rejects invalid input, unauthenticated access, and non-admin users', async () => {
