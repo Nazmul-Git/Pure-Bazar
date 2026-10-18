@@ -1,5 +1,5 @@
-import PagePlaceholder from '@/components/page-placeholder';
+import PosBillingPage from '@/components/pos/pos-billing-page';
 
 export default function PosPage() {
-  return <PagePlaceholder title="POS" />;
+  return <PosBillingPage />;
 }

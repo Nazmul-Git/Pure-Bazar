@@ -153,7 +153,10 @@
 	- Files: Authenticated POS scan, bill preview, verified-shareholder attach, checkout, and offline sync APIs; order line snapshots and offline idempotency; transactional stock movements, vendor ledgers, wallet and discount logs, audit records, and receipt data; POS integration tests.
 	- Decisions: Calculate prices from server-side product data and bill engine rules; wallet is single-method and requires an active, verified, wallet-enabled member plus final-total balance sufficiency; insufficient wallet returns an MRP-repriced bill. Split only non-wallet payments. Discount limits use role percentages; above-limit checkout requires the request actor to be Super Admin and explicitly approve. Offline sync accepts non-wallet payments only and deduplicates by client offline ID.
 	- Validation: Full backend Jest suite passes (21 suites, 117 tests), including wallet eligibility/insufficient balance, full rollback, stock and vendor ledger matching, discount approval, and idempotent non-wallet offline sync.
-- [ ] 3.4
+- [x] 3.4 POS frontend interface
+	- Files: POS barcode scanner and cart; quantity, removal, item/bill discount inputs; verified shareholder modal; non-wallet split tender and full-wallet balance check; live server-priced bill summary and checkout; POS API service and billing validation tests.
+	- Decisions: Keep bill totals and role-limit approval decisions server-authoritative; require a discount reason; never allow wallet split tender; require positive split amounts that equal the final total; show wallet sufficiency without exposing the balance.
+	- Validation: POS billing frontend tests pass (4 tests); frontend production build passes.
 - [ ] 4.1
 - [ ] 4.2
 - [ ] 4.3
