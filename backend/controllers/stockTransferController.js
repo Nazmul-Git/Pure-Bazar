@@ -112,12 +112,33 @@ async function createTransfer(req, res, next) {
 
     const lines = normalizeRequestedLines(req.body.lines);
     const products = await Product.find({ _id: { $in: lines.map(({ productId }) => productId) } })
-      .select('_id').lean();
+      .select('_id name').lean();
     if (products.length !== lines.length) throw statusError('One or more products were not found', 400);
+    const productsById = new Map(products.map((product) => [product._id.toString(), product]));
 
     session = await mongoose.startSession();
     let output;
     await session.withTransaction(async () => {
+      const available = await StockMovement.aggregate([
+        {
+          $match: {
+            warehouseId: new mongoose.Types.ObjectId(fromWarehouseId),
+            productId: { $in: lines.map((line) => new mongoose.Types.ObjectId(line.productId)) },
+          },
+        },
+        { $group: { _id: '$productId', quantity: { $sum: '$quantity' } } },
+      ]).session(session);
+      const stockByProduct = new Map(available.map(({ _id, quantity }) => [_id.toString(), quantity]));
+      for (const line of lines) {
+        const stockQuantity = stockByProduct.get(line.productId) || 0;
+        if (line.requestedQuantity > stockQuantity) {
+          const productName = productsById.get(line.productId)?.name || 'A product';
+          throw statusError(
+            `${productName}: requested quantity exceeds the ${stockQuantity} units available in the Central Warehouse`,
+            409,
+          );
+        }
+      }
       const [transfer] = await StockTransfer.create([{
         fromWarehouseId,
         toWarehouseId,

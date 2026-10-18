@@ -128,6 +128,10 @@
 	- Files: Cast product IDs to ObjectIds when matching stock movement aggregates; added removal-boundary and stock-addition API regression tests.
 	- Decisions: Keep frontend quantities positive and apply the mode sign once in the API; compare removals against movement-derived stock at the selected location.
 	- Validation: Full backend Jest suite passes (17 suites, 85 tests).
+- [x] 2.5h Searchable picker for transfers
+	- Files: Replaced the transfer product dropdown with barcode scanning and server-side product search; added Central Warehouse stock display and request quantity limits; enforced transfer request stock and whole-number quantity limits in the API with integration tests.
+	- Decisions: Reuse the existing stock product search API and barcode scanner hook; debounce search by 300 ms and request at most 10 results; check requested totals against movement-derived Central Warehouse stock inside the transfer transaction.
+	- Validation: Full backend Jest suite passes (17 suites, 86 tests); frontend production build passes. Goods Receive already uses a server-searched product list with a 250 ms debounce, while Barcode Labels loads and filters the full product catalog client-side; neither screen was changed.
 - [ ] 3.1
 - [ ] 3.2
 - [ ] 3.3

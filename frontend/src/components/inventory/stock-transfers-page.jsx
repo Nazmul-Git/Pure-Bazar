@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { ArrowDownToLine, ArrowUpFromLine, Check, Plus, Send } from 'lucide-react';
+import { ArrowDownToLine, ArrowUpFromLine, Check } from 'lucide-react';
 import { Badge, Button, Card, Input, Select, Table } from '@/components/ui';
-import { getProducts } from '@/services/inventory';
+import StockTransferRequestForm from '@/components/inventory/stock-transfer-request-form';
 import {
   createStockTransfer, dispatchStockTransfer, getLocations, getStockTransfers, receiveStockTransfer,
 } from '@/services/stock';
@@ -32,11 +32,8 @@ export default function StockTransfersPage() {
   const canChooseSource = ['Super Admin', 'Inventory Manager'].includes(user?.role);
   const [transfers, setTransfers] = useState([]);
   const [locations, setLocations] = useState([]);
-  const [products, setProducts] = useState([]);
   const [sourceId, setSourceId] = useState('');
   const [outletId, setOutletId] = useState('');
-  const [productId, setProductId] = useState('');
-  const [requestLines, setRequestLines] = useState([]);
   const [selectedId, setSelectedId] = useState('');
   const [quantityDraft, setQuantityDraft] = useState({});
   const [statusFilter, setStatusFilter] = useState('');
@@ -52,15 +49,12 @@ export default function StockTransfersPage() {
       return undefined;
     }
     let active = true;
-    const requests = [getStockTransfers(token), getLocations(token)];
-    if (canWrite && can(permissions, 'products:read')) requests.push(getProducts(token));
-    Promise.all(requests)
-      .then(([transferResponse, locationResponse, productResponse]) => {
+    Promise.all([getStockTransfers(token), getLocations(token)])
+      .then(([transferResponse, locationResponse]) => {
         if (!active) return;
         const availableLocations = locationResponse.data.locations;
         setTransfers(transferResponse.data.stockTransfers);
         setLocations(availableLocations);
-        setProducts(productResponse?.data.products || []);
         setSourceId(user?.locationId || availableLocations.find(({ type }) => type === 'CENTRAL')?.id || '');
         setOutletId(availableLocations.find(({ type }) => type === 'OUTLET')?.id || '');
       })
@@ -70,9 +64,7 @@ export default function StockTransfersPage() {
       .finally(() => active && setLoading(false));
     return () => { active = false; };
   }, [canRead, canWrite, initialized, permissions, token, user?.locationId]);
-
   const locationsById = useMemo(() => new Map(locations.map((location) => [location.id, location.name])), [locations]);
-  const productsById = useMemo(() => new Map(products.map((product) => [product.id, product])), [products]);
   const visibleTransfers = useMemo(() => transfers.filter((transfer) => (
     !statusFilter || transfer.status === statusFilter
   )), [statusFilter, transfers]);
@@ -87,23 +79,10 @@ export default function StockTransfersPage() {
     setNotice('');
   }
 
-  function addRequestLine() {
-    if (!productId) return;
-    setRequestLines((current) => {
-      const existing = current.find((line) => line.productId === productId);
-      if (existing) return current.map((line) => line.productId === productId
-        ? { ...line, requestedQuantity: Number(line.requestedQuantity) + 1 }
-        : line);
-      return [...current, { productId, requestedQuantity: 1 }];
-    });
-    setProductId('');
-  }
-
-  async function submitRequest(event) {
-    event.preventDefault();
+  async function submitRequest(requestLines) {
     if (!sourceId || !outletId || !requestLines.length) {
       setError('Select a source warehouse, an outlet, and at least one product.');
-      return;
+      return false;
     }
     setSaving(true);
     setError('');
@@ -112,14 +91,18 @@ export default function StockTransfersPage() {
       const response = await createStockTransfer(token, {
         fromWarehouseId: sourceId,
         toWarehouseId: outletId,
-        lines: requestLines,
+        lines: requestLines.map((line) => ({
+          productId: line.productId,
+          requestedQuantity: Number(line.requestedQuantity),
+        })),
       });
       setTransfers((current) => [response.data.stockTransfer, ...current]);
       setSelectedId(response.data.stockTransfer.id);
-      setRequestLines([]);
       setNotice('Transfer request created.');
+      return true;
     } catch (requestError) {
       setError(requestError.response?.data?.message || 'Unable to create the transfer request.');
+      return false;
     } finally {
       setSaving(false);
     }
@@ -191,42 +174,20 @@ export default function StockTransfersPage() {
       {notice && <p role="status" className="rounded border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{notice}</p>}
 
       {canWrite && (
-        <Card title="Request a transfer" description="Create an outlet stock request from the central warehouse.">
-          <form className="space-y-4" onSubmit={submitRequest}>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Select label="Source warehouse" name="sourceId" value={sourceId} disabled={!canChooseSource} onChange={(event) => setSourceId(event.target.value)}>
-                <option value="">Choose a warehouse</option>
-                {sourceLocations.map((location) => <option key={location.id} value={location.id}>{location.name}</option>)}
-              </Select>
-              <Select label="Destination outlet" name="outletId" value={outletId} onChange={(event) => setOutletId(event.target.value)}>
-                <option value="">Choose an outlet</option>
-                {outletLocations.map((location) => <option key={location.id} value={location.id}>{location.name}</option>)}
-              </Select>
-            </div>
-            {!can(permissions, 'products:read') && <p className="text-sm text-amber-700">Product read permission is required to add transfer lines.</p>}
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-              <Select label="Product" name="productId" className="flex-1" value={productId} onChange={(event) => setProductId(event.target.value)} disabled={!products.length}>
-                <option value="">Choose a product</option>
-                {products.map((product) => <option key={product.id} value={product.id}>{product.name} · {product.barcode}</option>)}
-              </Select>
-              <Button type="button" variant="secondary" onClick={addRequestLine} disabled={!productId}><Plus size={16} /> Add product</Button>
-            </div>
-            {requestLines.length > 0 && (
-              <div className="space-y-2">
-                {requestLines.map((line) => (
-                  <div key={line.productId} className="grid items-end gap-3 rounded-lg border border-slate-200 p-3 sm:grid-cols-[1fr_9rem_auto]">
-                    <span className="text-sm font-medium text-slate-800">{productsById.get(line.productId)?.name || displayId(line.productId)}</span>
-                    <Input label="Requested quantity" type="number" min="0.000001" step="any" value={line.requestedQuantity} onChange={(event) => setRequestLines((current) => current.map((item) => item.productId === line.productId ? { ...item, requestedQuantity: event.target.value } : item))} />
-                    <Button type="button" variant="ghost" size="sm" onClick={() => setRequestLines((current) => current.filter((item) => item.productId !== line.productId))}>Remove</Button>
-                  </div>
-                ))}
-              </div>
-            )}
-            <div className="flex justify-end">
-              <Button type="submit" disabled={saving || !requestLines.length || !products.length}><Send size={16} /> {saving ? 'Submitting...' : 'Submit request'}</Button>
-            </div>
-          </form>
-        </Card>
+        <StockTransferRequestForm
+          token={token}
+          permissions={permissions}
+          canChooseSource={canChooseSource}
+          sourceLocations={sourceLocations}
+          outletLocations={outletLocations}
+          sourceId={sourceId}
+          setSourceId={setSourceId}
+          outletId={outletId}
+          setOutletId={setOutletId}
+          saving={saving}
+          setError={setError}
+          onSubmitRequest={submitRequest}
+        />
       )}
 
       <Card title="Transfer register" description={`${transfers.length} transfer${transfers.length === 1 ? '' : 's'} in your location scope`}>
@@ -248,7 +209,6 @@ export default function StockTransfersPage() {
           <form className="space-y-4" onSubmit={submitWorkflow}>
             <div className="space-y-3">
               {selectedTransfer.lines.map((line) => {
-                const product = productsById.get(line.productId);
                 const editable = (selectedTransfer.status === 'Requested' && canWrite)
                   || (selectedTransfer.status === 'Dispatched' && canReceive);
                 const quantityName = selectedTransfer.status === 'Requested' ? 'Dispatch quantity' : 'Received quantity';
@@ -260,7 +220,7 @@ export default function StockTransfersPage() {
                   : line.dispatchedQuantity;
                 return (
                   <div key={line.productId} className="grid items-center gap-3 rounded-lg border border-slate-200 p-3 sm:grid-cols-[1fr_repeat(3,minmax(5rem,auto))]">
-                    <div><strong className="block text-sm text-slate-800">{product?.name || displayId(line.productId)}</strong><small className="text-slate-500">{product?.barcode || line.productId}</small></div>
+                    <div><strong className="block text-sm text-slate-800">{line.productName || displayId(line.productId)}</strong><small className="text-slate-500">{line.barcode || line.productId}</small></div>
                     <span className="text-sm text-slate-600">Requested: {line.requestedQuantity}</span>
                     {selectedTransfer.status !== 'Requested' && <span className="text-sm text-slate-600">Dispatched: {line.dispatchedQuantity}</span>}
                     {editable ? (

@@ -280,9 +280,26 @@ describe('stock transfer API', () => {
     expect(hidden.status).toBe(404);
   });
 
+  it('rejects a request greater than Central Warehouse stock', async () => {
+    const response = await createRequestedTransfer(51);
+    const fractionalQuantity = await createRequestedTransfer(1.5);
+
+    expect(response.status).toBe(409);
+    expect(response.body.message).toMatch(/exceeds the 50 units available in the Central Warehouse/);
+    expect(fractionalQuantity.status).toBe(400);
+    expect(StockTransfer.create).not.toHaveBeenCalled();
+    expect(transfers.size).toBe(0);
+  });
+
   it('rejects dispatch by an outlet and prevents dispatch beyond available stock', async () => {
-    const requested = await createRequestedTransfer(60);
+    const requested = await createRequestedTransfer(10);
     const id = requested.body.stockTransfer.id;
+    movements.push({
+      productId: new mongoose.Types.ObjectId(productId),
+      warehouseId: new mongoose.Types.ObjectId(centralId),
+      quantity: -45,
+      type: 'TRANSFER_OUT',
+    });
     currentUser = {
       _id: outletUserId,
       isActive: true,
@@ -290,7 +307,7 @@ describe('stock transfer API', () => {
       locationId: new mongoose.Types.ObjectId(outletId),
     };
     const wrongSide = await request(app).post(`/api/stock-transfers/${id}/dispatch`)
-      .set(auth(outletUserId)).send({ lines: [{ productId, dispatchedQuantity: 60 }] });
+      .set(auth(outletUserId)).send({ lines: [{ productId, dispatchedQuantity: 6 }] });
     expect(wrongSide.status).toBe(403);
 
     currentUser = {
@@ -300,9 +317,9 @@ describe('stock transfer API', () => {
       locationId: new mongoose.Types.ObjectId(centralId),
     };
     const excessive = await request(app).post(`/api/stock-transfers/${id}/dispatch`)
-      .set(auth(warehouseUserId)).send({ lines: [{ productId, dispatchedQuantity: 60 }] });
+      .set(auth(warehouseUserId)).send({ lines: [{ productId, dispatchedQuantity: 6 }] });
     expect(excessive.status).toBe(409);
-    expect(movements).toHaveLength(1);
+    expect(movements).toHaveLength(2);
     expect(transfers.get(id).status).toBe('Requested');
   });
 });

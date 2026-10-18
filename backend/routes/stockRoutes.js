@@ -116,8 +116,8 @@ router.post('/stock-transfers', [
   body('toWarehouseId').isMongoId().withMessage('A valid destination outlet ID is required'),
   transferLines,
   transferProduct,
-  body('lines.*.requestedQuantity').isFloat({ min: 0.000001 }).toFloat()
-    .withMessage('Requested quantity must be greater than zero'),
+  body('lines.*.requestedQuantity').isInt({ min: 1 }).toInt()
+    .withMessage('Requested quantity must be a positive whole number'),
 ], validateRequest, stockTransferController.createTransfer);
 router.get('/stock-transfers/:id', [
   authMiddleware, authorizeMiddleware({ permissions: ['stock:transfer:read'] }),
