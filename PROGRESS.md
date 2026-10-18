@@ -132,7 +132,10 @@
 	- Files: Replaced the transfer product dropdown with barcode scanning and server-side product search; added Central Warehouse stock display and request quantity limits; enforced transfer request stock and whole-number quantity limits in the API with integration tests.
 	- Decisions: Reuse the existing stock product search API and barcode scanner hook; debounce search by 300 ms and request at most 10 results; check requested totals against movement-derived Central Warehouse stock inside the transfer transaction.
 	- Validation: Full backend Jest suite passes (17 suites, 86 tests); frontend production build passes. Goods Receive already uses a server-searched product list with a 250 ms debounce, while Barcode Labels loads and filters the full product catalog client-side; neither screen was changed.
-- [ ] 3.1
+- [x] 3.1 Bill engine
+	- Files: Pure bill-calculation service and unit tests for item/bill discounts, wallet shareholder discounts, VAT rates/order, and per-line vendor/company ledger splits.
+	- Decisions: Calculate from MRP; allocate bill and shareholder discounts across lines in cents; keep vendor payable at vendor price and exclude VAT from company net.
+	- Validation: Bill engine tests pass (5 tests); full backend Jest suite passes (18 suites, 91 tests).
 - [ ] 3.2
 - [ ] 3.3
 - [ ] 3.4
