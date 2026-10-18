@@ -1,5 +1,5 @@
 const {
-  AuditLog, Vendor, WalletAuditLog,
+  AuditLog, Settings, Vendor, WalletAuditLog,
 } = require('../models');
 const probashiWalletService = require('../services/probashiWalletService');
 
@@ -7,6 +7,26 @@ function statusError(message, status) {
   const error = new Error(message);
   error.status = status;
   return error;
+}
+
+async function getTerms(req, res, next) {
+  try {
+    const settings = await Settings.findOne({ singleton: 'global' }).lean();
+    const now = Date.now();
+    const currentTerms = (settings?.vendorTerms || [])
+      .filter((term) => new Date(term.effectiveFrom).getTime() <= now)
+      .sort((left, right) => new Date(right.effectiveFrom) - new Date(left.effectiveFrom))[0] || null;
+    return res.json({
+      success: true,
+      terms: currentTerms && {
+        version: currentTerms.version,
+        terms: currentTerms.terms,
+        effectiveFrom: currentTerms.effectiveFrom,
+      },
+    });
+  } catch (error) {
+    return next(error);
+  }
 }
 
 function vendorOutput(vendor) {
@@ -121,4 +141,9 @@ async function updateStatus(req, res, next) {
   }
 }
 
-module.exports = { create, list, updateStatus };
+module.exports = {
+  create,
+  getTerms,
+  list,
+  updateStatus,
+};

@@ -18,6 +18,7 @@ import {
   ShoppingCart,
   ReceiptText,
   Users,
+  UserPlus,
 } from 'lucide-react';
 
 export const navigationItems = [
@@ -48,7 +49,16 @@ export const navigationItems = [
       { label: 'Cashier shift / day close', href: '/orders/shifts', icon: Clock3, permissions: ['pos:read'] },
     ],
   },
-  { label: 'Vendors', href: '/vendors/directory', icon: BriefcaseBusiness, permissions: ['vendors:read', 'vendor-payouts:read'] },
+  {
+    label: 'Vendors',
+    href: '/vendors/directory',
+    icon: BriefcaseBusiness,
+    permissions: ['vendors:read', 'vendors:write', 'vendor-payouts:read'],
+    children: [
+      { label: 'Vendor Directory', href: '/vendors/directory', icon: BriefcaseBusiness, permissions: ['vendors:read'] },
+      { label: 'Register Vendor', href: '/vendors/register', icon: UserPlus, permissions: ['vendors:write'] },
+    ],
+  },
   { label: 'Shareholders', href: '/shareholders/directory', icon: Users, permissions: ['shareholders:read', 'wallet-logs:read'] },
   { label: 'Roles', href: '/roles/manage', icon: BarChart3, permissions: ['*'] },
   { label: 'Finance', href: '/finance/revenue', icon: CircleDollarSign, permissions: ['finance:read', 'expenses:read'] },
@@ -79,6 +89,7 @@ export const routePermissions = [
   { prefix: '/orders/returns', permissions: ['pos:read'] },
   { prefix: '/orders/shifts', permissions: ['pos:read'] },
   { prefix: '/vendors/directory', permissions: ['vendors:read'] },
+  { prefix: '/vendors/register', permissions: ['vendors:write'] },
   { prefix: '/vendors/ledger', permissions: ['vendors:read', 'vendor-payouts:read'] },
   { prefix: '/vendors/payouts', permissions: ['vendor-payouts:read'] },
   { prefix: '/shareholders/directory', permissions: ['shareholders:read'] },

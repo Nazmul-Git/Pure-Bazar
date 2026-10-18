@@ -1,5 +1,5 @@
-import PagePlaceholder from '@/components/page-placeholder';
+import VendorDirectoryScreen from '@/components/vendors/vendor-directory-page';
 
 export default function VendorDirectoryPage() {
-  return <PagePlaceholder title="Vendor Directory" />;
+  return <VendorDirectoryScreen />;
 }

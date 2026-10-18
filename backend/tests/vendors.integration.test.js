@@ -5,6 +5,7 @@ const request = require('supertest');
 
 jest.mock('../models', () => ({
   AuditLog: { create: jest.fn() },
+  Settings: { findOne: jest.fn() },
   User: { findById: jest.fn() },
   Vendor: { create: jest.fn(), find: jest.fn(), findById: jest.fn() },
   WalletAuditLog: { create: jest.fn() },
@@ -15,7 +16,7 @@ jest.mock('../services/probashiWalletService', () => ({
 }));
 
 const {
-  AuditLog, User, Vendor, WalletAuditLog,
+  AuditLog, Settings, User, Vendor, WalletAuditLog,
 } = require('../models');
 const probashiWalletService = require('../services/probashiWalletService');
 const vendorRoutes = require('../routes/vendorRoutes');
@@ -88,6 +89,15 @@ describe('vendor registration and directory endpoints', () => {
     User.findById.mockReturnValue({ populate: jest.fn().mockResolvedValue(admin) });
     AuditLog.create.mockResolvedValue({});
     WalletAuditLog.create.mockResolvedValue({});
+    Settings.findOne.mockReturnValue({
+      lean: jest.fn().mockResolvedValue({
+        vendorTerms: [
+          { version: '1', terms: 'Old terms', effectiveFrom: new Date('2020-01-01') },
+          { version: '2', terms: 'Current terms', effectiveFrom: new Date('2021-01-01') },
+          { version: '3', terms: 'Future terms', effectiveFrom: new Date('2999-01-01') },
+        ],
+      }),
+    });
     Vendor.create.mockImplementation(async ([data]) => [vendorDocument(data)]);
     Vendor.find.mockReturnValue(listQuery([vendorDocument(form)]));
     Vendor.findById.mockResolvedValue(null);
@@ -101,6 +111,29 @@ describe('vendor registration and directory endpoints', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
+  });
+
+  it('returns the latest effective vendor terms for registration', async () => {
+    const response = await request(app).get('/api/vendors/terms').set(auth);
+
+    expect(response.status).toBe(200);
+    expect(response.body.terms).toEqual(expect.objectContaining({
+      version: '2',
+      terms: 'Current terms',
+    }));
+  });
+
+  it('allows vendor writers to read terms without settings administration access', async () => {
+    const vendorWriter = {
+      ...admin,
+      roleId: { name: 'Vendor Manager', permissions: ['vendors:write'] },
+    };
+    User.findById.mockReturnValue({ populate: jest.fn().mockResolvedValue(vendorWriter) });
+
+    const response = await request(app).get('/api/vendors/terms').set(auth);
+
+    expect(response.status).toBe(200);
+    expect(response.body.terms.version).toBe('2');
   });
 
   it('verifies and registers a valid wallet-enabled member with the accepted terms version', async () => {

@@ -182,6 +182,10 @@
 	- Files: Authenticated vendor registration and directory APIs, Member Verify eligibility checks, audited status updates, Finance vendor-write permission, and GRN restrictions for suspended/closed vendors.
 	- Decisions: Create vendors only for valid, active, wallet-enabled members who accepted a captured terms version; only Active vendors can start or approve GRNs, while existing sales remain permitted for suspended vendors.
 	- Validation: Full backend Jest suite passes (24 suites, 141 tests), covering eligible, invalid, and inactive member registration plus suspended-vendor GRN creation and approval blocks.
+- [x] 4.1b Vendor screens
+	- Files: Register Vendor (Form A) with server-verified membership and current terms acceptance; searchable/status-filtered Vendor Directory with audited status updates; authenticated vendor API service and permission-filtered navigation.
+	- Decisions: Expose only the latest effective vendor terms to users with vendor-write permission; prevent registration until active terms are loaded and accepted.
+	- Validation: Frontend production build passes; focused vendor API tests pass (1 suite, 8 tests), including current-terms selection and vendor-writer access.
 - [ ] 4.2
 - [ ] 4.3
 - [ ] 4.4

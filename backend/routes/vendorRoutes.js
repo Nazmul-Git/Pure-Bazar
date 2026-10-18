@@ -13,6 +13,7 @@ const mobile = body('mobile').custom((value) => /^\+?[0-9]{7,20}$/.test(value))
 const field = (name, label, max) => body(name).isString().trim().isLength({ min: 1, max })
   .withMessage(`${label} must be 1 to ${max} characters`);
 
+router.get('/terms', write, vendorsController.getTerms);
 router.get('/', read, [
   query('q').optional().isString().trim().isLength({ max: 100 })
     .withMessage('Search must be at most 100 characters'),
