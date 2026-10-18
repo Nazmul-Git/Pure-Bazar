@@ -55,6 +55,8 @@ describe('default role seeder', () => {
       'Super Admin', 'Inventory Manager', 'Warehouse Staff', 'Outlet Cashier', 'Finance', 'HR/Payroll',
     ]);
     expect(ROLE_SEEDS[0].permissions).toContain('*');
+    expect(ROLE_SEEDS.find(({ name }) => name === 'Outlet Cashier').permissions)
+      .toContain('shifts:manage');
     expect(UNIT_SEEDS.map(({ name }) => name)).toEqual(['Kg', 'Gram', 'Ltr', 'Pcs', 'Box', 'Pack', 'Dozen']);
     expect(CATEGORY_SEEDS.length).toBeGreaterThanOrEqual(3);
     expect(VENDOR_TERMS_SEED).toMatchObject({

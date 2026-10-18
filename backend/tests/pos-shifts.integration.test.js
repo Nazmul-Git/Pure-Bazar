@@ -55,7 +55,7 @@ describe('POS cashier shifts API', () => {
     user = {
       _id: cashierId,
       isActive: true,
-      roleId: { name: 'Cashier', permissions: ['pos:read', 'pos:write'] },
+      roleId: { name: 'Cashier', permissions: ['pos:read', 'pos:write', 'shifts:manage'] },
       locationId: outletId,
     };
     db = {
@@ -182,6 +182,17 @@ describe('POS cashier shifts API', () => {
     });
     expect(invalid.status).toBe(400);
     expect(db.shift.status).toBe('OPEN');
+  });
+
+  it('requires shifts:manage for all shift operations', async () => {
+    user.roleId.permissions = ['pos:read', 'pos:write'];
+
+    const current = await request(app).get('/api/pos/shifts/current').set(auth());
+    const opening = await request(app).post('/api/pos/shifts').set(auth()).send({ openingCash: 0 });
+
+    expect(current.status).toBe(403);
+    expect(opening.status).toBe(403);
+    expect(models.Shift.create).not.toHaveBeenCalled();
   });
 
   it('limits shift reports to the owning cashier', async () => {

@@ -10,6 +10,7 @@ const validateRequest = require('../middlewares/validateRequest');
 const router = express.Router();
 const read = [authMiddleware, authorizeMiddleware({ permissions: ['pos:read'] })];
 const write = [authMiddleware, authorizeMiddleware({ permissions: ['pos:write'] })];
+const manageShifts = [authMiddleware, authorizeMiddleware({ permissions: ['shifts:manage'] })];
 const paymentMethods = ['CASH', 'BKASH', 'NAGAD', 'CARD', 'WALLET'];
 const validDate = (value) => {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
@@ -32,17 +33,17 @@ router.get('/history', read, [
     !value.from || !value.to || new Date(value.from) <= new Date(value.to)
   )).withMessage('from must be before or equal to to'),
 ], validateRequest, posHistoryController.listSalesHistory);
-router.get('/shifts/current', read, posShiftController.getCurrentShift);
-router.get('/shifts/:shiftId/report', read, [
+router.get('/shifts/current', manageShifts, posShiftController.getCurrentShift);
+router.get('/shifts/:shiftId/report', manageShifts, [
   param('shiftId').isMongoId(),
 ], validateRequest, posShiftController.getShiftReport);
-router.post('/shifts', write, [
+router.post('/shifts', manageShifts, [
   body('openingCash').isFloat({ min: 0 }).toFloat().custom((value) => (
     Math.abs(value * 100 - Math.round(value * 100)) < 1e-8
   )).withMessage('Opening cash must have at most two decimal places'),
   body('outletId').optional().isMongoId(),
 ], validateRequest, posShiftController.openShift);
-router.post('/shifts/:shiftId/close', write, [
+router.post('/shifts/:shiftId/close', manageShifts, [
   param('shiftId').isMongoId(),
   body('actualCash').isFloat({ min: 0 }).toFloat().custom((value) => (
     Math.abs(value * 100 - Math.round(value * 100)) < 1e-8

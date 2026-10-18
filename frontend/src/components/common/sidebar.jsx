@@ -9,7 +9,10 @@ import useAuth from '@/store/use-auth';
 export default function Sidebar({ open, onClose }) {
   const pathname = usePathname();
   const { canAccess } = useAuth();
-  const visibleItems = navigationItems.filter((item) => canAccess(item.permissions));
+  const visibleItems = navigationItems.filter((item) => (
+    canAccess(item.permissions)
+    || item.children?.some((child) => canAccess(child.permissions))
+  ));
 
   return (
     <>
@@ -26,22 +29,30 @@ export default function Sidebar({ open, onClose }) {
         </div>
         <nav className="sidebar-nav">
           <p className="nav-caption">WORKSPACE</p>
-          {visibleItems.map(({ label, href, icon: Icon, children = [] }) => {
+          {visibleItems.map(({ label, href, icon: Icon, permissions, children = [] }) => {
             const section = href.split('/')[1];
+            const itemAccessible = canAccess(permissions);
             const active = pathname === href
               || (!children.length && pathname.startsWith(`/${section}/`));
             const visibleChildren = children.filter((child) => canAccess(child.permissions));
             return (
               <div key={label}>
-                <Link
-                  href={href}
-                  className={`nav-link${active ? ' nav-link-active' : ''}`}
-                  aria-current={pathname === href ? 'page' : undefined}
-                  onClick={onClose}
-                >
-                  <Icon size={19} strokeWidth={1.8} aria-hidden="true" />
-                  <span>{label}</span>
-                </Link>
+                {itemAccessible ? (
+                  <Link
+                    href={href}
+                    className={`nav-link${active ? ' nav-link-active' : ''}`}
+                    aria-current={pathname === href ? 'page' : undefined}
+                    onClick={onClose}
+                  >
+                    <Icon size={19} strokeWidth={1.8} aria-hidden="true" />
+                    <span>{label}</span>
+                  </Link>
+                ) : (
+                  <div className="nav-link" aria-hidden="true">
+                    <Icon size={19} strokeWidth={1.8} aria-hidden="true" />
+                    <span>{label}</span>
+                  </div>
+                )}
                 {visibleChildren.map(({ label: childLabel, href: childHref, icon: ChildIcon }) => {
                   const childActive = pathname === childHref;
                   return (

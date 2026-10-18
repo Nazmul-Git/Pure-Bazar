@@ -46,7 +46,7 @@ export const navigationItems = [
     children: [
       { label: 'Sales history', href: '/orders/history', icon: ReceiptText, permissions: ['pos:read'] },
       { label: 'Returns & exchanges', href: '/orders/returns', icon: RotateCcw, permissions: ['pos:read'] },
-      { label: 'Cashier shift / day close', href: '/orders/shifts', icon: Clock3, permissions: ['pos:read'] },
+      { label: 'Cashier shift / day close', href: '/orders/shifts', icon: Clock3, permissions: ['shifts:manage'] },
     ],
   },
   {
@@ -87,7 +87,7 @@ export const routePermissions = [
   { prefix: '/orders/pos', permissions: ['pos:read'] },
   { prefix: '/orders/history', permissions: ['pos:read'] },
   { prefix: '/orders/returns', permissions: ['pos:read'] },
-  { prefix: '/orders/shifts', permissions: ['pos:read'] },
+  { prefix: '/orders/shifts', permissions: ['shifts:manage'] },
   { prefix: '/vendors/directory', permissions: ['vendors:read'] },
   { prefix: '/vendors/register', permissions: ['vendors:write'] },
   { prefix: '/vendors/ledger', permissions: ['vendors:read', 'vendor-payouts:read'] },

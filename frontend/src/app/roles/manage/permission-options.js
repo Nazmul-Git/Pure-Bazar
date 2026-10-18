@@ -5,11 +5,14 @@ export const permissionGroups = [
   },
   {
     name: 'POS',
-    rows: [{
-      label: 'Sales, orders, returns, and shifts',
-      read: ['pos:read', 'orders:read', 'returns:read', 'shifts:read'],
-      write: ['pos:write', 'orders:write', 'returns:write', 'shifts:write'],
-    }],
+    rows: [
+      {
+        label: 'Sales, orders, and returns',
+        read: ['pos:read', 'orders:read', 'returns:read'],
+        write: ['pos:write', 'orders:write', 'returns:write'],
+      },
+      { label: 'Cashier shift / day close', read: [], write: ['shifts:manage'] },
+    ],
   },
   {
     name: 'Inventory',
@@ -89,8 +92,8 @@ export const sensitivePrefixes = ['settings:', 'roles:', 'vendor-payouts:', 'aud
 
 export const presets = {
   Cashier: [
-    'dashboard:read', 'pos:read', 'orders:read', 'returns:read', 'shifts:read',
-    'pos:write', 'orders:write', 'returns:write', 'shifts:write',
+    'dashboard:read', 'pos:read', 'orders:read', 'returns:read',
+    'pos:write', 'orders:write', 'returns:write', 'shifts:manage',
   ],
   'Inventory Manager': [
     'dashboard:read', 'products:read', 'categories:read', 'brands:read', 'units:read',

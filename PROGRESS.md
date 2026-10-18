@@ -181,6 +181,10 @@
 	- Files: POS sales history filters and bill details; full-bill returns with wallet-refund status tracking; cashier shift opening, tender reconciliation, and day close; sales navigation and screen utility tests.
 	- Decisions: Returns cover a whole bill; exchanges require a return followed by a new POS sale; wallet refund status records completion without initiating a provider transaction.
 	- Validation: POS screen utility tests pass (3 tests); frontend production build passes; `git diff --check` passes.
+- [x] 3.5d Cashier shift permission
+	- Files: Dedicated `shifts:manage` permission in role management and backend validation; shift API guards, route access, and sidebar visibility; Cashier presets/seeds; role-save, shift-guard, and seed tests.
+	- Decisions: Cashier shift open, current, report, and close operations require `shifts:manage` independently from general POS permissions.
+	- Validation: Focused backend tests pass (3 suites, 18 tests); frontend production build passes; `git diff --check` passes.
 - [x] 4.1
 - [x] 4.1a Vendors API
 	- Files: Authenticated vendor registration and directory APIs, Member Verify eligibility checks, audited status updates, Finance vendor-write permission, and GRN restrictions for suspended/closed vendors.

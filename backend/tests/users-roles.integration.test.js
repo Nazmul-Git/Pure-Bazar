@@ -185,7 +185,7 @@ describe('users and roles endpoints', () => {
   });
 
   it('creates, updates, and deletes roles with audit records', async () => {
-    const createPermissions = ['pos:read', 'vendor-payouts:write'];
+    const createPermissions = ['pos:read', 'shifts:manage', 'vendor-payouts:write'];
     const updatePermissions = ['products:read', 'settings:write'];
     const created = await request(app).post('/api/roles').set(auth).send({ name: 'Stock Viewer', permissions: createPermissions });
     const updated = await request(app).put(`/api/roles/${roleId}`).set(auth).send({ name: 'Inventory Team', permissions: updatePermissions });

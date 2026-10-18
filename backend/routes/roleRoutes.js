@@ -9,7 +9,8 @@ const router = express.Router();
 const adminOnly = [authMiddleware, authorizeMiddleware({ roles: ['Super Admin'] })];
 const allowedPermissions = [
   'dashboard:read',
-  'pos:read', 'pos:write', 'orders:read', 'orders:write', 'returns:read', 'returns:write', 'shifts:read', 'shifts:write',
+  'pos:read', 'pos:write', 'orders:read', 'orders:write', 'returns:read', 'returns:write',
+  'shifts:read', 'shifts:write', 'shifts:manage',
   'products:read', 'products:write', 'categories:read', 'categories:write', 'brands:read', 'brands:write',
   'units:read', 'units:write', 'stock:read', 'stock:write', 'warehouse:read', 'warehouse:write',
   'stock:transfer:read', 'stock:transfer:write', 'stock:transfer:receive',

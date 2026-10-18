@@ -23,7 +23,7 @@ const ROLE_SEEDS = [
   ] },
   { name: 'Outlet Cashier', permissions: [
     'dashboard:read', 'pos:read', 'pos:write', 'orders:read', 'orders:write',
-    'returns:read', 'returns:write', 'shifts:read', 'shifts:write',
+    'returns:read', 'returns:write', 'shifts:read', 'shifts:write', 'shifts:manage',
     'stock:transfer:read', 'stock:transfer:receive',
   ] },
   { name: 'Finance', permissions: [
