@@ -140,6 +140,10 @@
 	- Files: Backend-only Probashi wallet service, authenticated shareholder search/verification/balance/report/refund and purchase-history endpoints, mirrored member records, and focused tests.
 	- Decisions: Mock mode is the default; live requests use environment-only credentials, HMAC signatures, a 5-second timeout, and two retries. Balance checks return only a sufficiency boolean. Wallet operations are audited; frontend contains no Probashi key usage.
 	- Validation: Focused tests pass (2 suites, 14 tests), including all mock member states, transaction/refund behavior, HMAC signing/retry, shareholder APIs, and frontend credential scan. Full backend suite passes (20 suites, 105 tests).
+- [x] 3.2b Shareholder screen
+	- Files: API-backed shareholder directory with mobile/member ID search, valid/invalid/inactive status badges, and purchase history.
+	- Decisions: Require an explicit search identifier type; display purchase dates, totals, order numbers, and payment statuses returned by the existing API.
+	- Validation: Frontend production build passes; `/shareholders/directory` is generated successfully.
 - [ ] 3.2
 - [ ] 3.3
 - [ ] 3.4
