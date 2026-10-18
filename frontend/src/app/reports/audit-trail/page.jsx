@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Button, Input, Select, Table } from '@/components/ui';
+import { Button, Input, Modal, Select, Table } from '@/components/ui';
 import { getAuditLogs, getUsers } from '@/services/admin';
 
 function describeActor(actor) {
@@ -10,17 +10,72 @@ function describeActor(actor) {
   return actor.name || actor.email || 'Unknown user';
 }
 
-function describeChanges(log) {
-  if (!log.before && !log.after) return '—';
+function formatValue(value) {
+  if (value === null || value === undefined) return '—';
+  if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+  return String(value);
+}
+
+function flattenValues(value, path = '', result = {}) {
+  if (Array.isArray(value)) {
+    if (value.length === 0 && path) result[path] = '—';
+    value.forEach((item, index) => flattenValues(item, `${path}[${index}]`, result));
+  } else if (value && typeof value === 'object' && !(value instanceof Date)) {
+    const entries = Object.entries(value);
+    if (entries.length === 0 && path) result[path] = '—';
+    entries.forEach(([key, item]) => flattenValues(item, path ? `${path}.${key}` : key, result));
+  } else if (path) {
+    result[path] = formatValue(value);
+  }
+  return result;
+}
+
+function flattenSnapshot(value) {
+  if (value === null || value === undefined) return {};
+  if (typeof value !== 'object' || value instanceof Date) return { Value: formatValue(value) };
+  return flattenValues(value);
+}
+
+function getChangeRows(log) {
+  const previous = flattenSnapshot(log.before);
+  const next = flattenSnapshot(log.after);
+  const changedRows = Array.from(new Set([...Object.keys(previous), ...Object.keys(next)]))
+    .sort()
+    .filter((key) => previous[key] !== next[key])
+    .map((key) => ({ key, previous: previous[key] || '—', next: next[key] || '—' }));
+  const metadata = flattenSnapshot(log.metadata);
+  const metadataRows = Object.entries(metadata).map(([key, value]) => ({
+    key: `Metadata.${key}`,
+    previous: '—',
+    next: value,
+  }));
+  return [...changedRows, ...metadataRows];
+}
+
+function ChangeComparison({ log }) {
+  const rows = getChangeRows(log);
+  if (rows.length === 0) {
+    return <p className="m-0 text-sm text-slate-500">No field changes were recorded for this event.</p>;
+  }
   return (
-    <details className="max-w-sm whitespace-normal">
-      <summary className="cursor-pointer text-blue-700">View details</summary>
-      <div className="mt-2 space-y-2 text-xs">
-        {log.before && <pre className="max-h-40 overflow-auto rounded bg-slate-50 p-2">Before: {JSON.stringify(log.before, null, 2)}</pre>}
-        {log.after && <pre className="max-h-40 overflow-auto rounded bg-slate-50 p-2">After: {JSON.stringify(log.after, null, 2)}</pre>}
-        {log.metadata && Object.keys(log.metadata).length > 0 && <pre className="max-h-40 overflow-auto rounded bg-slate-50 p-2">Metadata: {JSON.stringify(log.metadata, null, 2)}</pre>}
+    <div className="table-wrap">
+      <div className="table-scroll">
+        <table className="ui-table">
+          <thead>
+            <tr><th>Key</th><th>Previous Value</th><th>New Value</th></tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr key={row.key}>
+                <th scope="row" className="font-medium">{row.key}</th>
+                <td className="whitespace-normal break-words">{row.previous}</td>
+                <td className="whitespace-normal break-words">{row.next}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-    </details>
+    </div>
   );
 }
 
@@ -31,6 +86,7 @@ export default function AuditTrailPage() {
   const [filters, setFilters] = useState({ who: '', what: '', from: '', to: '' });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedLog, setSelectedLog] = useState(null);
 
   async function loadLogs(nextFilters = filters) {
     setLoading(true);
@@ -80,7 +136,9 @@ export default function AuditTrailPage() {
     { key: 'action', label: 'Action' },
     { key: 'entity', label: 'Area' },
     { key: 'entityId', label: 'Record ID', render: (value) => value?.toString() || '—' },
-    { key: 'details', label: 'Changes', render: (_, row) => describeChanges(row) },
+    { key: 'details', label: 'Changes', render: (_, row) => (
+      <Button variant="ghost" size="sm" onClick={() => setSelectedLog(row)}>View Details</Button>
+    ) },
   ];
 
   return (
@@ -110,6 +168,17 @@ export default function AuditTrailPage() {
         ? <p role="status" className="py-10 text-center text-slate-500">Loading audit trail...</p>
         : <Table columns={columns} rows={logs} rowKey="_id" pageSize={15} emptyMessage="No audit events match these filters." />}
       <p className="text-xs text-slate-500">The API returns up to 100 events per request.</p>
+      <Modal open={Boolean(selectedLog)} onClose={() => setSelectedLog(null)} title="Audit log details" className="max-w-4xl">
+        {selectedLog && (
+          <div className="space-y-4">
+            <div className="grid gap-3 text-sm sm:grid-cols-2">
+              <p className="m-0"><span className="text-slate-500">Action:</span> {selectedLog.action || '—'}</p>
+              <p className="m-0"><span className="text-slate-500">Area:</span> {selectedLog.entity || '—'}</p>
+            </div>
+            <ChangeComparison log={selectedLog} />
+          </div>
+        )}
+      </Modal>
     </section>
   );
 }

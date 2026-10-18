@@ -53,9 +53,9 @@
 	- Decisions: Settings updates are whitelisted and audited with before/after snapshots; vendor terms versions are append-only; Probashi exposes status only, never credentials; vendor settlement supports one or two cycles with matching unique cut-off dates.
 	- Validation: Full backend Jest suite passes (9 suites, 35 tests).
 - [x] 1.4b Settings screens
-	- Files: API-backed Settings screen with grouped controls for all settings fields; Reports > Audit Trail screen with user, action/area, and date filters; service methods and Super Admin navigation guards.
+	- Files: API-backed Settings screen with grouped controls for all settings fields; Reports > Audit Trail screen with user, action/area, and date filters, plus structured change details in a modal; service methods and Super Admin navigation guards.
 	- Decisions: Keep structured receipt, role-discount, and outlet settings editable as validated JSON; prevent saving defaults if settings fail to load; show only Probashi status, never credentials.
-	- Validation: Frontend production build passes; focused settings and audit API tests pass (1 suite, 5 tests).
+	- Validation: Frontend production build passes; focused settings and audit API tests pass (1 suite, 5 tests); audit detail modal open and close behavior verified in the browser.
 - [ ] 2.1
 - [x] 2.1a Category brand unit API
 	- Files: Inventory CRUD controller/routes, brand logo upload middleware and model fields, server route registration, and inventory API integration tests.
