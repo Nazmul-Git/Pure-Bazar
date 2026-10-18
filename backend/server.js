@@ -14,6 +14,7 @@ const inventoryRoutes = require('./routes/inventoryRoutes');
 const productRoutes = require('./routes/productRoutes');
 const roleRoutes = require('./routes/roleRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
+const shareholderRoutes = require('./routes/shareholderRoutes');
 const stockRoutes = require('./routes/stockRoutes');
 const userRoutes = require('./routes/userRoutes');
 
@@ -29,6 +30,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/roles', roleRoutes);
 app.use('/api', settingsRoutes);
+app.use('/api/shareholders', shareholderRoutes);
 app.use('/api', stockRoutes);
 app.use('/api', healthRoutes);
 app.use((req, res, next) => {

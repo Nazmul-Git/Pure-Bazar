@@ -136,6 +136,10 @@
 	- Files: Pure bill-calculation service and unit tests for item/bill discounts, wallet shareholder discounts, VAT rates/order, and per-line vendor/company ledger splits.
 	- Decisions: Calculate from MRP; allocate bill and shareholder discounts across lines in cents; keep vendor payable at vendor price and exclude VAT from company net.
 	- Validation: Bill engine tests pass (5 tests); full backend Jest suite passes (18 suites, 91 tests).
+- [x] 3.2a Probashi mock
+	- Files: Backend-only Probashi wallet service, authenticated shareholder search/verification/balance/report/refund and purchase-history endpoints, mirrored member records, and focused tests.
+	- Decisions: Mock mode is the default; live requests use environment-only credentials, HMAC signatures, a 5-second timeout, and two retries. Balance checks return only a sufficiency boolean. Wallet operations are audited; frontend contains no Probashi key usage.
+	- Validation: Focused tests pass (2 suites, 14 tests), including all mock member states, transaction/refund behavior, HMAC signing/retry, shareholder APIs, and frontend credential scan. Full backend suite passes (20 suites, 105 tests).
 - [ ] 3.2
 - [ ] 3.3
 - [ ] 3.4
