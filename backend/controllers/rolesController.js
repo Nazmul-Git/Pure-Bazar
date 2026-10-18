@@ -22,7 +22,8 @@ async function list(req, res, next) {
 
 async function create(req, res, next) {
   try {
-    const role = await Role.create({ name: req.body.name, permissions: req.body.permissions || [] });
+    const permissions = [...new Set(['dashboard:read', ...(req.body.permissions || [])])];
+    const role = await Role.create({ name: req.body.name, permissions });
     await AuditLog.create({ actorId: req.user._id, action: 'CREATE', entity: 'Role', entityId: role._id, ipAddress: req.ip });
     return res.status(201).json({ success: true, role });
   } catch (error) {

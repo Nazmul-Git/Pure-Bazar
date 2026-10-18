@@ -44,6 +44,10 @@
 	- Files: Super Admin-only users/roles CRUD APIs with input validation, hashed passwords, audit events, integration tests, and API-backed frontend management pages; grouped role-permission controls, safe presets, sensitive-access warnings, and a backend permission allowlist.
 	- Decisions: Protect the Super Admin role from modification/deletion; prevent deleting assigned roles and the signed-in user; expose user records without password hashes; preserve established permission keys and reject unsupported or duplicate permission values.
 	- Validation: Focused role/user API tests pass (1 suite, 10 tests), including permission saving and validation; frontend production build passes.
+- [x] 1.4c Complete permission modules
+	- Files: Added Dashboard, Reports, Shareholders, and HR & Employees permission groups; role-creation dashboard default; backend shareholder-write allowlist; additive, idempotent role-permission migration and tests.
+	- Decisions: Always include `dashboard:read` when creating a role; preserve existing grants during migration while adding dashboard access to every role and the missing module permissions for built-in roles.
+	- Validation: Focused role, seeder, and migration tests pass (3 suites, 16 tests); frontend production build passes; migration updated 3 of 8 roles in `purebazarv1_test`, then reran with 0 updates.
 - [x] 1.4a Settings API
 	- Files: Super Admin-only settings and filtered audit-log APIs, settings validation/model constraints, and integration/model tests.
 	- Decisions: Settings updates are whitelisted and audited with before/after snapshots; vendor terms versions are append-only; Probashi exposes status only, never credentials; vendor settlement supports one or two cycles with matching unique cut-off dates.

@@ -194,13 +194,29 @@ describe('users and roles endpoints', () => {
     expect(created.status).toBe(201);
     expect(updated.status).toBe(200);
     expect(removed.status).toBe(200);
-    expect(Role.create).toHaveBeenCalledWith({ name: 'Stock Viewer', permissions: createPermissions });
+    expect(Role.create).toHaveBeenCalledWith({
+      name: 'Stock Viewer',
+      permissions: ['dashboard:read', ...createPermissions],
+    });
     expect(Role.findByIdAndUpdate).toHaveBeenCalledWith(roleId, {
       name: 'Inventory Team', permissions: updatePermissions,
     }, { new: true, runValidators: true });
     expect(AuditLog.create).toHaveBeenCalledWith(expect.objectContaining({ action: 'CREATE', entity: 'Role' }));
     expect(AuditLog.create).toHaveBeenCalledWith(expect.objectContaining({ action: 'UPDATE', entity: 'Role' }));
     expect(AuditLog.create).toHaveBeenCalledWith(expect.objectContaining({ action: 'DELETE', entity: 'Role' }));
+  });
+
+  it('accepts shareholder write permission and always includes dashboard access on create', async () => {
+    const response = await request(app).post('/api/roles').set(auth).send({
+      name: 'Shareholder Manager',
+      permissions: ['shareholders:read', 'shareholders:write'],
+    });
+
+    expect(response.status).toBe(201);
+    expect(Role.create).toHaveBeenCalledWith({
+      name: 'Shareholder Manager',
+      permissions: ['dashboard:read', 'shareholders:read', 'shareholders:write'],
+    });
   });
 
   it('rejects unknown and duplicate role permissions', async () => {

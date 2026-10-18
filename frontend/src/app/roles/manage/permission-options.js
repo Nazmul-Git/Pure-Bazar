@@ -1,5 +1,9 @@
 export const permissionGroups = [
   {
+    name: 'Dashboard',
+    rows: [{ label: 'Dashboard', read: ['dashboard:read'], write: [] }],
+  },
+  {
     name: 'POS',
     rows: [{
       label: 'Sales, orders, returns, and shifts',
@@ -23,12 +27,50 @@ export const permissionGroups = [
     name: 'Finance',
     rows: [
       {
-        label: 'Finance, expenses, payroll, and reports',
-        read: ['finance:read', 'expenses:read', 'shareholders:read', 'wallet-logs:read', 'reports:read', 'reports:sales-stock:read', 'employees:read', 'payroll:read', 'salary-advances:read', 'expense-categories:read'],
-        write: ['finance:write', 'expenses:write', 'wallet-logs:write', 'employees:write', 'payroll:write', 'salary-advances:write', 'expense-categories:write'],
+        label: 'Finance, expenses, and wallet logs',
+        read: ['finance:read', 'expenses:read', 'wallet-logs:read'],
+        write: ['finance:write', 'expenses:write', 'wallet-logs:write'],
       },
       { label: 'Vendor payouts (high risk)', read: ['vendor-payouts:read'], write: ['vendor-payouts:write'] },
     ],
+  },
+  {
+    name: 'Reports',
+    rows: [
+      { label: 'Reports', read: ['reports:read'], write: [] },
+      { label: 'Sales and stock reports', read: ['reports:sales-stock:read'], write: [] },
+    ],
+  },
+  {
+    name: 'Shareholders',
+    rows: [{
+      label: 'Shareholders',
+      read: ['shareholders:read'],
+      write: ['shareholders:write'],
+    }],
+  },
+  {
+    name: 'HR & Employees',
+    rows: [
+      {
+        label: 'Employees',
+        read: ['employees:read'],
+        write: ['employees:write'],
+      },
+      {
+        label: 'Payroll',
+        read: ['payroll:read', 'salary-advances:read'],
+        write: ['payroll:write', 'salary-advances:write'],
+      },
+    ],
+  },
+  {
+    name: 'Expense Categories',
+    rows: [{
+      label: 'Expense categories',
+      read: ['expense-categories:read'],
+      write: ['expense-categories:write'],
+    }],
   },
   {
     name: 'Settings',

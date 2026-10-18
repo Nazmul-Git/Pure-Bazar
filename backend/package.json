@@ -8,6 +8,7 @@
     "dev": "nodemon server.js",
     "test": "jest --runInBand",
     "seed:roles": "node seeders/seedRoles.js",
+    "migrate:role-permissions": "node scripts/migrateRolePermissions.js",
     "migrate:product-barcodes": "node scripts/migrateProductBarcodes.js"
   },
   "dependencies": {

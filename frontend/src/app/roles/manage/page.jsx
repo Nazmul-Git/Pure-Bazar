@@ -7,7 +7,7 @@ import { AlertTriangle, KeyRound, Pencil, Plus, Shield, Trash2 } from 'lucide-re
 import { Button, Input, Modal } from '@/components/ui';
 import { createRole, deleteRole, getRoles, getUsers, updateRole } from '@/services/admin';
 import { permissionGroups, presets, sensitivePrefixes } from './permission-options';
-const emptyForm = { name: '', permissions: [] };
+const emptyForm = { name: '', permissions: ['dashboard:read'] };
 
 export default function RoleManagementPage() {
   const token = useSelector((state) => state.auth.token);
@@ -55,6 +55,7 @@ export default function RoleManagementPage() {
   }
 
   function togglePermissions(permissionList, enabled) {
+    if (permissionList.length === 0) return;
     setForm((current) => ({
       ...current,
       permissions: enabled
@@ -196,6 +197,9 @@ export default function RoleManagementPage() {
                         <span className="text-xs text-slate-700">{row.label}</span>
                         {['read', 'write'].map((level) => {
                           const permissionList = row[level];
+                          if (!permissionList.length) {
+                            return <span key={level} aria-hidden="true" />;
+                          }
                           const selectedCount = permissionList.filter((permission) => form.permissions.includes(permission)).length;
                           const checked = selectedCount === permissionList.length;
                           return (

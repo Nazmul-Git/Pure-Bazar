@@ -15,7 +15,7 @@ const allowedPermissions = [
   'stock:transfer:read', 'stock:transfer:write', 'stock:transfer:receive',
   'vendors:read', 'vendors:write',
   'finance:read', 'finance:write', 'expenses:read', 'expenses:write', 'vendor-payouts:read', 'vendor-payouts:write',
-  'shareholders:read', 'wallet-logs:read', 'wallet-logs:write', 'reports:read', 'reports:sales-stock:read',
+  'shareholders:read', 'shareholders:write', 'wallet-logs:read', 'wallet-logs:write', 'reports:read', 'reports:sales-stock:read',
   'employees:read', 'employees:write', 'payroll:read', 'payroll:write',
   'salary-advances:read', 'salary-advances:write', 'expense-categories:read', 'expense-categories:write',
   'settings:read', 'settings:write', 'roles:read', 'roles:write', 'auditlogs:read', 'auditlogs:write',

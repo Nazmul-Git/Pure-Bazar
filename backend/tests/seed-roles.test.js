@@ -86,6 +86,7 @@ describe('default role seeder', () => {
     expect(roleOperations[1].updateOne.update.$addToSet.permissions.$each).toContain(
       'stock:transfer:read',
     );
+    expect(roleOperations[1].updateOne.update.$addToSet.permissions.$each).toContain('reports:read');
 
     expect(Role.bulkWrite).toHaveBeenCalledTimes(2);
     expect(Location.ensureCentralWarehouse).toHaveBeenCalledTimes(2);

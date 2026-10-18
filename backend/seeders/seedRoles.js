@@ -14,7 +14,7 @@ const ROLE_SEEDS = [
   { name: 'Inventory Manager', permissions: [
     'dashboard:read', 'products:read', 'products:write', 'categories:read', 'categories:write',
     'brands:read', 'brands:write', 'units:read', 'units:write', 'stock:read', 'stock:write',
-    'warehouse:read', 'warehouse:write', 'reports:sales-stock:read',
+    'warehouse:read', 'warehouse:write', 'reports:read', 'reports:sales-stock:read',
     'stock:transfer:read', 'stock:transfer:write', 'stock:transfer:receive',
   ] },
   { name: 'Warehouse Staff', permissions: [
