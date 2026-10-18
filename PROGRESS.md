@@ -177,7 +177,7 @@
 	- Files: POS sales history filters and bill details; full-bill returns with wallet-refund status tracking; cashier shift opening, tender reconciliation, and day close; sales navigation and screen utility tests.
 	- Decisions: Returns cover a whole bill; exchanges require a return followed by a new POS sale; wallet refund status records completion without initiating a provider transaction.
 	- Validation: POS screen utility tests pass (3 tests); frontend production build passes; `git diff --check` passes.
-- [ ] 4.1
+- [x] 4.1
 - [x] 4.1a Vendors API
 	- Files: Authenticated vendor registration and directory APIs, Member Verify eligibility checks, audited status updates, Finance vendor-write permission, and GRN restrictions for suspended/closed vendors.
 	- Decisions: Create vendors only for valid, active, wallet-enabled members who accepted a captured terms version; only Active vendors can start or approve GRNs, while existing sales remain permitted for suspended vendors.
@@ -186,6 +186,10 @@
 	- Files: Register Vendor (Form A) with server-verified membership and current terms acceptance; searchable/status-filtered Vendor Directory with audited status updates; authenticated vendor API service and permission-filtered navigation.
 	- Decisions: Expose only the latest effective vendor terms to users with vendor-write permission; prevent registration until active terms are loaded and accepted.
 	- Validation: Frontend production build passes; focused vendor API tests pass (1 suite, 8 tests), including current-terms selection and vendor-writer access.
+- [x] 4.1c Default vendor terms seed
+	- Files: Idempotently add effective vendor terms v1.0 to global settings and cover the seed behavior with seeder tests.
+	- Decisions: Preserve existing terms and only add v1.0 when that version is absent; its baseline effective date ensures later configured terms remain current.
+	- Validation: Backend seeder and full Jest suite pass; test database seeded with the default vendor terms.
 - [ ] 4.2
 - [ ] 4.3
 - [ ] 4.4

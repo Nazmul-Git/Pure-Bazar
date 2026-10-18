@@ -49,6 +49,11 @@ const UNIT_SEEDS = [
 ];
 
 const CATEGORY_SEEDS = ['Groceries', 'Beverages', 'Household', 'Personal Care'];
+const VENDOR_TERMS_SEED = {
+  version: 'v1.0',
+  terms: 'Vendors must supply authentic, safe, and accurately described products that comply with applicable laws. Vendors must provide accurate invoices, meet agreed delivery arrangements, and promptly disclose product defects or material changes to their business or payment details. Payments are made according to approved records and the agreed settlement arrangements. PureBazar may reject non-conforming goods or suspend vendor access for a breach of these terms. By accepting these terms, the vendor confirms they have read and agree to this version.',
+  effectiveFrom: new Date('2000-01-01T00:00:00.000Z'),
+};
 const SETTINGS_SEED = {
   singleton: 'global',
   shareholderDiscountPercent: 5,
@@ -57,6 +62,7 @@ const SETTINGS_SEED = {
   defaultVatRate: 0,
   commissionEnabled: false,
   vendorWalletPayoutEnabled: false,
+  vendorTerms: [VENDOR_TERMS_SEED],
 };
 
 function assertTestDatabase(uri) {
@@ -118,6 +124,11 @@ async function seedDatabase() {
     { $setOnInsert: SETTINGS_SEED },
     { upsert: true, runValidators: true },
   );
+  await Settings.updateOne(
+    { singleton: 'global', 'vendorTerms.version': { $ne: VENDOR_TERMS_SEED.version } },
+    { $push: { vendorTerms: VENDOR_TERMS_SEED } },
+    { runValidators: true },
+  );
 
   const superAdminRole = await Role.findOne({ name: 'Super Admin' }).select('_id').lean();
   const passwordHash = await bcrypt.hash(password, 12);
@@ -168,5 +179,5 @@ async function main() {
 if (require.main === module) main();
 
 module.exports = {
-  ROLE_SEEDS, UNIT_SEEDS, CATEGORY_SEEDS, SETTINGS_SEED, assertTestDatabase, seedDatabase,
+  ROLE_SEEDS, UNIT_SEEDS, CATEGORY_SEEDS, VENDOR_TERMS_SEED, SETTINGS_SEED, assertTestDatabase, seedDatabase,
 };

@@ -11,7 +11,7 @@ jest.mock('../models', () => ({
 
 const { Role, User, Unit, Category, Settings, Location } = require('../models');
 const {
-  assertTestDatabase, ROLE_SEEDS, UNIT_SEEDS, CATEGORY_SEEDS, SETTINGS_SEED, seedDatabase,
+  assertTestDatabase, ROLE_SEEDS, UNIT_SEEDS, CATEGORY_SEEDS, VENDOR_TERMS_SEED, SETTINGS_SEED, seedDatabase,
 } = require('../seeders/seedRoles');
 
 describe('default role seeder', () => {
@@ -57,11 +57,18 @@ describe('default role seeder', () => {
     expect(ROLE_SEEDS[0].permissions).toContain('*');
     expect(UNIT_SEEDS.map(({ name }) => name)).toEqual(['Kg', 'Gram', 'Ltr', 'Pcs', 'Box', 'Pack', 'Dozen']);
     expect(CATEGORY_SEEDS.length).toBeGreaterThanOrEqual(3);
+    expect(VENDOR_TERMS_SEED).toMatchObject({
+      version: 'v1.0',
+      terms: expect.any(String),
+      effectiveFrom: expect.any(Date),
+    });
+    expect(VENDOR_TERMS_SEED.effectiveFrom.getTime()).toBeLessThan(Date.now());
     expect(SETTINGS_SEED).toMatchObject({
       shareholderDiscountPercent: 5,
       vatEnabled: false,
       commissionEnabled: false,
       vendorWalletPayoutEnabled: false,
+      vendorTerms: [VENDOR_TERMS_SEED],
     });
   });
 
@@ -83,6 +90,19 @@ describe('default role seeder', () => {
     expect(Role.bulkWrite).toHaveBeenCalledTimes(2);
     expect(Location.ensureCentralWarehouse).toHaveBeenCalledTimes(2);
     expect(Location.findOneAndUpdate).toHaveBeenCalledTimes(2);
+    expect(Settings.updateOne).toHaveBeenCalledTimes(4);
+    expect(Settings.updateOne).toHaveBeenNthCalledWith(
+      1,
+      { singleton: 'global' },
+      { $setOnInsert: SETTINGS_SEED },
+      { upsert: true, runValidators: true },
+    );
+    expect(Settings.updateOne).toHaveBeenNthCalledWith(
+      2,
+      { singleton: 'global', 'vendorTerms.version': { $ne: 'v1.0' } },
+      { $push: { vendorTerms: VENDOR_TERMS_SEED } },
+      { runValidators: true },
+    );
     expect(Location.findOneAndUpdate).toHaveBeenNthCalledWith(1,
       { type: 'OUTLET', name: 'Demo Outlet' },
       {
