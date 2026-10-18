@@ -24,9 +24,14 @@ jest.mock('../models', () => ({
   },
 }));
 
+jest.mock('../services/posOutletService', () => ({
+  getDefaultPosOutlet: jest.fn(),
+}));
+
 const {
   AuditLog, Location, Role, User,
 } = require('../models');
+const posOutletService = require('../services/posOutletService');
 const roleRoutes = require('../routes/roleRoutes');
 const userRoutes = require('../routes/userRoutes');
 const errorMiddleware = require('../middlewares/errorMiddleware');
@@ -112,6 +117,33 @@ describe('users and roles endpoints', () => {
     const savedPassword = User.create.mock.calls[0][0].passwordHash;
     expect(await bcrypt.compare('long-password', savedPassword)).toBe(true);
     expect(AuditLog.create).toHaveBeenCalledWith(expect.objectContaining({ action: 'CREATE', entity: 'User' }));
+  });
+
+  it('assigns new cashiers to the active default outlet when none is selected', async () => {
+    Role.findById.mockResolvedValue({ ...role, name: 'Cashier' });
+    posOutletService.getDefaultPosOutlet.mockResolvedValue({ _id: '65b000000000000000000004' });
+
+    const response = await request(app).post('/api/users').set(auth).send({
+      name: 'Test Cashier', email: 'test2@example.test', password: 'long-password', roleId,
+    });
+
+    expect(response.status).toBe(201);
+    expect(User.create).toHaveBeenCalledWith(expect.objectContaining({
+      locationId: '65b000000000000000000004',
+    }));
+  });
+
+  it('rejects explicit cashier assignments that are not active outlets', async () => {
+    Role.findById.mockResolvedValue({ ...role, name: 'Cashier' });
+    Location.exists.mockResolvedValue(false);
+    const response = await request(app).post('/api/users').set(auth).send({
+      name: 'Test Cashier', email: 'test2@example.test', password: 'long-password', roleId,
+      locationId: '65b000000000000000000004',
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toMatch(/active POS outlet/);
+    expect(User.create).not.toHaveBeenCalled();
   });
 
   it('updates and deletes users, auditing each write', async () => {

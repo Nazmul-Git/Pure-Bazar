@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const {
   AuditLog, Location, Role, User,
 } = require('../models');
+const { getDefaultPosOutlet } = require('../services/posOutletService');
 
 function publicUser(user) {
   const role = user.roleId && typeof user.roleId === 'object' ? user.roleId : null;
@@ -34,6 +35,13 @@ async function validateLocation(locationId) {
   if (!await Location.exists({ _id: locationId })) throw statusError('Location not found', 400);
 }
 
+async function validatePosOutlet(locationId) {
+  if (!locationId) return;
+  if (!await Location.exists({ _id: locationId, type: 'OUTLET', isActive: { $ne: false } })) {
+    throw statusError('Cashiers must be assigned to an active POS outlet', 400);
+  }
+}
+
 async function list(req, res, next) {
   try {
     const users = await User.find().select('-passwordHash').populate('roleId', 'name').sort({ name: 1 }).lean();
@@ -47,13 +55,21 @@ async function create(req, res, next) {
   try {
     const role = await Role.findById(req.body.roleId);
     if (!role) throw statusError('Role not found', 400);
-    await validateLocation(req.body.locationId);
+    const isCashier = ['Cashier', 'Outlet Cashier'].includes(role.name);
+    if (isCashier) await validatePosOutlet(req.body.locationId);
+    else await validateLocation(req.body.locationId);
+    let locationId = req.body.locationId;
+    if (!locationId && isCashier) {
+      const outlet = await getDefaultPosOutlet();
+      if (!outlet) throw statusError('No active POS outlet is configured', 503);
+      locationId = outlet._id;
+    }
     const user = await User.create({
       name: req.body.name,
       email: req.body.email,
       passwordHash: await bcrypt.hash(req.body.password, 12),
       roleId: role._id,
-      ...(req.body.locationId ? { locationId: req.body.locationId } : {}),
+      ...(locationId ? { locationId } : {}),
       isActive: req.body.isActive ?? true,
     });
     await AuditLog.create({ actorId: req.user._id, action: 'CREATE', entity: 'User', entityId: user._id, ipAddress: req.ip });

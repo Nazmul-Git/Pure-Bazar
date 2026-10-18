@@ -7,6 +7,7 @@ const {
 const {
   billOutput, loadBill, receiptData, statusError,
 } = require('./posBillService');
+const { getDefaultPosOutlet } = require('./posOutletService');
 const probashiWalletService = require('./probashiWalletService');
 
 function money(value) {
@@ -57,9 +58,15 @@ async function checkWallet(result, userId) {
 
 async function resolveOutlet(body, user) {
   const outletId = user.role === 'Super Admin' && body.outletId ? body.outletId : user.locationId;
-  if (!outletId) throw statusError('A POS outlet must be assigned to this user', 403);
-  const outlet = await Location.findById(outletId).lean();
-  if (!outlet || outlet.type !== 'OUTLET') throw statusError('POS sales must be assigned to an outlet', 400);
+  const outlet = outletId
+    ? await Location.findById(outletId).lean()
+    : await getDefaultPosOutlet();
+  if (!outlet || outlet.type !== 'OUTLET' || outlet.isActive === false) {
+    throw statusError(
+      outletId ? 'POS sales must be assigned to an active outlet' : 'No active POS outlet is configured',
+      outletId ? 400 : 503,
+    );
+  }
   return outlet._id;
 }
 

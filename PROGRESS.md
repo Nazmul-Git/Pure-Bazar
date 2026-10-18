@@ -161,6 +161,10 @@
 	- Files: Automatic verified-shareholder discount ordering and manual-reason rejection in POS bill calculations and validation; separated shareholder auto-discount and manual bill-discount UI; engine, API, and frontend validation tests.
 	- Decisions: Apply eligible WALLET shareholder discounts after item and manual bill discounts; keep automatic shareholder discounts outside discretionary discount role limits and approval; reject manual discount reasons mentioning shareholders.
 	- Validation: POS backend tests pass (2 suites, 17 tests); frontend billing tests pass (4 tests); role-limit and Super Admin approval behavior verified; frontend production build passes.
+- [x] 3.4b Fix cashier POS outlet assignment and fallback
+	- Files: Active/primary POS outlet fields and lookup; default outlet seeding and backfill for unassigned Cashier/Outlet Cashier accounts; default assignment for newly created cashiers; checkout outlet fallback and order/SALE movement regression tests.
+	- Decisions: Seed Demo Outlet as active and primary; preserve existing cashier assignments; use the highest-priority active outlet when checkout has no assigned outlet; reject inactive or non-outlet cashier assignments.
+	- Validation: Full backend Jest suite passes (21 suites, 126 tests); `git diff --check` passes.
 - [ ] 4.1
 - [ ] 4.2
 - [ ] 4.3

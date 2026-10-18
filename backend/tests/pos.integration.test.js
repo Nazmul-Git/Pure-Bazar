@@ -7,7 +7,7 @@ jest.mock('../models', () => ({
   AuditLog: { create: jest.fn() },
   Category: { find: jest.fn() },
   DiscountLog: { create: jest.fn() },
-  Location: { findById: jest.fn() },
+  Location: { findById: jest.fn(), findOne: jest.fn() },
   Order: { create: jest.fn(), findOne: jest.fn() },
   Product: { find: jest.fn(), findOne: jest.fn() },
   Settings: { findOne: jest.fn() },
@@ -44,6 +44,7 @@ const product = {
 function query(value) {
   const chain = {
     select: jest.fn(() => chain),
+    sort: jest.fn(() => chain),
     lean: jest.fn(() => Promise.resolve(value)),
   };
   return chain;
@@ -101,6 +102,9 @@ describe('POS checkout API', () => {
       _id: shareholderId, memberId: 'PB-001', verified: true, active: true, walletEnabled: true,
     }));
     models.Location.findById.mockReturnValue(query({ _id: outletId, type: 'OUTLET' }));
+    models.Location.findOne.mockReturnValue(query({
+      _id: outletId, type: 'OUTLET', isActive: true, isPrimary: true,
+    }));
     models.Order.findOne.mockImplementation(({ offlineId }) => query(
       db.orders.find((order) => order.offlineId === offlineId) || null,
     ));
@@ -284,6 +288,26 @@ describe('POS checkout API', () => {
       quantity: 2, vendorPayable: 120, companyNet: 70, entryType: 'SALE',
     });
     expect(db.discounts[0]).toMatchObject({ amount: 10, reason: 'Offer' });
+  });
+
+  it('uses the active primary outlet for unassigned cashiers and records it on sales and movements', async () => {
+    user = { ...user, locationId: undefined };
+    const response = await checkout({
+      items: line(), payments: [{ method: 'CASH', amount: 100 }],
+    });
+
+    expect(response.status).toBe(201);
+    expect(models.Location.findOne).toHaveBeenCalledWith({
+      type: 'OUTLET', isActive: { $ne: false },
+    });
+    expect(models.Location.findOne.mock.results[0].value.sort).toHaveBeenCalledWith({
+      isPrimary: -1, createdAt: 1,
+    });
+    expect(db.orders[0].outlet.toString()).toBe(outletId.toString());
+    expect(db.movements.at(-1)).toMatchObject({
+      warehouseId: outletId, quantity: -1, type: 'SALE',
+    });
+    expect(db.movements.at(-1).referenceId.toString()).toBe(db.orders[0]._id.toString());
   });
 
   it('requires a Super Admin to approve a discount above the cashier limit', async () => {

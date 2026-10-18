@@ -1,11 +1,11 @@
 jest.mock('../models', () => ({
-  Role: { bulkWrite: jest.fn(), findOne: jest.fn(), countDocuments: jest.fn() },
-  User: { updateOne: jest.fn(), countDocuments: jest.fn() },
+  Role: { bulkWrite: jest.fn(), find: jest.fn(), findOne: jest.fn(), countDocuments: jest.fn() },
+  User: { updateOne: jest.fn(), updateMany: jest.fn(), countDocuments: jest.fn() },
   Unit: { bulkWrite: jest.fn(), countDocuments: jest.fn() },
   Category: { bulkWrite: jest.fn(), countDocuments: jest.fn() },
   Settings: { updateOne: jest.fn(), countDocuments: jest.fn() },
   Location: {
-    ensureCentralWarehouse: jest.fn(), updateOne: jest.fn(), countDocuments: jest.fn(),
+    ensureCentralWarehouse: jest.fn(), findOneAndUpdate: jest.fn(), countDocuments: jest.fn(),
   },
 }));
 
@@ -27,6 +27,12 @@ describe('default role seeder', () => {
     Role.findOne.mockReturnValue({
       select: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue({ _id: 'role-id' }) }),
     });
+    Role.find.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        lean: jest.fn().mockResolvedValue([{ _id: 'cashier-role-id' }]),
+      }),
+    });
+    Location.findOneAndUpdate.mockResolvedValue({ _id: 'demo-outlet-id' });
     [Role, Unit, Category, Settings, Location, User].forEach((model) => (
       model.countDocuments.mockResolvedValue(1)
     ));
@@ -76,12 +82,19 @@ describe('default role seeder', () => {
 
     expect(Role.bulkWrite).toHaveBeenCalledTimes(2);
     expect(Location.ensureCentralWarehouse).toHaveBeenCalledTimes(2);
-    expect(Location.updateOne).toHaveBeenCalledTimes(2);
-    expect(Location.updateOne).toHaveBeenNthCalledWith(1,
+    expect(Location.findOneAndUpdate).toHaveBeenCalledTimes(2);
+    expect(Location.findOneAndUpdate).toHaveBeenNthCalledWith(1,
       { type: 'OUTLET', name: 'Demo Outlet' },
-      { $setOnInsert: { type: 'OUTLET', name: 'Demo Outlet' } },
-      { upsert: true, runValidators: true },
+      {
+        $set: { isActive: true, isPrimary: true },
+        $setOnInsert: { type: 'OUTLET', name: 'Demo Outlet' },
+      },
+      { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true },
     );
+    expect(User.updateMany).toHaveBeenCalledWith({
+      roleId: { $in: ['cashier-role-id'] },
+      $or: [{ locationId: { $exists: false } }, { locationId: null }],
+    }, { $set: { locationId: 'demo-outlet-id' } });
     expect(Location.countDocuments).toHaveBeenCalledWith({
       $or: [
         { type: 'CENTRAL', name: 'Central Warehouse' },

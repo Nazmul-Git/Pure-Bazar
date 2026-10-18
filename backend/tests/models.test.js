@@ -123,9 +123,13 @@ describe('Mongoose models', () => {
 
   it('restricts locations to central warehouses or outlets and requires a name', async () => {
     const central = new models.Location({ type: 'CENTRAL', name: 'Central Warehouse' });
+    const outlet = new models.Location({ type: 'OUTLET', name: 'Demo Outlet' });
     const invalid = new models.Location({ type: 'WAREHOUSE', name: '' });
 
     await expect(central.validate()).resolves.toBeUndefined();
+    await expect(outlet.validate()).resolves.toBeUndefined();
+    expect(outlet.isActive).toBe(true);
+    expect(outlet.isPrimary).toBe(false);
     await expect(invalid.validate()).rejects.toMatchObject({
       errors: {
         type: expect.objectContaining({ kind: 'enum' }),
