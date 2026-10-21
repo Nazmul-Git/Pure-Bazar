@@ -5,7 +5,9 @@ const request = require('supertest');
 
 jest.mock('../models', () => ({
   AuditLog: { create: jest.fn() },
+  GoodsReceive: { updateMany: jest.fn() },
   Product: { find: jest.fn() },
+  Settings: { findOne: jest.fn() },
   StockMovement: { aggregate: jest.fn() },
   User: { findById: jest.fn() },
   Vendor: { findById: jest.fn() },
@@ -30,6 +32,8 @@ const statementId = new mongoose.Types.ObjectId('65b000000000000000000004');
 const startDate = '2026-08-01';
 const endDate = '2026-08-15';
 let statementStore;
+let permissions;
+let settings;
 const entries = [
   {
     _id: new mongoose.Types.ObjectId(), vendorId, productId, orderId: new mongoose.Types.ObjectId(),
@@ -89,11 +93,15 @@ describe('vendor settlement APIs', () => {
     process.env.JWT_SECRET = secret;
     jest.clearAllMocks();
     statementStore = [];
+    permissions = ['vendors:read', 'vendors:write', 'vendor-payouts:read', 'vendor-payouts:write'];
+    settings = { vendorWalletPayoutEnabled: false, enabledVendorPayoutMethods: ['Cash', 'Bank', 'bKash', 'Nagad'] };
+    models.Settings.findOne.mockReturnValue(query(settings));
+    models.GoodsReceive.updateMany.mockResolvedValue({});
     models.User.findById.mockReturnValue({
       populate: jest.fn().mockResolvedValue({
         _id: userId,
         isActive: true,
-        roleId: { name: 'Finance', permissions: ['vendors:read', 'vendors:write'] },
+        roleId: { name: 'Finance', permissions },
       }),
     });
     models.Vendor.findById.mockReturnValue(query({ _id: vendorId }));
@@ -201,6 +209,7 @@ describe('vendor settlement APIs', () => {
         status: 'Paid',
         paymentMethod: 'Bank',
         paymentReference: 'BANK-001',
+        receiverName: 'Rahim',
         paidAt: '2026-08-20T10:00:00.000Z',
       });
     expect(paid.status).toBe(200);
@@ -208,7 +217,11 @@ describe('vendor settlement APIs', () => {
       status: 'Paid',
       paymentMethod: 'Bank',
       paymentReference: 'BANK-001',
+        receiverName: 'Rahim',
       receivedBy: userId.toString(),
+      receiverName: 'Rahim',
+      settlementRef: created.body.statement.statementNumber,
+      approvedBy: userId.toString(),
     });
 
     const locked = await request(app).patch(`/api/vendors/statements/${id}/status`)
@@ -216,5 +229,78 @@ describe('vendor settlement APIs', () => {
     expect(locked.status).toBe(409);
     expect(locked.body.message).toMatch(/locked/i);
     expect(statementStore[0].status).toBe('Paid');
+    expect(models.GoodsReceive.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({ vendorId }),
+      { $set: { settlementRef: created.body.statement.statementNumber } },
+    );
+  });
+
+  async function approvedStatement() {
+    const created = await request(app)
+      .post(`/api/vendors/${vendorId}/statements`).set(auth).send({ startDate, endDate });
+    const id = created.body.statement._id;
+    await request(app).patch(`/api/vendors/statements/${id}/status`)
+      .set(auth).send({ status: 'Approved' });
+    return id;
+  }
+
+  it('refuses wallet payout while vendorWalletPayoutEnabled is false', async () => {
+    const id = await approvedStatement();
+    const response = await request(app).patch(`/api/vendors/statements/${id}/status`)
+      .set(auth).send({
+        status: 'Paid', paymentMethod: 'Wallet', paymentReference: 'W-1',
+        paidAt: '2026-08-20T10:00:00.000Z', receiverName: 'Rahim',
+      });
+    expect(response.status).toBe(403);
+    expect(response.body.message).toMatch(/wallet payout is disabled/i);
+    expect(statementStore[0].status).toBe('Approved');
+  });
+
+  it('requires a receiver for direct payment', async () => {
+    const id = await approvedStatement();
+    const response = await request(app).patch(`/api/vendors/statements/${id}/status`)
+      .set(auth).send({
+        status: 'Paid', paymentMethod: 'Cash', paymentReference: 'C-1',
+        paidAt: '2026-08-20T10:00:00.000Z',
+      });
+    expect(response.status).toBe(400);
+    expect(statementStore[0].status).toBe('Approved');
+  });
+
+  it('blocks paying a draft statement', async () => {
+    const created = await request(app)
+      .post(`/api/vendors/${vendorId}/statements`).set(auth).send({ startDate, endDate });
+    const response = await request(app)
+      .patch(`/api/vendors/statements/${created.body.statement._id}/status`)
+      .set(auth).send({
+        status: 'Paid', paymentMethod: 'Cash', paymentReference: 'C-1',
+        paidAt: '2026-08-20T10:00:00.000Z', receiverName: 'Rahim',
+      });
+    expect(response.status).toBe(409);
+  });
+
+  it('denies approval and payout history without vendor-payouts permissions', async () => {
+    const id = await approvedStatement();
+    permissions.splice(2);
+    const approve = await request(app).patch(`/api/vendors/statements/${id}/status`)
+      .set(auth).send({ status: 'Approved' });
+    const history = await request(app).get('/api/vendors/payouts').set(auth);
+    expect(approve.status).toBe(403);
+    expect(history.status).toBe(403);
+  });
+
+  it('lists paid statements as payout history', async () => {
+    const id = await approvedStatement();
+    await request(app).patch(`/api/vendors/statements/${id}/status`).set(auth).send({
+      status: 'Paid', paymentMethod: 'bKash', paymentReference: 'BK-1',
+      paidAt: '2026-08-20T10:00:00.000Z', receiverName: 'Rahim',
+    });
+    models.VendorStatement.find.mockImplementation((filter) => query(
+      statementStore.filter((item) => item.status === filter.status),
+    ));
+    const response = await request(app).get(`/api/vendors/payouts?vendorId=${vendorId}`).set(auth);
+    expect(response.status).toBe(200);
+    expect(response.body.payouts).toHaveLength(1);
+    expect(response.body.payouts[0]).toMatchObject({ paymentMethod: 'bKash', receiverName: 'Rahim' });
   });
 });

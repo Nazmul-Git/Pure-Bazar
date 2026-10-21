@@ -1,4 +1,6 @@
-const { AuditLog, Vendor, VendorStatement } = require('../models');
+const {
+  AuditLog, GoodsReceive, Settings, Vendor, VendorStatement,
+} = require('../models');
 const {
   generateStatement, getLedger, periodBounds,
 } = require('../services/vendorSettlementService');
@@ -13,6 +15,22 @@ async function requireVendor(vendorId) {
   const vendor = await Vendor.findById(vendorId).lean();
   if (!vendor) throw statusError('Vendor not found', 404);
   return vendor;
+}
+
+async function assertWalletPayoutAllowed() {
+  const settings = await Settings.findOne({ singleton: 'global' }).lean();
+  if (!settings?.vendorWalletPayoutEnabled) {
+    throw statusError('Vendor wallet payout is disabled', 403);
+  }
+  throw statusError('Vendor wallet payout is not available yet', 501);
+}
+
+async function assertMethodEnabled(method) {
+  const settings = await Settings.findOne({ singleton: 'global' }).lean();
+  const enabled = settings?.enabledVendorPayoutMethods;
+  if (enabled && !enabled.includes(method)) {
+    throw statusError(`Payout method ${method} is not enabled`, 400);
+  }
 }
 
 function parsePeriod(req) {
@@ -89,30 +107,44 @@ async function updateStatementStatus(req, res, next) {
     if (!statement) throw statusError('Vendor statement not found', 404);
     if (statement.status === 'Paid') throw statusError('Paid statements are locked', 409);
     const before = statement.toObject();
+    const changedFields = ['status'];
 
-    if (req.body.status === 'Approved' && statement.status !== 'Draft') {
-      throw statusError('Only draft statements can be approved', 409);
+    if (req.body.status === 'Approved') {
+      if (statement.status !== 'Draft') throw statusError('Only draft statements can be approved', 409);
+      statement.approvedBy = req.user._id;
+      statement.approvedAt = new Date();
+      changedFields.push('approvedBy', 'approvedAt');
     }
     if (req.body.status === 'Paid') {
       if (statement.status !== 'Approved') {
         throw statusError('Only approved statements can be paid', 409);
       }
-      if (!req.body.paymentMethod || !req.body.paymentReference || !req.body.paidAt) {
-        throw statusError('Payment method, reference, and date are required', 400);
+      if (req.body.paymentMethod === 'Wallet') await assertWalletPayoutAllowed();
+      const missing = !req.body.paymentMethod || !req.body.paymentReference
+        || !req.body.paidAt || !req.body.receiverName;
+      if (missing) {
+        throw statusError('Payment method, reference, date, and receiver are required', 400);
       }
+      await assertMethodEnabled(req.body.paymentMethod);
       statement.paymentMethod = req.body.paymentMethod;
       statement.paymentReference = req.body.paymentReference;
       statement.paidAt = new Date(req.body.paidAt);
+      statement.receiverName = req.body.receiverName;
       statement.receivedBy = req.user._id;
-      if (req.body.settlementRef) statement.settlementRef = req.body.settlementRef;
+      statement.settlementRef = statement.statementNumber;
+      changedFields.push('paymentMethod', 'paymentReference', 'paidAt', 'receiverName', 'receivedBy', 'settlementRef');
     }
 
     statement.status = req.body.status;
     await statement.save();
-    const changedFields = ['status'];
     if (req.body.status === 'Paid') {
-      changedFields.push('paymentMethod', 'paymentReference', 'paidAt', 'receivedBy');
-      if (req.body.settlementRef) changedFields.push('settlementRef');
+      await GoodsReceive.updateMany({
+        vendorId: statement.vendorId,
+        ownerType: 'VENDOR',
+        status: 'Approved',
+        settlementRef: { $exists: false },
+        createdAt: { $gte: statement.periodStart, $lte: statement.periodEnd },
+      }, { $set: { settlementRef: statement.settlementRef } });
     }
     await AuditLog.create({
       actorId: req.user._id,
@@ -130,7 +162,21 @@ async function updateStatementStatus(req, res, next) {
   }
 }
 
+async function listPayouts(req, res, next) {
+  try {
+    const filter = { status: 'Paid' };
+    if (req.query.vendorId) filter.vendorId = req.query.vendorId;
+    const payouts = await VendorStatement.find(filter)
+      .sort({ paidAt: -1, createdAt: -1 })
+      .lean();
+    return res.json({ success: true, payouts });
+  } catch (error) {
+    return next(error);
+  }
+}
+
 module.exports = {
+  listPayouts,
   createStatement,
   listLedger,
   listStatements,

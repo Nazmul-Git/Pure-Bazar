@@ -19,6 +19,7 @@ const shareholderRoutes = require('./routes/shareholderRoutes');
 const stockRoutes = require('./routes/stockRoutes');
 const userRoutes = require('./routes/userRoutes');
 const vendorRoutes = require('./routes/vendorRoutes');
+const { startSettlementJob } = require('./services/vendorSettlementJob');
 
 const app = express();
 
@@ -77,6 +78,8 @@ async function startServer() {
     process.exitCode = 1;
     return;
   }
+
+  startSettlementJob();
 
   app.listen(env.PORT, () => {
     console.log(`PureBazar API listening on port ${env.PORT}`);

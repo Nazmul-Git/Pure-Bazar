@@ -22,6 +22,7 @@ const goodsReceiveSchema = new mongoose.Schema({
   lines: { type: [goodsReceiveLineSchema], required: true, validate: (lines) => lines.length > 0 },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  settlementRef: { type: String, trim: true },
 }, { timestamps: true });
 
 goodsReceiveSchema.pre('validate', function validateOwnershipAndLines() {

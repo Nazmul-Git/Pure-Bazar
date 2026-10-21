@@ -9,6 +9,8 @@ const validateRequest = require('../middlewares/validateRequest');
 const router = express.Router();
 const read = [authMiddleware, authorizeMiddleware({ permissions: ['vendors:read'] })];
 const write = [authMiddleware, authorizeMiddleware({ permissions: ['vendors:write'] })];
+const payoutRead = [authMiddleware, authorizeMiddleware({ permissions: ['vendor-payouts:read'] })];
+const payoutWrite = [authMiddleware, authorizeMiddleware({ permissions: ['vendor-payouts:write'] })];
 const isDateOnly = (value) => {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const date = new Date(value);
@@ -49,17 +51,21 @@ router.post('/:vendorId/statements', write, [
   periodDate('endDate'),
 ], validateRequest, vendorSettlementController.createStatement);
 
-router.patch('/statements/:statementId/status', write, [
+router.get('/payouts', payoutRead, [
+  query('vendorId').optional().isMongoId().withMessage('A valid vendor ID is required'),
+], validateRequest, vendorSettlementController.listPayouts);
+
+router.patch('/statements/:statementId/status', payoutWrite, [
   param('statementId').isMongoId().withMessage('A valid statement ID is required'),
   body('status').isIn(['Approved', 'Paid']).withMessage('Status must be Approved or Paid'),
-  body('paymentMethod').optional().isIn(['Cash', 'Bank', 'bKash', 'Nagad'])
-    .withMessage('Payment method must be Cash, Bank, bKash, or Nagad'),
+  body('paymentMethod').optional().isIn(['Cash', 'Bank', 'bKash', 'Nagad', 'Wallet'])
+    .withMessage('Payment method must be Cash, Bank, bKash, Nagad, or Wallet'),
   body('paymentReference').optional().isString().trim().isLength({ min: 1, max: 150 })
     .withMessage('Payment reference must be 1 to 150 characters'),
   body('paidAt').optional().isISO8601({ strict: true })
     .withMessage('A valid payment date is required'),
-  body('settlementRef').optional().isString().trim().isLength({ max: 150 })
-    .withMessage('Settlement reference must be at most 150 characters'),
+  body('receiverName').optional().isString().trim().isLength({ min: 1, max: 150 })
+    .withMessage('Receiver must be 1 to 150 characters'),
 ], validateRequest, vendorSettlementController.updateStatementStatus);
 
 router.post('/', write, [

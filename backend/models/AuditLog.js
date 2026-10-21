@@ -1,7 +1,11 @@
 const mongoose = require('mongoose');
 
 const auditLogSchema = new mongoose.Schema({
-  actorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  actorId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required() { return !this.metadata?.system; },
+  },
   action: { type: String, required: true, trim: true },
   entity: { type: String, required: true, trim: true },
   entityId: { type: mongoose.Schema.Types.ObjectId },
