@@ -263,7 +263,11 @@
 	- Endpoints (all take from/to YYYY-MM-DD, Asia/Dhaka, inclusive): GET /sales?groupBy=day|month, /stock?lowStockThreshold (opening/received/sold/closing, turnover = net units sold / average of opening and closing stock, low stock default 10), /vendor-profitability?format=json|xlsx|pdf, /profit-loss, /vat-discount. Sales/stock accept reports:read or reports:sales-stock:read; the rest need reports:read.
 	- Decisions: Only PAID orders count. Profit/Loss = vendor margin income (line subtotal - vendor payable from the ledger) + own-stock margin (company line subtotal - Product.vendorPrice x qty, current cost since no cost history exists) - all discounts (item, bill, shareholder) - expenses; VAT is excluded as it is not income. Vendor profitability reports vendor payable and company net (margin minus discounts, returns subtracted) per vendor. All sums in whole cents.
 	- Validation: Tests compare every report total with raw data and check Excel/PDF output; full backend Jest suite passes (33 suites, 194 tests).
-- [ ] 6.2
+- [x] 6.2b Report screens
+	- Files: Filterable sales, stock, vendor profitability, profit/loss, and VAT/discount screens; permission-filtered reports navigation; Excel/PDF downloads for each report type; report export support added for sales, stock, profit/loss, and VAT/discount.
+	- Decisions: Use shared report screen components and existing reports API; date and report-specific filters are reused for both data and exports. Preserve JSON as the default API response.
+	- Validation: Frontend production build passes; focused reports integration tests pass (8 tests); `git diff --check` passes.
+- [x] 6.2
 - [ ] 6.3
 - [ ] 6.4
 - [ ] 7.1

@@ -1,5 +1,5 @@
-import PagePlaceholder from '@/components/page-placeholder';
+import ReportScreen from '@/components/reports/report-screen';
 
 export default function SalesStockReportPage() {
-  return <PagePlaceholder title="Sales and Stock Report" />;
+  return <ReportScreen type="sales" />;
 }

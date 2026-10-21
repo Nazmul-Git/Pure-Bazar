@@ -219,5 +219,29 @@ describe('reports API', () => {
       expect(pdf.headers['content-type']).toBe('application/pdf');
       expect(pdf.body.slice(0, 5).toString()).toBe('%PDF-');
     });
+
+    it('exports sales, stock, profit/loss and VAT/discount reports', async () => {
+      const sales = await request(app).get('/api/reports/sales?format=xlsx&from=2026-03-01&to=2026-03-31')
+        .set(auth()).buffer(true).parse(binary);
+      const salesWorkbook = new ExcelJS.Workbook();
+      await salesWorkbook.xlsx.load(sales.body);
+      expect(salesWorkbook.worksheets[0].getRow(4).getCell(6).value).toBe(337.6);
+
+      const stock = await request(app).get('/api/reports/stock?format=pdf&from=2026-03-10&to=2026-03-31')
+        .set(auth()).buffer(true).parse(binary);
+      expect(stock.headers['content-type']).toBe('application/pdf');
+      expect(stock.body.slice(0, 5).toString()).toBe('%PDF-');
+
+      const profitLossXlsx = await request(app).get('/api/reports/profit-loss?format=xlsx&from=2026-03-01&to=2026-03-31')
+        .set(auth()).buffer(true).parse(binary);
+      const profitLossWorkbook = new ExcelJS.Workbook();
+      await profitLossWorkbook.xlsx.load(profitLossXlsx.body);
+      expect(profitLossWorkbook.worksheets[0].getRow(7).getCell(2).value).toBe(62.66);
+
+      const vatDiscountPdf = await request(app).get('/api/reports/vat-discount?format=pdf&from=2026-03-01&to=2026-03-31')
+        .set(auth()).buffer(true).parse(binary);
+      expect(vatDiscountPdf.headers['content-type']).toBe('application/pdf');
+      expect(vatDiscountPdf.body.slice(0, 5).toString()).toBe('%PDF-');
+    });
   });
 });
