@@ -167,6 +167,7 @@ async function listPayouts(req, res, next) {
     const filter = { status: 'Paid' };
     if (req.query.vendorId) filter.vendorId = req.query.vendorId;
     const payouts = await VendorStatement.find(filter)
+      .populate('vendorId', 'name shopName')
       .sort({ paidAt: -1, createdAt: -1 })
       .lean();
     return res.json({ success: true, payouts });

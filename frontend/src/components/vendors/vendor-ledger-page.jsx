@@ -40,6 +40,7 @@ export default function VendorLedgerPage() {
   const permissions = user?.permissions || [];
   const canRead = can(permissions, 'vendors:read');
   const canWrite = can(permissions, 'vendors:write');
+  const canPayout = can(permissions, 'vendor-payouts:write');
   const [vendors, setVendors] = useState([]);
   const [vendorId, setVendorId] = useState('');
   const [month, setMonth] = useState(currentMonth);
@@ -54,7 +55,7 @@ export default function VendorLedgerPage() {
   const [paymentMethod, setPaymentMethod] = useState('Cash');
   const [paymentReference, setPaymentReference] = useState('');
   const [paidAt, setPaidAt] = useState(today);
-  const [settlementRef, setSettlementRef] = useState('');
+  const [receiverName, setReceiverName] = useState('');
   const [reload, setReload] = useState(0);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
@@ -157,7 +158,7 @@ export default function VendorLedgerPage() {
       paymentMethod,
       paymentReference: paymentReference.trim(),
       paidAt,
-      ...(settlementRef.trim() ? { settlementRef: settlementRef.trim() } : {}),
+      receiverName: receiverName.trim(),
     });
   }
 
@@ -243,8 +244,8 @@ export default function VendorLedgerPage() {
                       <div className="flex flex-wrap gap-2">
                         <Link className="ui-button button-secondary button-sm" href={`/vendors/ledger/${vendorId}/${statement._id}/print`}><Printer size={14} /> Statement</Link>
                         {statement.status === 'Paid' && <Link className="ui-button button-secondary button-sm" href={`/vendors/ledger/${vendorId}/${statement._id}/receipt`}><Printer size={14} /> Receipt</Link>}
-                        {canWrite && statement.status === 'Draft' && <Button size="sm" variant="secondary" disabled={busyId === statement._id} onClick={() => changeStatus(statement, { status: 'Approved' })}>Approve</Button>}
-                        {canWrite && statement.status === 'Approved' && <Button size="sm" disabled={busyId === statement._id} onClick={() => setPaymentId(paymentId === statement._id ? '' : statement._id)}>Mark paid</Button>}
+                        {canPayout && statement.status === 'Draft' && <Button size="sm" variant="secondary" disabled={busyId === statement._id} onClick={() => changeStatus(statement, { status: 'Approved' })}>Approve</Button>}
+                        {canPayout && statement.status === 'Approved' && <Button size="sm" disabled={busyId === statement._id} onClick={() => setPaymentId(paymentId === statement._id ? '' : statement._id)}>Record payment</Button>}
                       </div>
                       {paymentId === statement._id && (
                         <form className="mt-3 grid min-w-[560px] gap-2 rounded border border-slate-200 bg-slate-50 p-3 sm:grid-cols-2" onSubmit={(event) => submitPayment(event, statement)}>
@@ -253,9 +254,9 @@ export default function VendorLedgerPage() {
                           </Select>
                           <Input label="Payment reference" name="paymentReference" required maxLength={150} value={paymentReference} onChange={(event) => setPaymentReference(event.target.value)} />
                           <Input label="Paid date" name="paidAt" type="date" required value={paidAt} onChange={(event) => setPaidAt(event.target.value)} />
-                          <Input label="Settlement reference (optional)" name="settlementRef" maxLength={150} value={settlementRef} onChange={(event) => setSettlementRef(event.target.value)} />
+                          <Input label="Received by" name="receiverName" required maxLength={150} value={receiverName} onChange={(event) => setReceiverName(event.target.value)} />
                           <div className="flex items-end gap-2 sm:col-span-2">
-                            <Button type="submit" disabled={busyId === statement._id || !paymentReference.trim()}>Confirm payment</Button>
+                            <Button type="submit" disabled={busyId === statement._id || !paymentReference.trim() || !receiverName.trim()}>Mark paid</Button>
                             <Button type="button" variant="secondary" onClick={() => setPaymentId('')}>Cancel</Button>
                           </div>
                         </form>

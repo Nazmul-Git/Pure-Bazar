@@ -24,6 +24,7 @@ export const getVendorStatements = (token, id) => api.get(
   `/vendors/${id}/statements`,
   authConfig(token),
 );
+export const getVendorPayouts = (token) => api.get('/vendors/payouts', authConfig(token));
 export const createVendorStatement = (token, id, payload) => api.post(
   `/vendors/${id}/statements`,
   payload,

@@ -62,6 +62,7 @@ function createApp() {
 
 function query(value) {
   const chain = {
+    populate: jest.fn(() => chain),
     select: jest.fn(() => chain),
     sort: jest.fn(() => chain),
     lean: jest.fn(async () => value),
@@ -302,5 +303,9 @@ describe('vendor settlement APIs', () => {
     expect(response.status).toBe(200);
     expect(response.body.payouts).toHaveLength(1);
     expect(response.body.payouts[0]).toMatchObject({ paymentMethod: 'bKash', receiverName: 'Rahim' });
+    const historyQuery = models.VendorStatement.find.mock.results[
+      models.VendorStatement.find.mock.results.length - 1
+    ].value;
+    expect(historyQuery.populate).toHaveBeenCalledWith('vendorId', 'name shopName');
   });
 });

@@ -1,5 +1,5 @@
-import PagePlaceholder from '@/components/page-placeholder';
+import VendorPayoutsPage from '@/components/vendors/vendor-payouts-page';
 
-export default function VendorPayoutsPage() {
-  return <PagePlaceholder title="Vendor Payouts" />;
+export default function Page() {
+  return <VendorPayoutsPage />;
 }
