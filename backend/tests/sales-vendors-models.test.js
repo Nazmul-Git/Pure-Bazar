@@ -147,6 +147,10 @@ describe('Sales and vendor models', () => {
       { fields: { orderId: 1 }, options: expect.objectContaining({ unique: true }) },
     ]));
     expect(ledgerIndexes).toEqual(expect.arrayContaining([{ vendorId: 1 }, { createdAt: 1 }]));
-    expect(statementIndexes).toEqual(expect.arrayContaining([{ vendorId: 1 }, { createdAt: 1 }]));
+    expect(statementIndexes).toEqual(expect.arrayContaining([
+      { vendorId: 1 },
+      { createdAt: 1 },
+      { vendorId: 1, periodStart: 1, periodEnd: 1 },
+    ]));
   });
 });

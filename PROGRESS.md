@@ -198,7 +198,10 @@
 	- Files: Idempotently add effective vendor terms v1.0 to global settings and cover the seed behavior with seeder tests.
 	- Decisions: Preserve existing terms and only add v1.0 when that version is absent; its baseline effective date ensures later configured terms remain current.
 	- Validation: Backend seeder and full Jest suite pass; test database seeded with the default vendor terms.
-- [ ] 4.2
+- [x] 4.2a Statements API
+	- Files: Vendor sales ledger API with returns excluded from sales/payable/margin totals; period statement generation from stock movements and immutable ledger price snapshots; audited Draft/Approved/Paid workflow, payment details, unique statement numbering, and settlement integration tests.
+	- Decisions: Treat statement sales and returns as quantities; calculate payable from snapshot vendor-price ledger values, subtracting returned vendor payable; lock Paid statements and prevent duplicate vendor periods.
+	- Validation: Full backend Jest suite passes (26 suites, 151 tests), including statement-to-ledger figures, Paid locking, and past statement stability after product price changes.
 - [ ] 4.3
 - [ ] 4.4
 - [ ] 5.1

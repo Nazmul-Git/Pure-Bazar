@@ -30,5 +30,9 @@ vendorStatementSchema.pre('validate', function requirePaymentForPaidStatement() 
 
 vendorStatementSchema.index({ vendorId: 1 });
 vendorStatementSchema.index({ createdAt: 1 });
+vendorStatementSchema.index(
+  { vendorId: 1, periodStart: 1, periodEnd: 1 },
+  { unique: true },
+);
 
 module.exports = mongoose.models.VendorStatement || mongoose.model('VendorStatement', vendorStatementSchema);
