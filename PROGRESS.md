@@ -234,7 +234,10 @@
 	- Files: routes/payrollRoutes.js (mounted at /api/payroll), controllers/payrollController.js (employees, advances), controllers/salarySheetController.js (sheets, payslip), services/payrollService.js; SalarySheet lines gain advanceDeduction/otherDeductions/advanceIds; SalaryAdvance gains deductedSheetId/deductedMonth; tests/payroll.integration.test.js and tests/helpers/fakeModel.js.
 	- Decisions: Employees need employees:read/write, advances and sheets need payroll:read/write. Sheet creation covers ACTIVE employees and deducts Paid, not-yet-deducted advances oldest first while within gross pay; the rest roll over. Advances are locked to a sheet on approval, so none are deducted twice. Draft lines allow allowances and other deductions only. Paying an Approved sheet creates exactly one Salary expense (category "Salary" auto-created, dated month-end, SALARY_SHEET source, unique index backed) and closes the month. Payslip is read-only per employee. All writes audited.
 	- Validation: Full backend Jest suite passes (29 suites, 176 tests).
-- [ ] 5.2b
+- [x] 5.2b Payroll screens
+	- Files: Employee directory, monthly salary sheet creation/review/edit/approval/payment, employee payslips with print support, salary advances with approval/payment actions; payroll API service and permission-filtered HR/Payroll navigation.
+	- Decisions: Keep payslips read-only, show advance deductions and statuses, use optional expense location for salary payments, and enforce employees/payroll permissions per screen and action.
+	- Validation: Frontend production build passes; payroll utility tests pass (4 tests); `git diff --check` passes.
 - [ ] 5.2
 - [ ] 5.3
 - [ ] 5.4

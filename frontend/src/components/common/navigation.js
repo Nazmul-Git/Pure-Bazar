@@ -1,6 +1,7 @@
 import {
   BarChart3,
   BriefcaseBusiness,
+  Banknote,
   ChartNoAxesCombined,
   CircleDollarSign,
   ClipboardList,
@@ -77,6 +78,18 @@ export const navigationItems = [
     ],
   },
   {
+    label: 'HR / Payroll',
+    href: '/payroll/employees',
+    icon: Users,
+    permissions: ['employees:read', 'payroll:read'],
+    children: [
+      { label: 'Employees', href: '/payroll/employees', icon: Users, permissions: ['employees:read'] },
+      { label: 'Salary Sheet', href: '/payroll/salary-sheets', icon: Banknote, permissions: ['payroll:read'] },
+      { label: 'Payslips', href: '/payroll/payslips', icon: ReceiptText, permissions: ['payroll:read'] },
+      { label: 'Advances', href: '/payroll/advances', icon: CircleDollarSign, permissions: ['payroll:read'] },
+    ],
+  },
+  {
     label: 'Reports',
     href: '/reports/sales-stock',
     icon: ChartNoAxesCombined,
@@ -112,6 +125,10 @@ export const routePermissions = [
   { prefix: '/finance/revenue', permissions: ['finance:read'] },
   { prefix: '/finance/expenses', permissions: ['expenses:read'] },
   { prefix: '/finance/batch-payout', permissions: ['vendors:read'] },
+  { prefix: '/payroll/employees', permissions: ['employees:read'] },
+  { prefix: '/payroll/salary-sheets', permissions: ['payroll:read'] },
+  { prefix: '/payroll/payslips', permissions: ['payroll:read'] },
+  { prefix: '/payroll/advances', permissions: ['payroll:read'] },
   { prefix: '/reports/sales-stock', permissions: ['reports:read', 'reports:sales-stock:read'] },
   { prefix: '/reports/vendor-profit', permissions: ['reports:read'] },
   { prefix: '/reports/audit-trail', permissions: ['*'] },
