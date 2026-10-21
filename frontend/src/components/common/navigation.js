@@ -21,6 +21,7 @@ import {
   ReceiptText,
   Users,
   UserPlus,
+  Wallet,
 } from 'lucide-react';
 
 export const navigationItems = [
@@ -64,7 +65,16 @@ export const navigationItems = [
       { label: 'Payout History', href: '/vendors/payouts/history', icon: ReceiptText, permissions: ['vendor-payouts:read'] },
     ],
   },
-  { label: 'Shareholders', href: '/shareholders/directory', icon: Users, permissions: ['shareholders:read', 'wallet-logs:read'] },
+  {
+    label: 'Shareholders',
+    href: '/shareholders/directory',
+    icon: Users,
+    permissions: ['shareholders:read'],
+    children: [
+      { label: 'Directory', href: '/shareholders/directory', icon: Users, permissions: ['shareholders:read'] },
+      { label: 'Wallet Bill Log', href: '/shareholders/wallet-logs', icon: Wallet, permissions: ['wallet-logs:read'] },
+    ],
+  },
   { label: 'Roles', href: '/roles/manage', icon: BarChart3, permissions: ['*'] },
   {
     label: 'Finance',
@@ -75,6 +85,7 @@ export const navigationItems = [
       { label: 'Revenue Ledger', href: '/finance/revenue', icon: ChartNoAxesCombined, permissions: ['finance:read'] },
       { label: 'Expenses', href: '/finance/expenses', icon: ReceiptText, permissions: ['expenses:read'] },
       { label: 'Payout Approval', href: '/finance/batch-payout', icon: FileText, permissions: ['vendors:read'] },
+      { label: 'Wallet Reconciliation', href: '/finance/wallet-reconciliation', icon: ClipboardCheck, permissions: ['finance:read'] },
     ],
   },
   {
@@ -125,6 +136,7 @@ export const routePermissions = [
   { prefix: '/finance/revenue', permissions: ['finance:read'] },
   { prefix: '/finance/expenses', permissions: ['expenses:read'] },
   { prefix: '/finance/batch-payout', permissions: ['vendors:read'] },
+  { prefix: '/finance/wallet-reconciliation', permissions: ['finance:read'] },
   { prefix: '/payroll/employees', permissions: ['employees:read'] },
   { prefix: '/payroll/salary-sheets', permissions: ['payroll:read'] },
   { prefix: '/payroll/payslips', permissions: ['payroll:read'] },

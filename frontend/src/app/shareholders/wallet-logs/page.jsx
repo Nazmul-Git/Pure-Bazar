@@ -1,5 +1,5 @@
-import PagePlaceholder from '@/components/page-placeholder';
+import WalletBillLogPage from '@/components/shareholders/wallet-bill-log-page';
 
 export default function ShareholderWalletLogsPage() {
-  return <PagePlaceholder title="Shareholder Wallet Logs" />;
+  return <WalletBillLogPage />;
 }

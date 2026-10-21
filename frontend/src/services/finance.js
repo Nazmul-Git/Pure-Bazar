@@ -16,6 +16,23 @@ export const getRevenueLedger = (token, params) => api.get(
   withParams(token, params),
 );
 
+export const getWalletReconciliation = (token, date) => api.get(
+  '/finance/wallet-reconciliation',
+  withParams(token, { date }),
+);
+
+export const runWalletReconciliation = (token, date) => api.post(
+  '/finance/wallet-reconciliation/run',
+  { date },
+  authConfig(token),
+);
+
+export const resolveWalletReconciliation = (token, id, reason) => api.post(
+  `/finance/wallet-reconciliation/${id}/resolve`,
+  { reason },
+  authConfig(token),
+);
+
 export const getExpenseCategories = (token) => api.get(
   '/finance/expense-categories',
   authConfig(token),

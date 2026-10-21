@@ -1,4 +1,6 @@
-const { Order, Shareholder, WalletAuditLog } = require('../models');
+const {
+  Order, Shareholder, WalletAuditLog, WalletLog,
+} = require('../models');
 const probashiWalletService = require('../services/probashiWalletService');
 
 function statusError(message, status) {
@@ -122,6 +124,32 @@ async function listTransactions(req, res, next) {
   }
 }
 
+async function listWalletLogs(req, res, next) {
+  try {
+    const filter = {};
+    if (req.query.date) {
+      const start = new Date(`${req.query.date}T00:00:00+06:00`);
+      filter.createdAt = { $gte: start, $lt: new Date(start.getTime() + 24 * 60 * 60 * 1000) };
+    }
+    if (req.query.memberId) {
+      const shareholder = await Shareholder.findOne({ memberId: req.query.memberId })
+        .select('_id')
+        .lean();
+      if (!shareholder) return res.json({ success: true, logs: [] });
+      filter.memberId = shareholder._id;
+    }
+    const logs = await WalletLog.find(filter)
+      .sort({ createdAt: -1 })
+      .limit(500)
+      .populate('memberId', 'memberId name mobile')
+      .populate('orderId', 'orderNumber soldAt grandTotal paymentStatus')
+      .lean();
+    return res.json({ success: true, logs });
+  } catch (error) {
+    return next(error);
+  }
+}
+
 async function refund(req, res, next) {
   const { memberId, transactionId, amount } = req.body;
   try {
@@ -151,6 +179,7 @@ async function purchaseHistory(req, res, next) {
 module.exports = {
   checkWalletBalance,
   listTransactions,
+  listWalletLogs,
   purchaseHistory,
   refund,
   searchShareholders,
