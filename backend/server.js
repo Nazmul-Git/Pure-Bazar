@@ -21,6 +21,7 @@ const userRoutes = require('./routes/userRoutes');
 const vendorRoutes = require('./routes/vendorRoutes');
 const financeRoutes = require('./routes/financeRoutes');
 const payrollRoutes = require('./routes/payrollRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 const { startSettlementJob } = require('./services/vendorSettlementJob');
 
 const app = express();
@@ -40,6 +41,7 @@ app.use('/api/shareholders', shareholderRoutes);
 app.use('/api/vendors', vendorRoutes);
 app.use('/api/finance', financeRoutes);
 app.use('/api/payroll', payrollRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 app.use('/api', stockRoutes);
 app.use('/api', healthRoutes);
 app.use((req, res, next) => {

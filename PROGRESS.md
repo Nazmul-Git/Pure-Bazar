@@ -249,7 +249,10 @@
 	- Validation: Frontend production build passes; focused wallet/shareholder backend tests pass (3 suites, 17 tests); `git diff --check` passes.
 - [x] 5.3
 - [ ] 5.4
-- [ ] 6.1
+- [x] 6.1a Dashboard API
+	- Files: services/dashboardService.js, routes/dashboardRoutes.js (GET /api/dashboard, mounted in server.js), tests/dashboard.integration.test.js.
+	- Decisions: Needs dashboard:read. Total sales = PAID orders' grand totals (refunded excluded); margin income = sum of VendorLedger companyNet (returns are negative); today and this month use Asia/Dhaka boundaries; today's split sums payment lines by method and wallet bill total is today's WALLET payments; vendor payables due = Approved (unpaid) statements' net payable; recent activity = latest 10 audit entries; low-stock = products whose total stock movements are at or below a threshold (blueprint defines none, so default 10, override with ?lowStockThreshold). All sums in whole cents.
+	- Validation: Tests compare each number to an independent calculation over the stored data; full backend Jest suite passes (32 suites, 187 tests).- [ ] 6.1
 - [ ] 6.2
 - [ ] 6.3
 - [ ] 6.4
