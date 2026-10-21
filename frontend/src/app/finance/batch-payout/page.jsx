@@ -1,5 +1,5 @@
-import PagePlaceholder from '@/components/page-placeholder';
+import PayoutApprovalPage from '@/components/finance/payout-approval-page';
 
 export default function BatchPayoutPage() {
-  return <PagePlaceholder title="Batch Payout" />;
+  return <PayoutApprovalPage />;
 }

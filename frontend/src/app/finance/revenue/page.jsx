@@ -1,5 +1,5 @@
-import PagePlaceholder from '@/components/page-placeholder';
+import RevenueLedgerPage from '@/components/finance/revenue-ledger-page';
 
 export default function RevenuePage() {
-  return <PagePlaceholder title="Revenue" />;
+  return <RevenueLedgerPage />;
 }

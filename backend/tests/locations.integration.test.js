@@ -70,7 +70,20 @@ describe('location API', () => {
     expect(Location.find).not.toHaveBeenCalled();
   });
 
-  it('requires stock read permission', async () => {
+  it('allows expense readers to access locations for expense forms', async () => {
+    User.findById.mockReturnValue({
+      populate: jest.fn().mockResolvedValue({
+        _id: userId, isActive: true, roleId: { name: 'Finance', permissions: ['expenses:read'] },
+      }),
+    });
+
+    const response = await request(app).get('/api/locations').set(auth);
+
+    expect(response.status).toBe(200);
+    expect(response.body.locations).toHaveLength(1);
+  });
+
+  it('requires inventory or expense read permission', async () => {
     User.findById.mockReturnValue({
       populate: jest.fn().mockResolvedValue({
         _id: userId, isActive: true, roleId: { name: 'Cashier', permissions: [] },

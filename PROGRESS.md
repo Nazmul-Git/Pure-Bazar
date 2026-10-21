@@ -225,7 +225,11 @@
 	- Files: routes/financeRoutes.js (mounted at /api/finance), controllers/financeController.js, controllers/payoutBatchController.js, services/revenueLedgerService.js, middlewares/expenseAttachmentUpload.js (PDF/PNG/JPEG, 5 MB, saved in backend/uploads/expenses, git-ignored); Expense gains locationId, attachment, updatedBy; tests/finance.integration.test.js.
 	- Decisions: Revenue ledger by category = sales, discounts, VAT (separate column, never in income) and income = vendor-ledger companyNet (margin minus discounts, returns reduce it). A month is closed once its salary sheet is Paid; expenses in a closed month cannot be created or edited, and payroll expenses are never editable. POST /api/finance/payout-batches approves many Draft statements all-or-nothing, audited per statement plus the batch (vendor-payouts:write). All writes audited.
 	- Validation: Full backend Jest suite passes (28 suites, 169 tests).
-- [ ] 5.1
+- [x] 5.1b Finance screens
+	- Files: Revenue Ledger, Expenses, and Payout Approval screens; finance API service and utility tests; Finance navigation and expense-reader access to locations.
+	- Decisions: Keep VAT separate from income, prevent editing payroll expenses, and limit payout approval batches to 100 statements as required by the API.
+	- Validation: Frontend production build passes; finance utility test passes; location integration tests pass (4 tests); `git diff --check` passes.
+- [x] 5.1
 - [ ] 5.2
 - [ ] 5.3
 - [ ] 5.4
