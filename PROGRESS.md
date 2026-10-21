@@ -221,6 +221,10 @@
 	- Validation: Frontend production build passes; payout utility tests pass (3 tests); vendor settlement integration tests pass (8 tests); `git diff --check` passes.
 - [x] 4.3
 - [ ] 4.4
+- [x] 5.1a Finance API
+	- Files: routes/financeRoutes.js (mounted at /api/finance), controllers/financeController.js, controllers/payoutBatchController.js, services/revenueLedgerService.js, middlewares/expenseAttachmentUpload.js (PDF/PNG/JPEG, 5 MB, saved in backend/uploads/expenses, git-ignored); Expense gains locationId, attachment, updatedBy; tests/finance.integration.test.js.
+	- Decisions: Revenue ledger by category = sales, discounts, VAT (separate column, never in income) and income = vendor-ledger companyNet (margin minus discounts, returns reduce it). A month is closed once its salary sheet is Paid; expenses in a closed month cannot be created or edited, and payroll expenses are never editable. POST /api/finance/payout-batches approves many Draft statements all-or-nothing, audited per statement plus the batch (vendor-payouts:write). All writes audited.
+	- Validation: Full backend Jest suite passes (28 suites, 169 tests).
 - [ ] 5.1
 - [ ] 5.2
 - [ ] 5.3

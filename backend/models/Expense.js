@@ -1,12 +1,22 @@
 const mongoose = require('mongoose');
 
+const attachmentSchema = new mongoose.Schema({
+  fileName: { type: String, required: true },
+  originalName: { type: String },
+  mimeType: { type: String, required: true },
+  size: { type: Number },
+}, { _id: false });
+
 const expenseSchema = new mongoose.Schema({
   categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'ExpenseCategory', required: true },
   amount: { type: Number, required: true, min: 0, set: (value) => Number(Number(value).toFixed(2)) },
   expenseDate: { type: Date, required: true, default: Date.now },
   description: { type: String, required: true, trim: true },
   paymentMethod: { type: String, enum: ['Cash', 'Bank', 'bKash', 'Nagad', 'Card'], required: true },
+  locationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Location' },
+  attachment: { type: attachmentSchema, default: undefined },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   sourceType: { type: String, enum: ['MANUAL', 'SALARY_SHEET'], default: 'MANUAL', required: true },
   sourceId: { type: mongoose.Schema.Types.ObjectId },
 }, { timestamps: true });
