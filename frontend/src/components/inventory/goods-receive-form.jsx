@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { ArrowLeft, Plus, Search, Trash2 } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { Button, Card, Input, Select } from '@/components/ui';
+import VendorCombobox from '@/components/inventory/vendor-combobox';
 import {
   createGoodsReceive, getLocations, getReceiveVendors, getWarehouseStock, searchReceiveProducts,
 } from '@/services/stock';
@@ -195,25 +196,16 @@ export default function GoodsReceiveForm() {
           </Select>
           {ownerType === 'VENDOR' && (
             <>
-              <Select
-                label="Vendor"
-                name="vendorId"
+              <VendorCombobox
+                vendors={activeVendors}
                 value={vendorId}
-                onChange={(event) => {
-                  setVendorId(event.target.value);
+                onChange={(id) => {
+                  setVendorId(id);
                   setLines([]);
                   setMatches([]);
                   setSearch('');
                 }}
-                required
-              >
-                <option value="">Select a vendor</option>
-                {activeVendors.map((vendor) => (
-                  <option key={vendor.id} value={vendor.id}>
-                    {vendor.name} — {vendor.shopName} ({vendor.memberId})
-                  </option>
-                ))}
-              </Select>
+              />
               <Input
                 label="Vendor challan number"
                 name="challan"

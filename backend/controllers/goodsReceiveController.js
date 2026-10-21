@@ -130,7 +130,7 @@ async function searchProducts(req, res, next) {
 async function listVendors(req, res, next) {
   try {
     const vendors = await Vendor.find({ status: 'Active' })
-      .select('_id name shopName memberId')
+      .select('_id name shopName memberId mobile status')
       .sort({ name: 1 })
       .lean();
     return res.json({
@@ -140,6 +140,7 @@ async function listVendors(req, res, next) {
         name: vendor.name,
         shopName: vendor.shopName,
         memberId: vendor.memberId,
+        mobile: vendor.mobile,
         status: vendor.status,
       })),
     });
