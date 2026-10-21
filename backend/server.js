@@ -42,6 +42,7 @@ app.use('/api/vendors', vendorRoutes);
 app.use('/api/finance', financeRoutes);
 app.use('/api/payroll', payrollRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/reports', require('./routes/reportRoutes'));
 app.use('/api', stockRoutes);
 app.use('/api', healthRoutes);
 app.use((req, res, next) => {

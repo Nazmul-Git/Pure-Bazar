@@ -258,6 +258,11 @@
 	- Decisions: Use the existing dashboard API as the data source and chart today's recorded payment methods; display amounts in BDT.
 	- Validation: Frontend production build passes without warnings; `git diff --check` passes.
 - [ ] 6.1
+- [x] 6.2a Reports API
+	- Files: routes/reportRoutes.js (mounted at /api/reports), services/reportUtils.js, salesStockReportService.js, financeReportService.js, reportExportService.js (exceljs, pdfkit added); tests/reports.integration.test.js.
+	- Endpoints (all take from/to YYYY-MM-DD, Asia/Dhaka, inclusive): GET /sales?groupBy=day|month, /stock?lowStockThreshold (opening/received/sold/closing, turnover = net units sold / average of opening and closing stock, low stock default 10), /vendor-profitability?format=json|xlsx|pdf, /profit-loss, /vat-discount. Sales/stock accept reports:read or reports:sales-stock:read; the rest need reports:read.
+	- Decisions: Only PAID orders count. Profit/Loss = vendor margin income (line subtotal - vendor payable from the ledger) + own-stock margin (company line subtotal - Product.vendorPrice x qty, current cost since no cost history exists) - all discounts (item, bill, shareholder) - expenses; VAT is excluded as it is not income. Vendor profitability reports vendor payable and company net (margin minus discounts, returns subtracted) per vendor. All sums in whole cents.
+	- Validation: Tests compare every report total with raw data and check Excel/PDF output; full backend Jest suite passes (33 suites, 194 tests).
 - [ ] 6.2
 - [ ] 6.3
 - [ ] 6.4
