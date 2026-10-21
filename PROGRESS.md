@@ -239,6 +239,10 @@
 	- Decisions: Keep payslips read-only, show advance deductions and statuses, use optional expense location for salary payments, and enforce employees/payroll permissions per screen and action.
 	- Validation: Frontend production build passes; payroll utility tests pass (4 tests); `git diff --check` passes.
 - [ ] 5.2
+- [x] 5.3a Reconciliation API
+	- Files: models/WalletReconciliation.js, services/walletReconciliationService.js, controllers/walletReconciliationController.js, routes in financeRoutes.js (GET /api/finance/wallet-reconciliation?date, POST .../run, POST .../:id/resolve); tests/wallet-reconciliation.integration.test.js.
+	- Decisions: One record per Wallet bill, matched against the member's Probashi transaction report (mock/live service) by wallet amount, member ID and Asia/Dhaka business date. Status Pending/Matched/Mismatch with mismatchType MISSING or AMOUNT_MISMATCH. Run is idempotent; resolved records are kept. Resolving needs a reason (3-500 chars), only for mismatches, once; all writes audited. Read needs finance:read, run/resolve need finance:write (Super Admin/Finance). Totals include `unresolved` for the mandatory daily check; enforcing it at shift close/day end is left to the screens step. Mock report returns no transactions by default, so mock runs show Missing.
+	- Validation: Full backend Jest suite passes (30 suites, 181 tests).
 - [ ] 5.3
 - [ ] 5.4
 - [ ] 6.1

@@ -20,6 +20,7 @@ module.exports = {
   Shareholder: require('./Shareholder'),
   WalletLog: require('./WalletLog'),
   WalletAuditLog: require('./WalletAuditLog'),
+  WalletReconciliation: require('./WalletReconciliation'),
   DiscountLog: require('./DiscountLog'),
   Shift: require('./Shift'),
   Employee: require('./Employee'),

@@ -2,6 +2,7 @@ const express = require('express');
 const { body, param, query } = require('express-validator');
 const financeController = require('../controllers/financeController');
 const payoutBatchController = require('../controllers/payoutBatchController');
+const walletReconciliationController = require('../controllers/walletReconciliationController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const authorizeMiddleware = require('../middlewares/authorizeMiddleware');
 const expenseAttachmentUpload = require('../middlewares/expenseAttachmentUpload');
@@ -52,6 +53,18 @@ router.patch('/expenses/:id', ...can('expenses:write'), expenseAttachmentUpload,
   param('id').isMongoId().withMessage('A valid expense ID is required'),
   ...expenseFields(true),
 ], validateRequest, financeController.updateExpense);
+
+router.get('/wallet-reconciliation', can('finance:read'), [
+  dateQuery('date', true),
+], validateRequest, walletReconciliationController.list);
+router.post('/wallet-reconciliation/run', can('finance:write'), [
+  body('date').optional().custom(isDateOnly).withMessage('date must be a valid YYYY-MM-DD date'),
+], validateRequest, walletReconciliationController.run);
+router.post('/wallet-reconciliation/:id/resolve', can('finance:write'), [
+  param('id').isMongoId().withMessage('A valid record ID is required'),
+  body('reason').isString().trim().isLength({ min: 3, max: 500 })
+    .withMessage('A reason of 3 to 500 characters is required'),
+], validateRequest, walletReconciliationController.resolve);
 
 router.post('/payout-batches', can('vendor-payouts:write'), [
   body('statementIds').isArray({ min: 1, max: 100 }).withMessage('Select 1 to 100 statements'),

@@ -10,7 +10,7 @@ describe('Mongoose models', () => {
       'GoodsReceive', 'Location', 'Order', 'PriceHistory', 'Product', 'Return', 'Role', 'SalaryAdvance',
       'SalarySheet', 'Settings', 'Shareholder', 'Shift', 'StockAdjustment', 'StockCount',
       'StockMovement', 'StockTransfer', 'Unit', 'User', 'Vendor', 'VendorLedger',
-      'VendorStatement', 'WalletAuditLog', 'WalletLog',
+      'VendorStatement', 'WalletAuditLog', 'WalletLog', 'WalletReconciliation',
     ]);
   });
 
