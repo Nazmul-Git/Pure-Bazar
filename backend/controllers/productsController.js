@@ -3,7 +3,7 @@ const {
 } = require('../models');
 
 const editableFields = [
-  'name', 'categoryId', 'brandId', 'unitId', 'ownerType', 'vendorId',
+  'name', 'categoryId', 'brandId', 'unitId', 'unitValue', 'ownerType', 'vendorId',
   'vendorPrice', 'mrp', 'vatApplicable', 'vatRate',
 ];
 
@@ -32,7 +32,7 @@ function productData(product) {
 function productSnapshot(product) {
   const data = productData(product);
   return Object.fromEntries([
-    'name', 'categoryId', 'brandId', 'unitId', 'ownerType', 'vendorId',
+    'name', 'categoryId', 'brandId', 'unitId', 'unitValue', 'ownerType', 'vendorId',
     'vendorPrice', 'mrp', 'margin', 'vatApplicable', 'vatRate', 'barcode',
   ].filter((field) => data[field] !== undefined)
     .map((field) => [field, data[field]?.toString && field.endsWith('Id') ? data[field].toString() : data[field]]));

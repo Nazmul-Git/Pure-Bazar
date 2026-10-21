@@ -28,5 +28,6 @@ export const createUnit = (token, payload) => api.post(resourceApi('units'), pay
 export const updateUnit = (token, id, payload) => api.put(`${resourceApi('units')}/${id}`, payload, authConfig(token));
 export const deleteUnit = (token, id) => api.delete(`${resourceApi('units')}/${id}`, authConfig(token));
 
+export const searchVendors = (token, q) => api.get(resourceApi('vendors'), { ...authConfig(token), params: { q, status: 'Active' } });
 export const getProducts = (token) => api.get(resourceApi('products'), authConfig(token));
 export const createProduct = (token, payload) => api.post(resourceApi('products'), payload, authConfig(token));

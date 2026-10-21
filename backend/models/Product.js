@@ -6,6 +6,7 @@ const productSchema = new mongoose.Schema({
   categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
   brandId: { type: mongoose.Schema.Types.ObjectId, ref: 'Brand' },
   unitId: { type: mongoose.Schema.Types.ObjectId, ref: 'Unit', required: true },
+  unitValue: { type: Number, min: 0 },
   ownerType: { type: String, enum: ['COMPANY', 'VENDOR'], required: true },
   vendorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Vendor' },
   vendorPrice: { type: Number, required: true, min: 0 },

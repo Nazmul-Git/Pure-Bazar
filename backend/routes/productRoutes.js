@@ -29,7 +29,7 @@ const optionalPrice = (field) => body(field).optional().isFloat({ min: 0 }).toFl
 router.get('/', read, productsController.listProducts);
 router.post('/', write, [
   name, categoryId, unitId, ownerType, vendorPrice, mrp,
-  optionalId('brandId'), optionalId('vendorId'),
+  optionalId('brandId'), optionalId('vendorId'), optionalPrice('unitValue'),
   body('vatApplicable').optional().isBoolean().toBoolean()
     .withMessage('vatApplicable must be a boolean'),
   optionalPrice('vatRate').custom((value) => value === undefined || value <= 100)
@@ -48,7 +48,7 @@ router.put('/:id', write, [
   optionalPrice('mrp').custom((value, { req }) => (
     value === undefined || req.body.vendorPrice === undefined || value >= Number(req.body.vendorPrice)
   )).withMessage('MRP must be greater than or equal to vendor price'),
-  optionalId('brandId'), optionalId('vendorId'),
+  optionalId('brandId'), optionalId('vendorId'), optionalPrice('unitValue'),
   body('vatApplicable').optional().isBoolean().toBoolean()
     .withMessage('vatApplicable must be a boolean'),
   optionalPrice('vatRate').custom((value) => value === undefined || value <= 100)

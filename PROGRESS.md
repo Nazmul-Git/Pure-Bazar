@@ -207,6 +207,10 @@
 	- Files: Vendor Ledger & Earnings screen with vendor/date filters, sales and margin totals, monthly statement creation, approval/payment workflow, and printable monthly statement and paid receipt.
 	- Decisions: Use persisted statement snapshots for print documents; expose receipts only after payment is recorded; require vendor-write permission for statement creation and status changes.
 	- Validation: Frontend production build passes, including both dynamic print routes; `git diff --check` passes.
+- [x] Fix: Add Product modal unit value and vendor autocomplete
+	- Files: `unitValue` added to Product model, product routes/controller; new `vendor-autocomplete.jsx` (search by name, shop name, memberId via `/api/vendors?q=`), `searchVendors` service, product form modal.
+	- Decisions: Selected vendor's ObjectId is stored in form; manual Vendor ID input removed. Unit Quantity sits beside the Unit dropdown.
+	- Validation: Backend Jest passes (151 tests); frontend build passes.
 - [ ] 4.3
 - [ ] 4.4
 - [ ] 5.1

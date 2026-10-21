@@ -9,6 +9,7 @@ import {
 import QuickAddBrandModal from './quick-add-brand-modal';
 import QuickAddCategoryModal from './quick-add-category-modal';
 import QuickAddUnitModal from './quick-add-unit-modal';
+import VendorAutocomplete from './vendor-autocomplete';
 
 const emptyForm = {
   name: '',
@@ -19,6 +20,7 @@ const emptyForm = {
   categoryId: '',
   brandId: '',
   unitId: '',
+  unitValue: '',
   vatApplicable: false,
   vatRate: '',
 };
@@ -103,7 +105,7 @@ export default function ProductFormModal({
     event.preventDefault();
     setError('');
     if (form.ownerType === 'VENDOR' && !/^[a-f\d]{24}$/i.test(form.vendorId.trim())) {
-      setError('Enter a valid 24-character vendor ID.');
+      setError('Select a vendor from the list.');
       return;
     }
     if (invalidMrp) {
@@ -116,6 +118,7 @@ export default function ProductFormModal({
       categoryId: form.categoryId,
       ...(form.brandId ? { brandId: form.brandId } : {}),
       unitId: form.unitId,
+      ...(form.unitValue !== '' ? { unitValue: Number(form.unitValue) } : {}),
       ownerType: form.ownerType,
       ...(form.ownerType === 'VENDOR' ? { vendorId: form.vendorId.trim() } : {}),
       vendorPrice: roundedVendorPrice,
@@ -170,18 +173,8 @@ export default function ProductFormModal({
           </div>
 
           {form.ownerType === 'VENDOR' && (
-            <Input
-              label="Vendor ID"
-              name="vendorId"
-              value={form.vendorId}
-              onChange={(event) => update('vendorId', event.target.value)}
-              required
-              maxLength={24}
-              placeholder="24-character vendor record ID"
-              aria-describedby="vendor-id-help"
-            />
+            <VendorAutocomplete token={token} value={form.vendorId} onChange={(id) => update('vendorId', id)} />
           )}
-          {form.ownerType === 'VENDOR' && <p id="vendor-id-help" className="-mt-4 text-xs text-slate-500">The vendor directory API is not available yet; enter the vendor record ID.</p>}
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex items-end gap-2">
@@ -199,6 +192,7 @@ export default function ProductFormModal({
               {can('brands:write') && <Button type="button" variant="secondary" size="sm" aria-label="Quick add brand" title="Quick add brand" onClick={() => setQuickAdd('brand')}><Plus size={15} /> Quick Add</Button>}
             </div>
             <div className="flex items-end gap-2">
+              <Input label="Unit Quantity / Value" name="unitValue" type="number" min="0" step="any" value={form.unitValue} onChange={(event) => update('unitValue', event.target.value)} placeholder="e.g. 500" className="min-w-0 flex-1" />
               <Select label="Unit" name="unitId" value={form.unitId} onChange={(event) => update('unitId', event.target.value)} required className="min-w-0 flex-1">
                 <option value="">Select unit</option>
                 {units.map((unit) => <option key={unit.id} value={unit.id}>{unit.name} ({unit.abbreviation})</option>)}
