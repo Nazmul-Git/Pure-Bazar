@@ -56,6 +56,7 @@ export const navigationItems = [
     permissions: ['vendors:read', 'vendors:write', 'vendor-payouts:read'],
     children: [
       { label: 'Vendor Directory', href: '/vendors/directory', icon: BriefcaseBusiness, permissions: ['vendors:read'] },
+      { label: 'Vendor Ledger & Earnings', href: '/vendors/ledger', icon: ChartNoAxesCombined, permissions: ['vendors:read'] },
       { label: 'Register Vendor', href: '/vendors/register', icon: UserPlus, permissions: ['vendors:write'] },
     ],
   },

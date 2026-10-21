@@ -202,6 +202,10 @@
 	- Files: Vendor sales ledger API with returns excluded from sales/payable/margin totals; period statement generation from stock movements and immutable ledger price snapshots; audited Draft/Approved/Paid workflow, payment details, unique statement numbering, and settlement integration tests.
 	- Decisions: Treat statement sales and returns as quantities; calculate payable from snapshot vendor-price ledger values, subtracting returned vendor payable; lock Paid statements and prevent duplicate vendor periods.
 	- Validation: Full backend Jest suite passes (26 suites, 151 tests), including statement-to-ledger figures, Paid locking, and past statement stability after product price changes.
+- [x] 4.2b Statement screens
+	- Files: Vendor Ledger & Earnings screen with vendor/date filters, sales and margin totals, monthly statement creation, approval/payment workflow, and printable monthly statement and paid receipt.
+	- Decisions: Use persisted statement snapshots for print documents; expose receipts only after payment is recorded; require vendor-write permission for statement creation and status changes.
+	- Validation: Frontend production build passes, including both dynamic print routes; `git diff --check` passes.
 - [ ] 4.3
 - [ ] 4.4
 - [ ] 5.1

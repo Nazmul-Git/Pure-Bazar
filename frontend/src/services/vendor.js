@@ -16,3 +16,21 @@ export const updateVendorStatus = (token, id, status) => api.patch(
   { status },
   authConfig(token),
 );
+export const getVendorLedger = (token, id, params) => api.get(
+  `/vendors/${id}/ledger`,
+  { ...authConfig(token), params },
+);
+export const getVendorStatements = (token, id) => api.get(
+  `/vendors/${id}/statements`,
+  authConfig(token),
+);
+export const createVendorStatement = (token, id, payload) => api.post(
+  `/vendors/${id}/statements`,
+  payload,
+  authConfig(token),
+);
+export const updateVendorStatement = (token, id, payload) => api.patch(
+  `/vendors/statements/${id}/status`,
+  payload,
+  authConfig(token),
+);

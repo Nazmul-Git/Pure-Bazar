@@ -1,5 +1,5 @@
-import PagePlaceholder from '@/components/page-placeholder';
+import VendorLedgerPage from '@/components/vendors/vendor-ledger-page';
 
-export default function VendorLedgerPage() {
-  return <PagePlaceholder title="Vendor Ledger" />;
+export default function Page() {
+  return <VendorLedgerPage />;
 }
