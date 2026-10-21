@@ -7,6 +7,9 @@ const salaryLineSchema = new mongoose.Schema({
   baseSalary: { type: Number, required: true, min: 0, set: roundMoney },
   allowances: { type: Number, min: 0, default: 0, set: roundMoney },
   deductions: { type: Number, min: 0, default: 0, set: roundMoney },
+  advanceDeduction: { type: Number, min: 0, default: 0, set: roundMoney },
+  otherDeductions: { type: Number, min: 0, default: 0, set: roundMoney },
+  advanceIds: { type: [mongoose.Schema.Types.ObjectId], default: [] },
   netAmount: { type: Number, min: 0, set: roundMoney },
 });
 
@@ -24,6 +27,9 @@ const salarySheetSchema = new mongoose.Schema({
 salarySheetSchema.pre('validate', function calculatePayroll() {
   let totalAmount = 0;
   for (const line of this.lines) {
+    if (line.advanceDeduction || line.otherDeductions) {
+      line.deductions = roundMoney(line.advanceDeduction + line.otherDeductions);
+    }
     line.netAmount = roundMoney(line.baseSalary + line.allowances - line.deductions);
     totalAmount += line.netAmount;
   }

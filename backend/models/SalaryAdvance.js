@@ -9,6 +9,8 @@ const salaryAdvanceSchema = new mongoose.Schema({
   approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   paidBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   paidAt: { type: Date },
+  deductedSheetId: { type: mongoose.Schema.Types.ObjectId, ref: 'SalarySheet' },
+  deductedMonth: { type: String },
 }, { timestamps: true });
 
 salaryAdvanceSchema.pre('validate', function validateAdvanceStatus() {
