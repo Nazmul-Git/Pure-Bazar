@@ -334,3 +334,8 @@
 	- Files: frontend/src/components/pos/{invoice-modal.jsx,xprinter-print.css} (labels removed; receipt-only 80mm/58mm), app/inventory/barcodes/page.jsx, app/globals.css, services/barcodeEngine.js, utils/print-esc.js, backend/tests/barcode-engine.test.js.
 	- Decisions: every label (preview, print, TSPL, ESC/POS) carries a PureBazar header; added direct Print TSPL (Xprinter, Web Serial) alongside TSPL/ESC-POS export; 50x30mm label.
 	- Validation: barcode engine test passes; frontend production build passes.
+
+- [x] Replace awkward top alert banner with sleek floating toast notifications
+	- Files: frontend/src/components/pos/error-toast.jsx (new), pos-billing-page.jsx, app/globals.css (pb-toast-in animation).
+	- Decisions: stock-limit and form validation errors show as a top-right dark glass toast with orange accent border, icon, dismiss button; no full-width banner. Inline checkout/preview errors remain in the bill summary.
+	- Validation: frontend production build passes.

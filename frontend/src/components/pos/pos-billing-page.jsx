@@ -16,6 +16,7 @@ import HoldSaleModal from './hold-sale-modal';
 import billingUtils from '@/services/pos-billing-utils.cjs';
 import { STOCK_LIMIT_MESSAGE, clampQuantity, hasStockProblem } from '@/services/pos-cart-utils.cjs';
 import InvoiceModal from './invoice-modal';
+import ErrorToast from './error-toast';
 
 const { createPreviewPayload, paymentTotalMatches } = billingUtils;
 const WALLET_DISCOUNT_RATE = 0.05;
@@ -274,12 +275,11 @@ export default function PosBillingPage() {
           <HeldBillsButton count={held.length} onClick={() => setHeldOpen(true)} />
         </div>
       </header>
-      {toast && <div role="alert" className="fixed right-4 top-4 z-50 rounded-lg bg-red-600 px-4 py-3 text-sm font-medium text-white shadow-lg">{toast}</div>}
+      <ErrorToast message={toast || formError} onClose={toast ? () => setToast('') : undefined} />
       {receipt && <InvoiceModal receipt={receipt} onClose={() => setReceipt(null)} />}
       {holdOpen && <HoldSaleModal onConfirm={confirmHold} onCancel={() => setHoldOpen(false)} />}
       {heldOpen && <HeldBillsModal held={held} onRestore={restoreSale} onDiscard={discardHeld} onClose={() => setHeldOpen(false)} />}
       {successMessage && <p role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900">{successMessage}</p>}
-      {formError && <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-800">{formError}</p>}
       <ItemScanner onAdd={addItem} />
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="space-y-5">

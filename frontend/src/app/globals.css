@@ -301,3 +301,6 @@ a { color: inherit; text-decoration: none; }
   .print-document { max-width: none !important; }
   .print-document .ui-card { border: 0 !important; }
 }
+
+@keyframes pb-toast-in { from { opacity: 0; transform: translateX(1.5rem); } to { opacity: 1; transform: translateX(0); } }
+.pb-toast-in { animation: pb-toast-in 0.25s ease-out; }
