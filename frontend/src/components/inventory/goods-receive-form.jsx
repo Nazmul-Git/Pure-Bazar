@@ -8,7 +8,7 @@ import { useSelector } from 'react-redux';
 import { Button, Card, Input, Select } from '@/components/ui';
 import VendorCombobox from '@/components/inventory/vendor-combobox';
 import {
-  createGoodsReceive, getLocations, getReceiveVendors, getWarehouseStock, searchReceiveProducts,
+  createGoodsReceive, getLocations, getNextChallanNumber, getReceiveVendors, getWarehouseStock, searchReceiveProducts,
 } from '@/services/stock';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
@@ -58,7 +58,9 @@ export default function GoodsReceiveForm() {
   }, [canRead, initialized, token]);
 
   useEffect(() => {
-    if (!token || (ownerType === 'VENDOR' && !vendorId) || search.trim().length < 2) {
+    const isVendor = ownerType === 'VENDOR';
+    const term = search.trim();
+    if (!token || (isVendor && !vendorId) || (!isVendor && term.length < 2)) {
       setMatches([]);
       setSearchError('');
       return undefined;
@@ -67,19 +69,32 @@ export default function GoodsReceiveForm() {
     const timeout = setTimeout(() => {
       searchReceiveProducts(token, {
         ownerType,
-        ...(ownerType === 'VENDOR' ? { vendorId } : {}),
-        q: search.trim(),
+        ...(isVendor ? { vendorId } : {}),
+        ...(term ? { q: term } : {}),
       })
-        .then((response) => active && setMatches(response.data.products))
+        .then((response) => {
+          if (!active) return;
+          setSearchError('');
+          setMatches(response.data.products);
+        })
         .catch((requestError) => active && setSearchError(
           requestError.response?.data?.message || 'Unable to search products.',
         ));
-    }, 250);
+    }, search ? 250 : 0);
     return () => {
       active = false;
       clearTimeout(timeout);
     };
   }, [ownerType, search, token, vendorId]);
+
+  useEffect(() => {
+    if (!token || ownerType !== 'VENDOR' || !vendorId) return undefined;
+    let active = true;
+    getNextChallanNumber(token, vendorId)
+      .then((response) => active && setChallan(response.data.challanNumber))
+      .catch(() => active && setChallan(''));
+    return () => { active = false; };
+  }, [ownerType, token, vendorId]);
 
   const stockByProduct = useMemo(
     () => new Map(stock.map((item) => [item.productId, Number(item.quantity) || 0])),
@@ -100,7 +115,7 @@ export default function GoodsReceiveForm() {
       }];
     });
     setSearch('');
-    setMatches([]);
+    if (ownerType !== 'VENDOR') setMatches([]);
   }
 
   function updateLine(productId, field, value) {
@@ -201,6 +216,7 @@ export default function GoodsReceiveForm() {
                 value={vendorId}
                 onChange={(id) => {
                   setVendorId(id);
+                  setChallan('');
                   setLines([]);
                   setMatches([]);
                   setSearch('');
@@ -230,15 +246,15 @@ export default function GoodsReceiveForm() {
             name="productSearch"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder={ownerType === 'COMPANY' || vendorId
-              ? 'Type at least 2 characters' : 'Select a vendor first'}
+            placeholder={ownerType === 'COMPANY' ? 'Type at least 2 characters'
+              : vendorId ? 'Filter vendor products' : 'Select a vendor first'}
             disabled={ownerType === 'VENDOR' && !vendorId}
           />
           <Search size={16} aria-hidden="true" className="pointer-events-none relative -mt-7 ml-auto mr-3 text-slate-400" />
         </div>
         {searchError && <p role="alert" className="mt-3 text-sm text-red-700">{searchError}</p>}
-        {search.trim().length >= 2 && (
-          <div className="mt-3 max-w-lg overflow-hidden rounded border border-slate-200">
+        {(ownerType === 'VENDOR' ? Boolean(vendorId) : search.trim().length >= 2) && (
+          <div className="mt-3 max-h-80 max-w-lg overflow-y-auto rounded border border-slate-200">
             {matches.length ? matches.map((product) => (
               <button
                 key={product.id}

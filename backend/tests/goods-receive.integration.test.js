@@ -274,6 +274,15 @@ describe('goods receive and movement-derived stock endpoints', () => {
     expect(Vendor.find).toHaveBeenCalledWith({ status: 'Active' });
   });
 
+  it('suggests the next vendor challan number from that vendor\'s receives', async () => {
+    GoodsReceive.countDocuments = jest.fn().mockResolvedValue(2);
+    GoodsReceive.exists = jest.fn().mockResolvedValueOnce({ _id: 'x' }).mockResolvedValueOnce(null);
+    const response = await request(app).get(`/api/stock/vendors/${vendorId}/next-challan`).set(auth);
+
+    expect(response.status).toBe(200);
+    expect(response.body.challanNumber).toBe(`CHN-${vendorId.slice(-6).toUpperCase()}-0004`);
+  });
+
   it('blocks a suspended vendor from receiving a new GRN', async () => {
     vendorStatus = 'Suspended';
 

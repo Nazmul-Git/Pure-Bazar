@@ -30,6 +30,10 @@ export const getStockCounts = (token, params) => api.get('/stock-counts', {
 export const createStockCount = (token, payload) => api.post('/stock-counts', payload, authConfig(token));
 export const postStockCount = (token, id) => api.post(`/stock-counts/${id}/post`, {}, authConfig(token));
 export const getReceiveVendors = (token) => api.get('/stock/vendors', authConfig(token));
+export const getNextChallanNumber = (token, vendorId) => api.get(
+  `/stock/vendors/${vendorId}/next-challan`,
+  authConfig(token),
+);
 export const searchReceiveProducts = (token, params) => api.get('/stock/products', {
   ...authConfig(token),
   params,

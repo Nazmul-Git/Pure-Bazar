@@ -152,6 +152,9 @@ router.get('/stock/products', read, [
   query('limit').optional().isInt({ min: 1, max: 10 }).withMessage('Product search limit must be between 1 and 10'),
 ], validateRequest, goodsReceiveController.searchProducts);
 router.get('/stock/vendors', read, goodsReceiveController.listVendors);
+router.get('/stock/vendors/:id/next-challan', read, [
+  param('id').isMongoId().withMessage('A valid vendor ID is required'),
+], validateRequest, goodsReceiveController.nextChallanNumber);
 router.get('/goods-receives', read, goodsReceiveController.listGoodsReceives);
 router.post('/goods-receives', write, [
   body('ownerType').isIn(['COMPANY', 'VENDOR']).withMessage('Owner type must be COMPANY or VENDOR'),

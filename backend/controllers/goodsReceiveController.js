@@ -127,6 +127,23 @@ async function searchProducts(req, res, next) {
   }
 }
 
+async function nextChallanNumber(req, res, next) {
+  try {
+    const vendor = await Vendor.findById(req.params.id).select('_id memberId').lean();
+    if (!vendor) throw statusError('Vendor not found', 404);
+    const code = String(vendor.memberId || vendor._id.toString().slice(-6)).toUpperCase();
+    let sequence = await GoodsReceive.countDocuments({ vendorId: vendor._id }) + 1;
+    let challan = `CHN-${code}-${String(sequence).padStart(4, '0')}`;
+    while (await GoodsReceive.exists({ vendorId: vendor._id, vendorChallanNumber: challan })) {
+      sequence += 1;
+      challan = `CHN-${code}-${String(sequence).padStart(4, '0')}`;
+    }
+    return res.json({ success: true, challanNumber: challan });
+  } catch (error) {
+    return next(error);
+  }
+}
+
 async function listVendors(req, res, next) {
   try {
     const vendors = await Vendor.find({ status: 'Active' })
@@ -308,6 +325,6 @@ async function rejectGoodsReceive(req, res, next) {
 }
 
 module.exports = {
-  searchProducts, listVendors, listGoodsReceives, createGoodsReceive, updateGoodsReceive,
+  searchProducts, nextChallanNumber, listVendors, listGoodsReceives, createGoodsReceive, updateGoodsReceive,
   getGoodsReceive, approveGoodsReceive, rejectGoodsReceive,
 };
