@@ -166,6 +166,10 @@
 	- Files: POS barcode scanner and cart; quantity, removal, item/bill discount inputs; verified shareholder modal; non-wallet split tender and full-wallet balance check; live server-priced bill summary and checkout; POS API service and billing validation tests.
 	- Decisions: Keep bill totals and role-limit approval decisions server-authoritative; require a discount reason; never allow wallet split tender; require positive split amounts that equal the final total; show wallet sufficiency without exposing the balance.
 	- Validation: POS billing frontend tests pass (4 tests); frontend production build passes.
+- [x] 3.4b Hold/Park sale in POS billing
+	- Files: frontend/src/components/pos/held-sales.jsx (localStorage hold store hook, Held Bills button with badge, modal with Restore/Discard); Hold Sale button and restore/overwrite-confirm logic in pos-billing-page.jsx.
+	- Decisions: Held bills are stored in browser localStorage (offline POS, no backend change); cart, discounts, payment methods and amounts are saved; restore asks before replacing an occupied cart and removes the held entry.
+	- Validation: frontend production build passes; no automated UI test added.
 - [x] 3.4a Fix POS discount engine and prevent double shareholder discount
 	- Files: Automatic verified-shareholder discount ordering and manual-reason rejection in POS bill calculations and validation; separated shareholder auto-discount and manual bill-discount UI; engine, API, and frontend validation tests.
 	- Decisions: Apply eligible WALLET shareholder discounts after item and manual bill discounts; keep automatic shareholder discounts outside discretionary discount role limits and approval; reject manual discount reasons mentioning shareholders.

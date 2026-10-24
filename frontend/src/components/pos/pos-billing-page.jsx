@@ -9,6 +9,9 @@ import BillSummary from './bill-summary';
 import ItemScanner from './item-scanner';
 import PaymentPanel from './payment-panel';
 import { checkoutPosBill, posErrorMessage, previewPosBill } from '@/services/pos';
+import {
+  HeldBillsButton, HeldBillsModal, estimateTotal, useHeldSales,
+} from './held-sales';
 import billingUtils from '@/services/pos-billing-utils.cjs';
 
 const { createPreviewPayload, paymentTotalMatches } = billingUtils;
@@ -32,6 +35,8 @@ export default function PosBillingPage() {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [heldOpen, setHeldOpen] = useState(false);
+  const { held, hold, remove: discardHeld } = useHeldSales();
   const latestPreview = useRef(0);
   const selectedMethods = methods.includes('WALLET') ? ['WALLET'] : methods;
   const walletSelected = selectedMethods.includes('WALLET');
@@ -169,6 +174,50 @@ export default function PosBillingPage() {
     }
   }
 
+  function resetCart() {
+    setItems([]);
+    setBillDiscount(null);
+    setMethods(['CASH']);
+    setAmounts({});
+    setDiscountApproved(false);
+    setBill(null);
+    setCheckoutError('');
+  }
+
+  function holdSale() {
+    if (!items.length) {
+      setCheckoutError('Cart is empty. Add items before holding a sale.');
+      return;
+    }
+    const note = window.prompt('Customer name / token number (optional):', '');
+    if (note === null) return;
+    hold({
+      note: note.trim(),
+      items,
+      billDiscount,
+      methods,
+      amounts,
+      itemCount: items.reduce((s, i) => s + Number(i.quantity || 0), 0),
+      total: bill?.grandTotal ?? estimateTotal(items),
+    });
+    resetCart();
+    setSuccessMessage(`Sale held${note.trim() ? ` · ${note.trim()}` : ''}.`);
+  }
+
+  function restoreSale(sale) {
+    if (items.length) {
+      if (!window.confirm('The current cart has items. OK = replace it with the held bill; Cancel = keep current cart.')) return;
+    }
+    resetCart();
+    setItems(sale.items);
+    setBillDiscount(sale.billDiscount || null);
+    setMethods(sale.methods?.length ? sale.methods : ['CASH']);
+    setAmounts(sale.amounts || {});
+    discardHeld(sale.id);
+    setHeldOpen(false);
+    setSuccessMessage('Held bill restored.');
+  }
+
   const paymentsMatch = bill && paymentTotalMatches(selectedMethods, amounts, bill.grandTotal);
   const approvalReady = !bill?.discountApprovalRequired || (canApprove && discountApproved);
   const canCheckout = canWrite && items.length > 0 && bill && !previewLoading && !previewError
@@ -181,11 +230,18 @@ export default function PosBillingPage() {
 
   return (
     <section className="mx-auto max-w-7xl space-y-5">
-      <header>
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Sales</p>
-        <h1 className="text-2xl font-semibold text-slate-900">Point of Sale</h1>
-        <p className="mt-1 text-sm text-slate-600">Scan items, apply permitted discounts, and complete a bill.</p>
+      <header className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Sales</p>
+          <h1 className="text-2xl font-semibold text-slate-900">Point of Sale</h1>
+          <p className="mt-1 text-sm text-slate-600">Scan items, apply permitted discounts, and complete a bill.</p>
+        </div>
+        <div className="flex gap-2">
+          <button type="button" onClick={holdSale} disabled={!items.length || checkoutLoading} className="rounded-lg bg-amber-500 px-3 py-2 text-sm font-medium text-white disabled:opacity-50">Hold Sale</button>
+          <HeldBillsButton count={held.length} onClick={() => setHeldOpen(true)} />
+        </div>
       </header>
+      {heldOpen && <HeldBillsModal held={held} onRestore={restoreSale} onDiscard={discardHeld} onClose={() => setHeldOpen(false)} />}
       {successMessage && <p role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900">{successMessage}</p>}
       {formError && <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-800">{formError}</p>}
       <ItemScanner onAdd={addItem} />
