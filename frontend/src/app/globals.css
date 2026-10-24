@@ -50,13 +50,15 @@ a { color: inherit; text-decoration: none; }
 .label-name { font-size: 12px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .barcode-graphic { height: 68px; max-width: 100%; width: 100%; }
 .label-price { font-size: 13px; }
+.label-brand { font-size: 14px; font-weight: 800; letter-spacing: 0.04em; line-height: 1.1; }
 
 @media print {
   body * { visibility: hidden !important; }
   #label-print-preview, #label-print-preview * { visibility: visible !important; }
   #label-print-preview { background: #fff; display: grid; gap: 3mm; grid-template-columns: repeat(3, 50mm); left: 0; padding: 0; position: absolute; top: 0; width: 100%; }
   #label-print-preview .label-card { border: 0; height: 30mm; min-height: 0; overflow: hidden; padding: 1mm; width: 50mm; }
-  #label-print-preview .barcode-graphic { height: 16mm; }
+  #label-print-preview .barcode-graphic { height: 12mm; }
+  #label-print-preview .label-brand { font-size: 11pt; }
   #label-print-preview .ui-badge { display: none; }
   @page { margin: 5mm; }
 }

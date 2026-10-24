@@ -72,6 +72,18 @@ export default function BarcodesPage() {
     }
   }
 
+  async function sendTsplToPrinter() {
+    if (!generated) return;
+    setError('');
+    setNotice('');
+    try {
+      await printESC(new TextEncoder().encode(generated.tspl));
+      setNotice('TSPL labels sent to the selected Xprinter.');
+    } catch (printError) {
+      setError(printError.message || 'Unable to print TSPL labels.');
+    }
+  }
+
   async function sendToPrinter() {
     if (!generated) return;
     setError('');
@@ -131,6 +143,7 @@ export default function BarcodesPage() {
           )}
           <div className="mt-4 flex flex-wrap justify-end gap-2">
             <Button variant="secondary" disabled={!generated} onClick={() => exportOutput('tspl')}>Export TSPL</Button>
+            <Button variant="secondary" disabled={!generated} onClick={sendTsplToPrinter}>Print TSPL (Xprinter)</Button>
             <Button variant="secondary" disabled={!generated} onClick={() => exportOutput('escpos')}>Export ESC/POS</Button>
             <Button variant="secondary" disabled={!generated} onClick={sendToPrinter}>Print ESC/POS</Button>
             <Button disabled={!generated} onClick={() => window.print()}>Print preview</Button>
@@ -141,6 +154,7 @@ export default function BarcodesPage() {
         <div id="label-print-preview" className="label-grid">
           {generated?.labels.map((label, index) => (
             <article className="label-card" key={`${label.barcode}-${index}`}>
+              <strong className="label-brand">PureBazar</strong>
               <strong className="label-name">{label.name}</strong>
               <BarcodeGraphic value={label.barcode} />
               {labelType === 'price' && <strong className="label-price">BDT {label.price}</strong>}

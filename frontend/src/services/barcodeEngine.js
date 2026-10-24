@@ -1,3 +1,5 @@
+const BRAND_NAME = 'PureBazar';
+
 const EAN_LEFT = [
   '0001101', '0011001', '0010011', '0111101', '0100011',
   '0110001', '0101111', '0111011', '0110111', '0001011',
@@ -70,9 +72,10 @@ function buildTspl(labels) {
     'SIZE 50 mm,30 mm',
     'GAP 2 mm,0 mm',
     'CLS',
-    `TEXT 20,15,"0",0,1,1,"${name}"`,
-    `BARCODE 20,48,"EAN13",70,1,0,2,2,"${barcode}"`,
-    ...(price ? [`TEXT 20,140,"0",0,1,1,"BDT ${price}"`] : []),
+    `TEXT 20,6,"3",0,1,1,"${BRAND_NAME}"`,
+    `TEXT 20,36,"0",0,1,1,"${name}"`,
+    `BARCODE 20,62,"EAN13",60,1,0,2,2,"${barcode}"`,
+    ...(price ? [`TEXT 20,180,"0",0,1,1,"BDT ${price}"`] : []),
     'PRINT 1',
   ].join('\r\n')).join('\r\n');
 }
@@ -83,6 +86,7 @@ function buildEscPos(labels) {
   const appendText = (text) => output.push(...encoder.encode(text));
   labels.forEach(({ name, barcode, price }, index) => {
     output.push(0x1b, 0x61, 0x01, 0x1b, 0x45, 0x01);
+    appendText(`${BRAND_NAME}\n`);
     appendText(`${name}\n`);
     output.push(0x1b, 0x45, 0x00);
     if (price) appendText(`BDT ${price}\n`);
@@ -98,4 +102,4 @@ function buildBarcodeLabels(items, labelType = 'price') {
   return { labels, tspl: buildTspl(labels), escPos: buildEscPos(labels) };
 }
 
-module.exports = { buildBarcodeLabels, getEan13Modules, isValidEan13 };
+module.exports = { BRAND_NAME, buildBarcodeLabels, getEan13Modules, isValidEan13 };

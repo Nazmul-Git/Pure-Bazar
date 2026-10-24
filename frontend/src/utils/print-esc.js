@@ -1,7 +1,7 @@
 export async function printESC(data) {
-  if (!data || data.length === 0) throw new Error('There is no ESC/POS output to print.');
+  if (!data || data.length === 0) throw new Error('There is no label output to print.');
   if (!navigator.serial) {
-    throw new Error('Direct ESC/POS printing requires a browser with Web Serial support.');
+    throw new Error('Direct Xprinter printing requires a browser with Web Serial support.');
   }
 
   const port = await navigator.serial.requestPort();

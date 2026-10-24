@@ -329,3 +329,8 @@
 	- Files: backend/services/posCatalogService.js (scan + GET /pos/search, both return outlet stock), controllers/posController.js, routes/posRoutes.js, tests/pos-cart-utils.test.js; frontend/src/components/pos/{item-scanner,cart-panel,pos-billing-page,invoice-modal}.jsx, xprinter-print.css, services/{pos,pos-cart-utils.cjs,code39.cjs}.
 	- Decisions: search matches name/barcode (products have no SKU field yet); qty is whole number 1..stock, minus disabled at 1, removal only via trash; stock-out/over-stock shows toast 'Stock limit reached for this product' and blocks checkout; checkout opens Invoice modal with Receipt (80mm/58mm, Code 39 order barcode) and Label (50x30mm EAN-13) modes printed via window.print() and @media print. Store logo is a text mark (settings are admin-only).
 	- Validation: backend 35 suites / 208 tests pass; frontend production build passes.
+
+- [x] Separate label printing to inventory barcodes page and add PureBazar header branding
+	- Files: frontend/src/components/pos/{invoice-modal.jsx,xprinter-print.css} (labels removed; receipt-only 80mm/58mm), app/inventory/barcodes/page.jsx, app/globals.css, services/barcodeEngine.js, utils/print-esc.js, backend/tests/barcode-engine.test.js.
+	- Decisions: every label (preview, print, TSPL, ESC/POS) carries a PureBazar header; added direct Print TSPL (Xprinter, Web Serial) alongside TSPL/ESC-POS export; 50x30mm label.
+	- Validation: barcode engine test passes; frontend production build passes.

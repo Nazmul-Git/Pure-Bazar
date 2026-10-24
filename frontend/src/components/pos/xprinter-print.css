@@ -12,16 +12,9 @@
 .receipt-barcode-wrap { margin-top: 8px; }
 .receipt-barcode { height: 36px; width: 90%; }
 
-/* Label layout on screen */
-.label-sheet { display: grid; gap: 6px; justify-content: center; }
-.xp-label { background: #fff; border: 1px dashed #94a3b8; color: #000; height: 30mm; overflow: hidden; padding: 1mm; text-align: center; width: 50mm; }
-.xp-label-name { font-size: 10px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.xp-label .barcode-graphic { height: 16mm; width: 100%; }
-.xp-label-price { font-size: 11px; font-weight: 700; }
 
 [data-print-mode='receipt-80mm'] #pos-print-area { width: 80mm; }
 [data-print-mode='receipt-58mm'] #pos-print-area { width: 58mm; }
-[data-print-mode='label'] #pos-print-area { width: 50mm; }
 
 @media print {
   body { background: #fff !important; margin: 0 !important; }
@@ -31,6 +24,4 @@
   [data-print-mode='receipt-80mm'] #pos-print-area { padding: 0 3mm !important; width: 80mm; }
   [data-print-mode='receipt-58mm'] #pos-print-area { padding: 0 2mm !important; width: 58mm; }
   [data-print-mode='receipt-58mm'] .receipt-sheet { font-size: 10px; }
-  .xp-label { border: 0; break-after: page; page-break-after: always; }
-  .label-sheet { display: block; }
 }
