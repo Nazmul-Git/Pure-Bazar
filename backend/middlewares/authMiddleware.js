@@ -16,7 +16,7 @@ function authMiddleware(req, res, next) {
   }
 
   try {
-    const payload = jwt.verify(tokenMatch[1], process.env.JWT_SECRET);
+    const payload = jwt.verify(tokenMatch[1], process.env.JWT_SECRET, { algorithms: ['HS256'] });
     const userId = payload.sub || payload.userId || payload.id;
     if (!userId) {
       const error = new Error('Invalid authentication token');

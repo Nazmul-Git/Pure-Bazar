@@ -92,10 +92,27 @@ async function update(req, res, next) {
     if (!mongoose.isValidObjectId(updates.roleId) || !await Role.exists({ _id: updates.roleId })) {
       throw statusError('Role not found', 400);
     }
+    const previous = await User.findById(req.params.id).populate('roleId', 'name');
     const user = await User.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true })
       .populate('roleId', 'name');
     if (!user) throw statusError('User not found', 404);
-    await AuditLog.create({ actorId: req.user._id, action: 'UPDATE', entity: 'User', entityId: user._id, ipAddress: req.ip });
+    const snapshot = (doc) => ({
+      name: doc.name,
+      email: doc.email,
+      roleId: String(doc.roleId?._id || doc.roleId),
+      locationId: doc.locationId ? String(doc.locationId) : null,
+      isActive: doc.isActive,
+    });
+    await AuditLog.create({
+      actorId: req.user._id,
+      action: 'UPDATE',
+      entity: 'User',
+      entityId: user._id,
+      ...(previous ? { before: snapshot(previous) } : {}),
+      after: snapshot(user),
+      metadata: { passwordChanged: Boolean(req.body.password) },
+      ipAddress: req.ip,
+    });
     return res.json({ success: true, user: publicUser(user) });
   } catch (error) {
     return handleError(error, next);

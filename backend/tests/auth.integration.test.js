@@ -70,7 +70,11 @@ describe('auth endpoints', () => {
     expect(response.status).toBe(401);
     expect(response.body).toMatchObject({ success: false, message: 'Invalid email or password' });
     expect(response.headers.authorization).toBeUndefined();
-    expect(AuditLog.create).not.toHaveBeenCalled();
+    expect(AuditLog.create).toHaveBeenCalledTimes(1);
+    expect(AuditLog.create).toHaveBeenCalledWith(expect.objectContaining({
+      action: 'LOGIN_FAILED', entity: 'User',
+    }));
+    expect(AuditLog.create).not.toHaveBeenCalledWith(expect.objectContaining({ action: 'LOGIN' }));
   });
 
   it('protects /me and logout, and accepts a valid bearer token', async () => {
