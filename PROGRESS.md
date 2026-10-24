@@ -314,3 +314,8 @@
 	- Files: frontend/src/components/common/header.jsx, app/theme.css.
 	- Decisions: rounded-xl-style card, avatar + name + green role badge header, divider, Settings/LogOut lucide icons (red-tinted sign out), hover transitions, outside-click and Escape close.
 	- Validation: frontend production build passes.
+
+- [x] Update primary buttons to PureBazar brand orange theme
+	- Files: frontend/src/app/globals.css, frontend/src/app/theme.css, frontend/src/components/pos/hold-sale-modal.jsx, frontend/src/components/pos/held-sales.jsx.
+	- Decisions: Primary buttons use #F58220 with #E07318 hover, white text, and orange focus/active rings; navigation accents remain Pure Green #82C341; POS modal confirmation and restore actions use shared primary/neutral button variants.
+	- Validation: Frontend production build passes.

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { PauseCircle, X } from 'lucide-react';
+import Button from '@/components/ui/button';
 
 const STORAGE_KEY = 'purebazar.pos.heldSales';
 const round2 = (n) => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
@@ -66,7 +67,7 @@ export function HeldBillsModal({ held, onRestore, onDiscard, onClose }) {
                 </div>
                 <p className="font-semibold">৳{Number(sale.total).toFixed(2)}</p>
                 <div className="flex gap-2">
-                  <button type="button" onClick={() => onRestore(sale)} className="rounded bg-emerald-600 px-3 py-1 text-white">Restore</button>
+                  <Button type="button" size="sm" variant="secondary" onClick={() => onRestore(sale)}>Restore</Button>
                   {confirmId === sale.id ? (
                     <button type="button" onClick={() => { onDiscard(sale.id); setConfirmId(null); }} className="rounded bg-red-700 px-3 py-1 text-white">Confirm delete</button>
                   ) : (

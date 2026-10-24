@@ -18,6 +18,9 @@ body {
   --blue: #2878c8;
   --blue-dark: #1d64aa;
   --blue-pale: #eaf3fc;
+  --primary: #f58220;
+  --primary-hover: #e07318;
+  --primary-focus: #f582204d;
   --green: #247b56;
   --green-pale: #e9f6ef;
   --amber: #986719;
@@ -169,8 +172,8 @@ a { color: inherit; text-decoration: none; }
 .ui-button { align-items: center; border: 1px solid transparent; border-radius: var(--radius); display: inline-flex; font-weight: 600; gap: 8px; justify-content: center; transition: background-color .15s ease, border-color .15s ease; }
 .button-md { min-height: 38px; padding: 0 14px; }
 .button-sm { min-height: 32px; padding: 0 11px; }
-.button-primary { background: var(--blue); color: #fff; }
-.button-primary:hover { background: var(--blue-dark); }
+.button-primary { background: var(--primary); color: #fff; }
+.button-primary:hover:not(:disabled) { background: var(--primary-hover); }
 .button-secondary { background: #fff; border-color: #cfd7e1; color: var(--ink); }
 .button-secondary:hover { background: #f6f8fa; }
 .button-ghost { background: transparent; color: var(--muted); }

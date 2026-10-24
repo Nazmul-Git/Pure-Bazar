@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Button from '@/components/ui/button';
 
 export default function HoldSaleModal({ onConfirm, onCancel }) {
   const [note, setNote] = useState('');
@@ -26,8 +27,8 @@ export default function HoldSaleModal({ onConfirm, onCancel }) {
           />
         </label>
         <div className="flex justify-end gap-2">
-          <button type="button" onClick={onCancel} className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700">Cancel</button>
-          <button type="submit" className="rounded-lg bg-amber-500 px-3 py-2 text-sm font-medium text-white">Confirm Hold</button>
+          <Button type="button" variant="secondary" onClick={onCancel}>Cancel</Button>
+          <Button type="submit">Confirm Hold</Button>
         </div>
       </form>
     </div>
