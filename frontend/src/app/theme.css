@@ -101,3 +101,16 @@ body, .app-header, .ui-card, .table-wrap, .modal-panel, .user-menu, .ui-input, .
 [data-theme='dark'] :is(.text-amber-700, .text-amber-800, .text-amber-900, .text-amber-950) { color: var(--amber); }
 [data-theme='dark'] .bg-blue-50 { background-color: var(--blue-pale); }
 [data-theme='dark'] :is(.text-blue-600, .text-blue-700, .hover\:text-blue-900:hover) { color: var(--accent); }
+
+/* User profile dropdown */
+.user-menu { border-radius: 12px; box-shadow: 0 10px 25px var(--shadow-color); min-width: 230px; padding: 6px; animation: user-menu-in .15s ease-out; transform-origin: top right; }
+@keyframes user-menu-in { from { opacity: 0; transform: translateY(-4px) scale(.97); } to { opacity: 1; transform: none; } }
+.user-menu-info { align-items: center; flex-direction: row; gap: 10px; padding: 10px 10px 12px; margin-bottom: 6px; }
+.user-menu-avatar { align-items: center; background: var(--accent); border-radius: 999px; color: var(--accent-ink); display: inline-flex; flex: none; height: 38px; justify-content: center; width: 38px; }
+.user-menu-who { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.user-menu-who strong { color: var(--ink); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.user-role-badge { background: #82c34126; border: 1px solid #82c34159; border-radius: 999px; color: var(--green); font-size: 10px; font-weight: 700; letter-spacing: .03em; padding: 1px 8px; text-transform: uppercase; width: fit-content; }
+.user-menu .user-menu-item, .user-menu .user-menu-logout { align-items: center; border-radius: 8px; color: var(--ink); display: flex; font-size: 13px; gap: 9px; justify-content: flex-start; margin-top: 2px; padding: 9px 10px; transition: background-color .15s ease, color .15s ease; width: 100%; }
+.user-menu .user-menu-item:hover { background: var(--surface-hover); color: var(--green); }
+.user-menu .user-menu-logout { color: #e5484d; }
+.user-menu .user-menu-logout:hover { background: #e5484d1f; color: #e5484d; }

@@ -308,3 +308,8 @@
 	- Files: frontend/src/components/common/{theme-provider,theme-toggle}.jsx, sidebar.jsx, app/{layout.jsx,theme.css}.
 	- Decisions: custom ThemeProvider/useTheme (no new dependency); preference saved in localStorage ("purebazar-theme"); inline head script sets data-theme before first paint (no flash); dark = #181B1E base, muted-white text, #82C341 accent; light = #F3F4F6 base, slate text, green accent; theme.css overrides CSS variables and remaps Tailwind slate/red/green/amber utilities in dark; Sun/Moon/Laptop toggle in sidebar footer.
 	- Validation: frontend production build passes.
+
+- [x] Redesign user profile dropdown menu
+	- Files: frontend/src/components/common/header.jsx, app/theme.css.
+	- Decisions: rounded-xl-style card, avatar + name + green role badge header, divider, Settings/LogOut lucide icons (red-tinted sign out), hover transitions, outside-click and Escape close.
+	- Validation: frontend production build passes.
