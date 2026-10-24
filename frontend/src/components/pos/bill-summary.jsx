@@ -1,6 +1,6 @@
 'use client';
 
-import { BadgeCheck, Percent, ReceiptText, UserRoundPlus } from 'lucide-react';
+import { Percent, ReceiptText } from 'lucide-react';
 import Button from '@/components/ui/button';
 import Input from '@/components/ui/input';
 import Select from '@/components/ui/select';
@@ -8,7 +8,7 @@ import Select from '@/components/ui/select';
 const money = (value) => (Number(value) || 0).toFixed(2);
 
 export default function BillSummary({
-  bill, billDiscount, onBillDiscount, shareholder, onChooseShareholder, onRemoveShareholder,
+  bill, billDiscount, onBillDiscount,
   approvalRequired, canApprove, discountApproved, onApprove, previewLoading, previewError,
   onCheckout, checkoutLoading, checkoutError, canCheckout,
 }) {
@@ -21,8 +21,8 @@ export default function BillSummary({
           <span className="text-right">৳{money(bill?.subtotal)}</span>
           <span className="text-slate-600">Other discounts</span>
           <span className="text-right text-red-700">− ৳{money(bill?.otherDiscountAmount)}</span>
-          <span className="text-slate-600">Shareholder discount</span>
-          <span className="text-right text-red-700">− ৳{money(bill?.shareholderDiscountAmount)}</span>
+          <span className="text-slate-600">          Shareholder/Wallet discount (5%)</span>
+                    <span className="text-right text-red-700">− ৳{money(bill?.walletDiscountAmount)}</span>
           <span className="text-slate-600">VAT</span>
           <span className="text-right">৳{money(bill?.vatAmount)}</span>
           <strong className="border-t border-slate-200 pt-3 text-base">Total due</strong>
@@ -30,31 +30,6 @@ export default function BillSummary({
         </div>
         {previewLoading && <p role="status" className="mt-3 text-xs text-slate-500">Updating bill from server...</p>}
         {previewError && <p role="alert" className="mt-3 text-sm text-red-700">{previewError}</p>}
-      </section>
-
-      <section className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 shadow-sm">
-        <h2 className="font-semibold text-slate-900">Shareholder status &amp; auto discount</h2>
-        {shareholder ? (
-          <div className="mt-3 rounded-lg bg-emerald-50 p-3">
-            <p className="flex items-center gap-1 font-medium text-emerald-900"><BadgeCheck size={16} />{shareholder.name}</p>
-            <p className="text-xs text-emerald-800">{shareholder.memberId} · Verified and active</p>
-            <div className="mt-3 flex items-center justify-between border-t border-emerald-200 pt-2 text-sm">
-              <span className="text-slate-700">Auto discount (WALLET only)</span>
-              <strong className="text-emerald-800">− ৳{money(bill?.shareholderDiscountAmount)}</strong>
-            </div>
-            <button type="button" className="mt-2 text-sm text-red-700 underline" onClick={onRemoveShareholder}>Remove shareholder</button>
-          </div>
-        ) : (
-          <>
-            <p className="mt-2 text-sm text-slate-600">
-              Verify a shareholder to calculate the automatic discount for an eligible WALLET payment.
-            </p>
-            <Button className="mt-3 w-full" type="button" variant="secondary" onClick={onChooseShareholder}>
-              <UserRoundPlus size={17} /> Verify and attach
-            </Button>
-          </>
-        )}
-        <p className="mt-2 text-xs text-slate-600">This discount is calculated automatically and cannot be entered or adjusted manually.</p>
       </section>
 
       <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">

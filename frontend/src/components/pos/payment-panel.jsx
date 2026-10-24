@@ -13,7 +13,7 @@ const options = [
 const money = (value) => (Number(value) || 0).toFixed(2);
 
 export default function PaymentPanel({
-  methods, amounts, total, shareholder, walletStatus, onMethods, onAmount, onWalletRetry,
+  methods, amounts, total, onMethods, onAmount,
 }) {
   const selected = methods.includes('WALLET') ? ['WALLET'] : methods;
   const paid = selected.reduce((sum, method) => sum + (Number(amounts[method]) || 0), 0);
@@ -44,17 +44,7 @@ export default function PaymentPanel({
       </label>
       {selected.includes('WALLET') ? (
         <div className="mt-3 rounded-lg bg-slate-50 p-3 text-sm">
-          {!shareholder && <p className="text-amber-800">Attach a verified shareholder to use wallet payment.</p>}
-          {shareholder && walletStatus === 'checking' && <p role="status">Checking wallet balance...</p>}
-          {shareholder && walletStatus === 'sufficient' && <p className="text-emerald-800">Sufficient wallet balance for ৳{money(total)}.</p>}
-          {shareholder && walletStatus === 'insufficient' && <p className="text-red-700">Insufficient wallet balance. Choose another payment method.</p>}
-          {shareholder && walletStatus === 'ineligible' && <p className="text-red-700">This shareholder is not enabled for wallet payment.</p>}
-          {shareholder && walletStatus === 'error' && (
-            <div>
-              <p className="text-red-700">Wallet balance could not be checked. Retry or choose another method.</p>
-              <Button type="button" size="sm" variant="secondary" className="mt-2" onClick={onWalletRetry}>Retry balance check</Button>
-            </div>
-          )}
+          <p className="text-emerald-800">5% wallet discount applied. Wallet pays ৳{money(total)}.</p>
         </div>
       ) : (
         <div className="mt-3 space-y-3">

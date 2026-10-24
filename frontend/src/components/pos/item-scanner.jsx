@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Barcode, LoaderCircle, Plus } from 'lucide-react';
 import Button from '@/components/ui/button';
 import Input from '@/components/ui/input';
@@ -11,10 +11,12 @@ export default function ItemScanner({ onAdd }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  async function submit(event) {
-    event.preventDefault();
-    const value = barcode.trim();
-    if (!value || loading) return;
+  const busy = useRef(false);
+
+  async function add(raw) {
+    const value = raw.trim();
+    if (!value || busy.current) return;
+    busy.current = true;
     setLoading(true);
     setError('');
     try {
@@ -24,9 +26,24 @@ export default function ItemScanner({ onAdd }) {
     } catch (requestError) {
       setError(posErrorMessage(requestError));
     } finally {
+      busy.current = false;
       setLoading(false);
+      document.getElementById('pos-barcode')?.focus();
     }
   }
+
+  function submit(event) {
+    event.preventDefault();
+    add(barcode);
+  }
+
+  // Scanners type a full code in milliseconds; add once input goes quiet.
+  useEffect(() => {
+    if (barcode.trim().length < 6) return undefined;
+    const timer = setTimeout(() => add(barcode), 150);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [barcode]);
 
   return (
     <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
