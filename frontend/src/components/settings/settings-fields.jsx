@@ -45,7 +45,7 @@ export const defaultSettings = {
 export function ToggleField({ label, checked, onChange, description }) {
   return (
     <label className="flex items-start gap-3 py-2">
-      <input type="checkbox" checked={checked} onChange={onChange} className="mt-0.5 h-4 w-4 accent-blue-600" />
+      <input type="checkbox" checked={checked} onChange={onChange} className="mt-0.5 h-4 w-4 accent-[#82C341]" />
       <span>
         <span className="block text-sm font-medium text-slate-800">{label}</span>
         {description && <span className="mt-1 block text-xs text-slate-500">{description}</span>}
@@ -67,7 +67,7 @@ export function MethodChoices({ label, methods, value, onChange }) {
               onChange={(event) => onChange(event.target.checked
                 ? [...value, method]
                 : value.filter((item) => item !== method))}
-              className="h-4 w-4 accent-blue-600"
+              className="h-4 w-4 accent-[#82C341]"
             />
             {method}
           </label>
@@ -77,26 +77,10 @@ export function MethodChoices({ label, methods, value, onChange }) {
   );
 }
 
-export function JsonField({ label, value, onChange, help, rows = 4 }) {
-  return (
-    <label className="ui-field">
-      <span className="field-label">{label}</span>
-      {help && <span className="text-xs text-slate-500">{help}</span>}
-      <textarea
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        rows={rows}
-        spellCheck="false"
-        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 font-mono text-xs text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
-      />
-    </label>
-  );
-}
-
 export function SettingsSection({ title, description, children }) {
   return (
-    <Card>
-      <div className="card-header">
+    <Card className="border-slate-200 shadow-sm">
+      <div className="card-header border-l-4 border-l-[#82C341]">
         <div>
           <h2>{title}</h2>
           {description && <p>{description}</p>}

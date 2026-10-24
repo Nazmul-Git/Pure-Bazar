@@ -54,7 +54,8 @@
 	- Validation: Full backend Jest suite passes (9 suites, 35 tests).
 - [x] 1.4b Settings screens
 	- Files: API-backed Settings screen with grouped controls for all settings fields; Reports > Audit Trail screen with user, action/area, and date filters, plus structured change details in a modal; service methods and Super Admin navigation guards.
-	- Decisions: Keep structured receipt, role-discount, and outlet settings editable as validated JSON; prevent saving defaults if settings fail to load; show only Probashi status, never credentials.
+	- Decisions: Receipt, role-discount, and outlet settings are edited with structured controls (role discount table, receipt fields, outlet add/edit/remove list) and serialized back to the same JSON shapes on save; prevent saving defaults if settings fail to load; show only Probashi status, never credentials.
+	- Update: Modernized settings page (files: settings-editors.jsx, settings-fields.jsx, settings-form.jsx) with Pure Green #82C341 accents; frontend build passes.
 	- Validation: Frontend production build passes; focused settings and audit API tests pass (1 suite, 5 tests); audit detail modal open and close behavior verified in the browser.
 - [ ] 2.1
 - [x] 2.1a Category brand unit API

@@ -3,10 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Button, Input, Select } from '@/components/ui';
-import { getSettings, updateSettings } from '@/services/admin';
+import { getRoles, getSettings, updateSettings } from '@/services/admin';
 import {
   defaultSettings,
-  JsonField,
   MethodChoices,
   paymentMethods,
   payoutMethods,
@@ -14,11 +13,22 @@ import {
   SettingsSection,
   ToggleField,
 } from '@/components/settings/settings-fields';
+import {
+  cleanOutlets,
+  defaultRoleNames,
+  DiscountLimitsEditor,
+  limitsToRows,
+  OutletsEditor,
+  ReceiptLayoutEditor,
+  rowsToLimits,
+  validateLimits,
+  validateOutlets,
+} from '@/components/settings/settings-editors';
 
 export default function SettingsForm() {
   const token = useSelector((state) => state.auth.token);
   const [settings, setSettings] = useState(defaultSettings);
-  const [jsonValues, setJsonValues] = useState({ discountLimitByRole: '{}', receiptLayout: '{}', outlets: '[]' });
+  const [limitRows, setLimitRows] = useState([]);
   const [newTerm, setNewTerm] = useState({ version: '', terms: '', effectiveFrom: '' });
   const [loading, setLoading] = useState(true);
   const [loaded, setLoaded] = useState(false);
@@ -32,17 +42,16 @@ export default function SettingsForm() {
     let active = true;
     setLoading(true);
     setError('');
-    getSettings(token)
-      .then(({ data }) => {
+    Promise.all([
+      getSettings(token),
+      getRoles(token).then(({ data }) => data.roles.map((role) => role.name)).catch(() => defaultRoleNames),
+    ])
+      .then(([{ data }, roleNames]) => {
         if (!active) return;
         const values = { ...defaultSettings, ...data.settings };
         setSettings(values);
+        setLimitRows(limitsToRows(values.discountLimitByRole, roleNames));
         setLoaded(true);
-        setJsonValues({
-          discountLimitByRole: JSON.stringify(values.discountLimitByRole, null, 2),
-          receiptLayout: JSON.stringify(values.receiptLayout, null, 2),
-          outlets: JSON.stringify(values.outlets, null, 2),
-        });
       })
       .catch((requestError) => active && setError(requestError.response?.data?.message || 'Unable to load settings.'))
       .finally(() => active && setLoading(false));
@@ -73,22 +82,9 @@ export default function SettingsForm() {
     event.preventDefault();
     setError('');
     setNotice('');
-    let discountLimitByRole;
-    let receiptLayout;
-    let outlets;
-    try {
-      discountLimitByRole = JSON.parse(jsonValues.discountLimitByRole);
-      receiptLayout = JSON.parse(jsonValues.receiptLayout);
-      outlets = JSON.parse(jsonValues.outlets);
-      if (!discountLimitByRole || Array.isArray(discountLimitByRole) || typeof discountLimitByRole !== 'object') {
-        throw new Error('Discount limits by role must be a JSON object.');
-      }
-      if (!receiptLayout || Array.isArray(receiptLayout) || typeof receiptLayout !== 'object') {
-        throw new Error('Receipt layout must be a JSON object.');
-      }
-      if (!Array.isArray(outlets)) throw new Error('Outlets must be a JSON array.');
-    } catch (parseError) {
-      setError(parseError.message.startsWith('Unexpected') ? `Invalid JSON: ${parseError.message}` : parseError.message);
+    const limitError = validateLimits(limitRows) || validateOutlets(settings.outlets);
+    if (limitError) {
+      setError(limitError);
       return;
     }
     const cutoffDates = settings.vendorPayoutCutoffDates;
@@ -100,19 +96,14 @@ export default function SettingsForm() {
     }
 
     const payload = Object.fromEntries(settingFields.map((field) => [field, settings[field]]));
-    payload.discountLimitByRole = discountLimitByRole;
-    payload.receiptLayout = receiptLayout;
-    payload.outlets = outlets;
+    payload.discountLimitByRole = rowsToLimits(limitRows);
+    payload.outlets = cleanOutlets(settings.outlets);
     setSaving(true);
     try {
       const { data } = await updateSettings(token, payload);
       const values = { ...defaultSettings, ...data.settings };
       setSettings(values);
-      setJsonValues({
-        discountLimitByRole: JSON.stringify(values.discountLimitByRole, null, 2),
-        receiptLayout: JSON.stringify(values.receiptLayout, null, 2),
-        outlets: JSON.stringify(values.outlets, null, 2),
-      });
+      setLimitRows((rows) => limitsToRows(values.discountLimitByRole, rows.map((row) => row.role)));
       setNotice('Settings saved successfully.');
     } catch (requestError) {
       setError(requestError.response?.data?.message || 'Unable to save settings.');
@@ -161,7 +152,7 @@ export default function SettingsForm() {
           </Select>
         </div>
         <ToggleField label="Enable VAT" checked={settings.vatEnabled} onChange={(event) => setField('vatEnabled', event.target.checked)} />
-        <JsonField label="Discount limits by role" value={jsonValues.discountLimitByRole} onChange={(value) => setJsonValues((current) => ({ ...current, discountLimitByRole: value }))} help='JSON object mapping role names to maximum discount percentages, for example { "Cashier": 10 }.' />
+        <DiscountLimitsEditor rows={limitRows} onChange={(rows) => { setLimitRows(rows); setError(''); setNotice(''); }} />
       </SettingsSection>
 
       <SettingsSection title="Stock adjustments" description="Adjustments valued above this limit require Super Admin approval. Values use product purchase cost.">
@@ -177,7 +168,7 @@ export default function SettingsForm() {
 
       <SettingsSection title="Payments and receipt" description="Choose accepted checkout methods and configure the receipt layout.">
         <MethodChoices label="Enabled payment methods" methods={paymentMethods} value={settings.enabledPaymentMethods} onChange={(value) => setField('enabledPaymentMethods', value)} />
-        <JsonField label="Receipt layout" value={jsonValues.receiptLayout} onChange={(value) => setJsonValues((current) => ({ ...current, receiptLayout: value }))} help="JSON object consumed by receipt rendering." />
+        <ReceiptLayoutEditor value={settings.receiptLayout} onChange={(value) => setField('receiptLayout', value)} />
       </SettingsSection>
 
       <SettingsSection title="Vendor settlement" description="Set settlement frequency, cut-off dates, terms, and payout options.">
@@ -232,7 +223,7 @@ export default function SettingsForm() {
         <Select label="Probashi status" value={settings.probashiStatus} onChange={(event) => setField('probashiStatus', event.target.value)}>
           <option value="NotConfigured">Not configured</option><option value="Active">Active</option><option value="Inactive">Inactive</option>
         </Select>
-        <JsonField label="Outlets" value={jsonValues.outlets} onChange={(value) => setJsonValues((current) => ({ ...current, outlets: value }))} help="JSON array of configured outlet records." />
+        <OutletsEditor outlets={settings.outlets} onChange={(value) => setField('outlets', value)} />
       </SettingsSection>
 
       <div className="flex justify-end"><Button type="submit" disabled={saving}>{saving ? 'Saving...' : 'Save settings'}</Button></div>
