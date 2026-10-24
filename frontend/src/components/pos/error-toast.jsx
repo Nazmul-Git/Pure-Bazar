@@ -5,7 +5,7 @@ import { AlertTriangle, X } from 'lucide-react';
 export default function ErrorToast({ message, onClose }) {
   if (!message) return null;
   return (
-    <div className="pointer-events-none fixed right-4 top-4 z-50 w-[calc(100%-2rem)] max-w-sm">
+    <div className="pointer-events-none fixed right-6 top-6 z-50 w-[calc(100%-3rem)] max-w-sm">
       <div
         role="alert"
         className="pb-toast-in pointer-events-auto flex items-start gap-3 rounded-xl border border-orange-500/50 bg-slate-900/90 px-4 py-3 text-sm text-slate-100 shadow-xl shadow-black/30 backdrop-blur-md"
