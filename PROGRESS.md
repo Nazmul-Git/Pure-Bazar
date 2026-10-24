@@ -298,3 +298,8 @@
 	- Files: backend/config/permissionCatalog.js, backend/controllers/rolesController.js, backend/routes/{roleRoutes,reportRoutes}.js, frontend/src/app/roles/manage/permission-options.js + page.jsx, frontend/src/components/common/{navigation.js,sidebar.jsx,app-shell.jsx}, frontend/src/store/use-auth.js.
 	- Decisions: 34 sidebar pages each get <page>:read/<page>:write flags stored on the role; backend expands them to legacy flags so existing route guards keep working (non-report routes stay module-level). Report routes accept per-report flags exactly. Legacy roles are mapped to page flags when edited. Sidebar/route gating uses page flags when a role has any.
 	- Validation: users-roles and reports tests pass; frontend build passes.
+
+- [x] Sidebar redesign
+	- Files: frontend/src/components/common/sidebar.jsx, navigation.js, app/globals.css.
+	- Decisions: PureBazar palette (#181B1E, #82C341, #F58220 reserved for badges); accordion groups with one open at a time, active group auto-expands, longest-href active match; added General Settings child so /settings stays reachable; Expense Categories links to /finance/expenses (where categories are managed).
+	- Validation: frontend production build passes.
