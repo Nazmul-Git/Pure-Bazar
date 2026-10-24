@@ -289,3 +289,7 @@
 	- Files: frontend/src/components/pos/{item-scanner,bill-summary,payment-panel,pos-billing-page}.jsx.
 	- Decisions: shareholder card removed; barcode auto-adds on Enter or 150ms after input (6+ chars), then clears and refocuses; Full wallet payment shows a client-side 5% subtotal discount. Backend is unchanged, so wallet checkout still needs backend support for a shareholder-less 5% discount.
 	- Validation: frontend production build passes.
+
+- [x] POS hold-sale modal fix
+	- Files: frontend/src/components/pos/hold-sale-modal.jsx, pos-billing-page.jsx.
+	- Decisions: replaced unsupported window.prompt with a React modal (optional customer name/token note); confirm holds and clears cart.

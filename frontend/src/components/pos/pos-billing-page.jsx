@@ -12,6 +12,7 @@ import { checkoutPosBill, posErrorMessage, previewPosBill } from '@/services/pos
 import {
   HeldBillsButton, HeldBillsModal, estimateTotal, useHeldSales,
 } from './held-sales';
+import HoldSaleModal from './hold-sale-modal';
 import billingUtils from '@/services/pos-billing-utils.cjs';
 
 const { createPreviewPayload, paymentTotalMatches } = billingUtils;
@@ -36,6 +37,7 @@ export default function PosBillingPage() {
   const [checkoutError, setCheckoutError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [heldOpen, setHeldOpen] = useState(false);
+  const [holdOpen, setHoldOpen] = useState(false);
   const { held, hold, remove: discardHeld } = useHeldSales();
   const latestPreview = useRef(0);
   const selectedMethods = methods.includes('WALLET') ? ['WALLET'] : methods;
@@ -189,10 +191,14 @@ export default function PosBillingPage() {
       setCheckoutError('Cart is empty. Add items before holding a sale.');
       return;
     }
-    const note = window.prompt('Customer name / token number (optional):', '');
-    if (note === null) return;
+    setHoldOpen(true);
+  }
+
+  function confirmHold(noteText) {
+    const note = noteText.trim();
+    setHoldOpen(false);
     hold({
-      note: note.trim(),
+      note,
       items,
       billDiscount,
       methods,
@@ -201,7 +207,7 @@ export default function PosBillingPage() {
       total: bill?.grandTotal ?? estimateTotal(items),
     });
     resetCart();
-    setSuccessMessage(`Sale held${note.trim() ? ` · ${note.trim()}` : ''}.`);
+    setSuccessMessage(`Sale held${note ? ` · ${note}` : ''}.`);
   }
 
   function restoreSale(sale) {
@@ -241,6 +247,7 @@ export default function PosBillingPage() {
           <HeldBillsButton count={held.length} onClick={() => setHeldOpen(true)} />
         </div>
       </header>
+      {holdOpen && <HoldSaleModal onConfirm={confirmHold} onCancel={() => setHoldOpen(false)} />}
       {heldOpen && <HeldBillsModal held={held} onRestore={restoreSale} onDiscard={discardHeld} onClose={() => setHeldOpen(false)} />}
       {successMessage && <p role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900">{successMessage}</p>}
       {formError && <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-800">{formError}</p>}
