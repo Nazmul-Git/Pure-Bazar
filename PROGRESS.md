@@ -303,3 +303,8 @@
 	- Files: frontend/src/components/common/sidebar.jsx, navigation.js, app/globals.css.
 	- Decisions: PureBazar palette (#181B1E, #82C341, #F58220 reserved for badges); accordion groups with one open at a time, active group auto-expands, longest-href active match; added General Settings child so /settings stays reachable; Expense Categories links to /finance/expenses (where categories are managed).
 	- Validation: frontend production build passes.
+
+- [x] Theme switcher (Dark / Light / System)
+	- Files: frontend/src/components/common/{theme-provider,theme-toggle}.jsx, sidebar.jsx, app/{layout.jsx,theme.css}.
+	- Decisions: custom ThemeProvider/useTheme (no new dependency); preference saved in localStorage ("purebazar-theme"); inline head script sets data-theme before first paint (no flash); dark = #181B1E base, muted-white text, #82C341 accent; light = #F3F4F6 base, slate text, green accent; theme.css overrides CSS variables and remaps Tailwind slate/red/green/amber utilities in dark; Sun/Moon/Laptop toggle in sidebar footer.
+	- Validation: frontend production build passes.

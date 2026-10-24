@@ -1,0 +1,103 @@
+/* Theme layer: loaded after globals.css. Light is the default; dark applies via [data-theme='dark'] on <html>. */
+:root {
+  --accent: #82c341;
+  --accent-ink: #181b1e;
+  --accent-hover: #74b037;
+  --canvas: #f3f4f6;
+  --ink: #1e293b;
+  --muted: #64748b;
+  --line: #e2e5ea;
+  --green: #3f7d14;
+  --blue: #3f7d14;
+  --blue-dark: #346811;
+  --blue-pale: #eaf5dc;
+  --surface-hover: #f6f8fa;
+  --surface-soft: #f7f9fb;
+  --line-strong: #cfd7e1;
+  --text-body: #344254;
+  --shadow-color: #1b2c401a;
+}
+
+[data-theme='dark'] {
+  --canvas: #181b1e;
+  --surface: #22262a;
+  --ink: #e5e7eb;
+  --muted: #9ca3af;
+  --line: #31363b;
+  --nav: #101214;
+  --green: #82c341;
+  --green-pale: #1f2f17;
+  --blue: #82c341;
+  --blue-dark: #74b037;
+  --blue-pale: #243319;
+  --amber: #e0a84a;
+  --amber-pale: #33290f;
+  --red: #f08a8a;
+  --red-pale: #3a1f1f;
+  --surface-hover: #2a2f34;
+  --surface-soft: #1e2227;
+  --line-strong: #3b4147;
+  --text-body: #cbd2da;
+  --shadow-color: #00000066;
+}
+
+body, .app-header, .ui-card, .table-wrap, .modal-panel, .user-menu, .ui-input, .ui-select, .button-secondary {
+  transition: background-color .2s ease, border-color .2s ease, color .2s ease;
+}
+
+.button-primary { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.button-primary:hover:not(:disabled) { background: var(--accent-hover); }
+:focus-visible { outline-color: var(--accent); }
+
+.ui-card, .table-wrap, .modal-panel, .user-menu, .access-denied, .ui-input, .ui-select, .button-secondary { background: var(--surface); }
+.button-secondary { border-color: var(--line-strong); }
+.button-secondary:hover { background: var(--surface-hover); }
+.ui-input, .ui-select { border-color: var(--line-strong); }
+.ui-input::placeholder { color: var(--muted); }
+.ui-table th { background: var(--surface-soft); color: var(--muted); }
+.ui-table th, .ui-table td { border-bottom-color: var(--line); }
+.ui-table td, .field-label { color: var(--text-body); }
+.ui-table tbody tr:hover, .user-menu-trigger:hover, .icon-button:hover, .button-ghost:hover { background: var(--surface-hover); }
+.user-menu { box-shadow: 0 12px 30px var(--shadow-color); }
+.modal-panel { box-shadow: 0 24px 80px var(--shadow-color); }
+.dashboard-chart-label span { color: var(--text-body); }
+.dashboard-chart-track { background: var(--line); }
+.badge-neutral { background: var(--surface-hover); color: var(--muted); }
+.user-avatar { background: var(--surface-hover); color: var(--muted); }
+.dashboard-error { border-color: var(--line); }
+
+[data-theme='dark'] .dashboard-icon-violet { background: #2a2540; color: #b9a8f0; }
+[data-theme='dark'] .login-screen { background: #181b1e; }
+[data-theme='dark'] .login-heading h2 { color: #e5e7eb; }
+[data-theme='dark'] .login-heading p, [data-theme='dark'] .login-security-note { color: #9ca3af; }
+[data-theme='dark'] .login-form .field-label { color: #cbd2da; }
+[data-theme='dark'] .login-form .ui-input { border-color: #3b4147; }
+[data-theme='dark'] .login-mobile-brand { color: #82c341; }
+[data-theme='dark'] .login-error { background: #3a1f1f; color: #f08a8a; }
+
+/* Sidebar footer theme switch */
+.sidebar-footer { padding-right: 14px; }
+.theme-toggle { background: #ffffff0d; border-radius: 8px; display: inline-flex; gap: 2px; margin-left: auto; padding: 2px; }
+.theme-toggle-btn { align-items: center; background: transparent; border: 0; border-radius: 6px; color: #b6c1ce; display: inline-flex; height: 26px; justify-content: center; transition: background-color .16s ease, color .16s ease; width: 26px; }
+.theme-toggle-btn:hover { color: #82c341; }
+.theme-toggle-active, .theme-toggle-active:hover { background: #82c341; color: #181b1e; }
+
+/* Dark remap for Tailwind palette utilities used across pages */
+[data-theme='dark'] .bg-white { background-color: var(--surface); }
+[data-theme='dark'] :is(.bg-slate-50, .bg-slate-100, .hover\:bg-slate-50:hover, .hover\:bg-slate-100:hover) { background-color: var(--surface-hover); }
+[data-theme='dark'] :is(.text-slate-900, .text-slate-800, .hover\:text-slate-900:hover, .hover\:text-slate-800:hover) { color: var(--ink); }
+[data-theme='dark'] :is(.text-slate-700, .text-slate-600) { color: var(--text-body); }
+[data-theme='dark'] :is(.text-slate-500, .text-slate-400) { color: var(--muted); }
+[data-theme='dark'] :is(.border-slate-100, .border-slate-200, .border-slate-300) { border-color: var(--line); }
+[data-theme='dark'] :is(.divide-slate-100 > :not([hidden]) ~ :not([hidden])) { border-color: var(--line); }
+[data-theme='dark'] :is(.bg-red-50, .hover\:bg-red-50:hover) { background-color: var(--red-pale); }
+[data-theme='dark'] .border-red-200, [data-theme='dark'] .border-red-300 { border-color: #5a2c2c; }
+[data-theme='dark'] :is(.text-red-800, .text-red-700, .hover\:text-red-700:hover) { color: var(--red); }
+[data-theme='dark'] :is(.bg-green-50, .bg-emerald-50) { background-color: var(--green-pale); }
+[data-theme='dark'] :is(.border-green-200, .border-emerald-200) { border-color: #36511f; }
+[data-theme='dark'] :is(.text-green-800, .text-green-700, .text-emerald-800, .text-emerald-900) { color: var(--accent); }
+[data-theme='dark'] .bg-amber-50 { background-color: var(--amber-pale); }
+[data-theme='dark'] :is(.border-amber-200, .border-amber-300) { border-color: #5a4a1c; }
+[data-theme='dark'] :is(.text-amber-700, .text-amber-800, .text-amber-900, .text-amber-950) { color: var(--amber); }
+[data-theme='dark'] .bg-blue-50 { background-color: var(--blue-pale); }
+[data-theme='dark'] :is(.text-blue-600, .text-blue-700, .hover\:text-blue-900:hover) { color: var(--accent); }
