@@ -12,7 +12,12 @@ export default function useAuth() {
     return permissions.includes('*') || permissions.includes(permission);
   }
 
-  function canAccess(requiredPermissions = []) {
+  function canAccess(requiredPermissions = [], pageKey) {
+    const granted = auth.user?.permissions || [];
+    const pageAware = pageKey && granted.some((permission) => /^[a-z]+\.[a-z-]+:(read|write)$/.test(permission));
+    if (pageAware && !granted.includes('*')) {
+      return granted.includes(`${pageKey}:read`) || granted.includes(`${pageKey}:write`);
+    }
     return requiredPermissions.length === 0
       || requiredPermissions.some((permission) => permission === '*'
         ? auth.user?.role === 'Super Admin' && auth.user?.permissions?.includes('*')

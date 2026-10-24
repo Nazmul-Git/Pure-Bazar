@@ -1,4 +1,5 @@
 const { AuditLog, Role, User } = require('../models');
+const { expandPermissions } = require('../config/permissionCatalog');
 
 function statusError(message, status) {
   const error = new Error(message);
@@ -22,7 +23,7 @@ async function list(req, res, next) {
 
 async function create(req, res, next) {
   try {
-    const permissions = [...new Set(['dashboard:read', ...(req.body.permissions || [])])];
+    const permissions = expandPermissions(['dashboard:read', ...(req.body.permissions || [])]);
     const role = await Role.create({ name: req.body.name, permissions });
     await AuditLog.create({
       actorId: req.user._id, action: 'CREATE', entity: 'Role', entityId: role._id,
@@ -42,7 +43,7 @@ async function update(req, res, next) {
     const before = { name: currentRole.name, permissions: currentRole.permissions };
     const role = await Role.findByIdAndUpdate(req.params.id, {
       name: req.body.name,
-      permissions: req.body.permissions || [],
+      permissions: expandPermissions(req.body.permissions || []),
     }, { new: true, runValidators: true });
     await AuditLog.create({
       actorId: req.user._id, action: 'UPDATE', entity: 'Role', entityId: role._id, before,

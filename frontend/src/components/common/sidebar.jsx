@@ -3,15 +3,16 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { X } from 'lucide-react';
-import { navigationItems } from './navigation';
+import { getPageKey, navigationItems } from './navigation';
 import useAuth from '@/store/use-auth';
 
 export default function Sidebar({ open, onClose }) {
   const pathname = usePathname();
   const { canAccess } = useAuth();
+  const canSee = (item) => canAccess(item.permissions, getPageKey(item.href));
   const visibleItems = navigationItems.filter((item) => (
-    canAccess(item.permissions)
-    || item.children?.some((child) => canAccess(child.permissions))
+    canSee(item)
+    || item.children?.some((child) => canSee(child))
   ));
 
   return (
@@ -29,12 +30,13 @@ export default function Sidebar({ open, onClose }) {
         </div>
         <nav className="sidebar-nav">
           <p className="nav-caption">WORKSPACE</p>
-          {visibleItems.map(({ label, href, icon: Icon, permissions, children = [] }) => {
+          {visibleItems.map((item) => {
+            const { label, href, icon: Icon, children = [] } = item;
             const section = href.split('/')[1];
-            const itemAccessible = canAccess(permissions);
+            const itemAccessible = canSee(item);
             const active = pathname === href
               || (!children.length && pathname.startsWith(`/${section}/`));
-            const visibleChildren = children.filter((child) => canAccess(child.permissions));
+            const visibleChildren = children.filter((child) => canSee(child));
             return (
               <div key={label}>
                 {itemAccessible ? (

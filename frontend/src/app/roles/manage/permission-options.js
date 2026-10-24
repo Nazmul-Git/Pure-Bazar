@@ -1,108 +1,134 @@
+// Mirrors backend/config/permissionCatalog.js. `lr` / `lw` are the legacy flags
+// used to pre-check pages for roles saved before page-level permissions existed.
+const row = (key, label, lr = [], lw = []) => ({
+  key,
+  label,
+  read: [`${key}:read`],
+  write: [`${key}:write`],
+  lr,
+  lw,
+});
+
 export const permissionGroups = [
   {
     name: 'Dashboard',
-    rows: [{ label: 'Dashboard', read: ['dashboard:read'], write: [] }],
-  },
-  {
-    name: 'POS',
-    rows: [
-      {
-        label: 'Sales, orders, and returns',
-        read: ['pos:read', 'orders:read', 'returns:read'],
-        write: ['pos:write', 'orders:write', 'returns:write'],
-      },
-      { label: 'Cashier shift / day close', read: [], write: ['shifts:manage'] },
-    ],
+    rows: [{ key: 'dashboard', label: 'Dashboard', read: ['dashboard:read'], write: [], lr: [], lw: [] }],
   },
   {
     name: 'Inventory',
-    rows: [{
-      label: 'Products, stock, warehouse, and transfers',
-      read: ['products:read', 'categories:read', 'brands:read', 'units:read', 'stock:read', 'warehouse:read', 'stock:transfer:read'],
-      write: ['products:write', 'categories:write', 'brands:write', 'units:write', 'stock:write', 'warehouse:write', 'stock:transfer:write', 'stock:transfer:receive'],
-    }],
+    rows: [
+      row('inventory.products', 'Products', ['products:read', 'categories:read', 'brands:read', 'units:read'],
+        ['products:write', 'categories:write', 'brands:write', 'units:write']),
+      row('inventory.grn', 'Goods Receive (GRN)', ['stock:read'], ['stock:write']),
+      row('inventory.transfers', 'Outlet Transfers', ['stock:transfer:read'], ['stock:transfer:write', 'stock:transfer:receive']),
+      row('inventory.warehouse', 'Central Warehouse', ['warehouse:read'], ['warehouse:write']),
+      row('inventory.adjustments', 'Stock Adjustment', ['stock:read'], ['stock:write']),
+      row('inventory.counts', 'Stock Count', ['stock:read'], ['stock:write']),
+      row('inventory.barcodes', 'Barcode & Labels', ['products:read']),
+    ],
+  },
+  {
+    name: 'POS & Orders',
+    rows: [
+      row('pos.sales', 'Sales (POS)', ['pos:read'], ['pos:write']),
+      row('pos.history', 'Sales History', ['pos:read', 'orders:read'], ['orders:write']),
+      row('pos.returns', 'Returns & Exchanges', ['pos:read', 'returns:read'], ['returns:write']),
+      row('pos.shifts', 'Cashier Shift / Day Close', ['shifts:read'], ['shifts:manage', 'shifts:write']),
+    ],
   },
   {
     name: 'Vendors',
-    rows: [{ label: 'Vendor records', read: ['vendors:read'], write: ['vendors:write'] }],
+    rows: [
+      row('vendors.directory', 'Vendor Directory', ['vendors:read'], ['vendors:write']),
+      row('vendors.ledger', 'Vendor Ledger & Earnings', ['vendors:read']),
+      row('vendors.register', 'Register Vendor', ['vendors:read'], ['vendors:write']),
+      row('vendors.settlement', 'Settlement & Payout', ['vendors:read', 'vendor-payouts:read'], ['vendor-payouts:write']),
+      row('vendors.payout-history', 'Payout History', ['vendor-payouts:read']),
+    ],
+  },
+  {
+    name: 'Shareholders',
+    rows: [
+      row('shareholders.directory', 'Shareholder Directory', ['shareholders:read'], ['shareholders:write']),
+      row('shareholders.wallet-logs', 'Wallet Bill Log', ['wallet-logs:read'], ['wallet-logs:write']),
+    ],
   },
   {
     name: 'Finance',
     rows: [
-      {
-        label: 'Finance, expenses, and wallet logs',
-        read: ['finance:read', 'expenses:read', 'wallet-logs:read'],
-        write: ['finance:write', 'expenses:write', 'wallet-logs:write'],
-      },
-      { label: 'Vendor payouts (high risk)', read: ['vendor-payouts:read'], write: ['vendor-payouts:write'] },
+      row('finance.revenue', 'Revenue Ledger', ['finance:read'], ['finance:write']),
+      row('finance.expenses', 'Expenses', ['expenses:read'], ['expenses:write']),
+      row('finance.payout-approval', 'Payout Approval', ['vendors:read', 'vendor-payouts:read'], ['vendor-payouts:write']),
+      row('finance.reconciliation', 'Wallet Reconciliation', ['finance:read'], ['finance:write']),
+    ],
+  },
+  {
+    name: 'HR / Payroll',
+    rows: [
+      row('hr.employees', 'Employees', ['employees:read'], ['employees:write']),
+      row('hr.salary-sheets', 'Salary Sheet / Payroll', ['payroll:read'], ['payroll:write']),
+      row('hr.payslips', 'Payslips', ['payroll:read']),
+      row('hr.advances', 'Advances', ['payroll:read', 'salary-advances:read'], ['payroll:write', 'salary-advances:write']),
     ],
   },
   {
     name: 'Reports',
     rows: [
-      { label: 'Reports', read: ['reports:read'], write: [] },
-      { label: 'Sales and stock reports', read: ['reports:sales-stock:read'], write: [] },
+      row('reports.sales', 'Sales Report', ['reports:read']),
+      row('reports.stock', 'Stock Report', ['reports:read']),
+      row('reports.vendor-profit', 'Vendor Profitability', ['reports:read']),
+      row('reports.profit-loss', 'Profit and Loss', ['reports:read']),
+      row('reports.vat-discount', 'VAT and Discounts', ['reports:read']),
     ],
   },
   {
-    name: 'Shareholders',
-    rows: [{
-      label: 'Shareholders',
-      read: ['shareholders:read'],
-      write: ['shareholders:write'],
-    }],
-  },
-  {
-    name: 'HR & Employees',
+    name: 'System & Audit',
     rows: [
-      {
-        label: 'Employees',
-        read: ['employees:read'],
-        write: ['employees:write'],
-      },
-      {
-        label: 'Payroll',
-        read: ['payroll:read', 'salary-advances:read'],
-        write: ['payroll:write', 'salary-advances:write'],
-      },
+      row('system.audit-logs', 'Audit Trail / Logs', ['auditlogs:read'], ['auditlogs:write']),
+      row('system.expense-categories', 'Expense Categories', ['expense-categories:read'], ['expense-categories:write']),
+      row('system.settings-roles', 'Settings & Roles Administration', ['settings:read', 'roles:read'], ['settings:write', 'roles:write']),
     ],
-  },
-  {
-    name: 'Expense Categories',
-    rows: [{
-      label: 'Expense categories',
-      read: ['expense-categories:read'],
-      write: ['expense-categories:write'],
-    }],
-  },
-  {
-    name: 'Settings',
-    rows: [
-      { label: 'Settings', read: ['settings:read'], write: ['settings:write'] },
-      { label: 'Role administration', read: ['roles:read'], write: ['roles:write'] },
-    ],
-  },
-  {
-    name: 'Audit',
-    rows: [{ label: 'Audit logs', read: ['auditlogs:read'], write: ['auditlogs:write'] }],
   },
 ];
 
-export const sensitivePrefixes = ['settings:', 'roles:', 'vendor-payouts:', 'auditlogs:'];
+export const sensitivePrefixes = [
+  'settings:', 'roles:', 'vendor-payouts:', 'auditlogs:',
+  'system.', 'vendors.settlement', 'vendors.payout-history', 'finance.payout-approval',
+];
+
+const allRows = permissionGroups.flatMap((group) => group.rows);
+
+// Convert a stored role (legacy and/or page-level flags) into the page-level flags the form edits.
+export function toFormPermissions(stored = []) {
+  const has = new Set(stored);
+  const selected = new Set(stored.filter((permission) => (
+    allRows.some((item) => item.read.includes(permission) || item.write.includes(permission))
+  )));
+  allRows.forEach((item) => {
+    if (item.lr.length && item.lr.every((permission) => has.has(permission))) selected.add(item.read[0]);
+    if (item.lw.length && item.lw.every((permission) => has.has(permission))) selected.add(item.write[0]);
+  });
+  if (has.has('reports:sales-stock:read')) {
+    selected.add('reports.sales:read');
+    selected.add('reports.stock:read');
+  }
+  return [...selected];
+}
 
 export const presets = {
   Cashier: [
-    'dashboard:read', 'pos:read', 'orders:read', 'returns:read',
-    'pos:write', 'orders:write', 'returns:write', 'shifts:manage',
+    'dashboard:read', 'pos.sales:read', 'pos.sales:write', 'pos.history:read', 'pos.history:write',
+    'pos.returns:read', 'pos.returns:write', 'pos.shifts:read', 'pos.shifts:write',
   ],
   'Inventory Manager': [
-    'dashboard:read', 'products:read', 'categories:read', 'brands:read', 'units:read',
-    'stock:read', 'warehouse:read', 'stock:transfer:read',
-    'products:write', 'categories:write', 'brands:write', 'units:write', 'stock:write',
-    'warehouse:write', 'stock:transfer:write', 'stock:transfer:receive',
+    'dashboard:read',
+    ...['products', 'grn', 'transfers', 'warehouse', 'adjustments', 'counts', 'barcodes']
+      .flatMap((page) => [`inventory.${page}:read`, `inventory.${page}:write`]),
   ],
   Accountant: [
-    'dashboard:read', 'finance:read', 'expenses:read', 'vendors:read', 'reports:read',
-    'expenses:write',
+    'dashboard:read', 'finance.revenue:read', 'finance.expenses:read', 'finance.expenses:write',
+    'finance.reconciliation:read', 'vendors.directory:read',
+    'reports.sales:read', 'reports.stock:read', 'reports.vendor-profit:read',
+    'reports.profit-loss:read', 'reports.vat-discount:read',
   ],
 };

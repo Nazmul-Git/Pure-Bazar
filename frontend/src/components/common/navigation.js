@@ -159,6 +159,47 @@ export const routePermissions = [
   { prefix: '/settings', permissions: ['*'] },
 ];
 
+export const pageKeys = {
+  '/inventory/products': 'inventory.products',
+  '/inventory/goods-receives': 'inventory.grn',
+  '/inventory/transfers': 'inventory.transfers',
+  '/inventory/warehouse': 'inventory.warehouse',
+  '/inventory/stock-adjustments': 'inventory.adjustments',
+  '/inventory/stock-counts': 'inventory.counts',
+  '/inventory/barcodes': 'inventory.barcodes',
+  '/orders/pos': 'pos.sales',
+  '/orders/history': 'pos.history',
+  '/orders/returns': 'pos.returns',
+  '/orders/shifts': 'pos.shifts',
+  '/vendors/directory': 'vendors.directory',
+  '/vendors/ledger': 'vendors.ledger',
+  '/vendors/register': 'vendors.register',
+  '/vendors/payouts/history': 'vendors.payout-history',
+  '/vendors/payouts': 'vendors.settlement',
+  '/shareholders/directory': 'shareholders.directory',
+  '/shareholders/wallet-logs': 'shareholders.wallet-logs',
+  '/finance/revenue': 'finance.revenue',
+  '/finance/expenses': 'finance.expenses',
+  '/finance/batch-payout': 'finance.payout-approval',
+  '/finance/wallet-reconciliation': 'finance.reconciliation',
+  '/payroll/employees': 'hr.employees',
+  '/payroll/salary-sheets': 'hr.salary-sheets',
+  '/payroll/payslips': 'hr.payslips',
+  '/payroll/advances': 'hr.advances',
+  '/reports/sales-stock': 'reports.sales',
+  '/reports/stock': 'reports.stock',
+  '/reports/vendor-profit': 'reports.vendor-profit',
+  '/reports/profit-loss': 'reports.profit-loss',
+  '/reports/vat-discount': 'reports.vat-discount',
+};
+
+export function getPageKey(pathname) {
+  const prefix = Object.keys(pageKeys)
+    .sort((a, b) => b.length - a.length)
+    .find((candidate) => pathname === candidate || pathname.startsWith(`${candidate}/`));
+  return prefix ? pageKeys[prefix] : undefined;
+}
+
 export function getRoutePermissions(pathname) {
   return routePermissions.find(({ prefix }) => pathname === prefix || pathname.startsWith(`${prefix}/`))
     ?.permissions || ['dashboard:read'];

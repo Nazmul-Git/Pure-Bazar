@@ -293,3 +293,8 @@
 - [x] POS hold-sale modal fix
 	- Files: frontend/src/components/pos/hold-sale-modal.jsx, pos-billing-page.jsx.
 	- Decisions: replaced unsupported window.prompt with a React modal (optional customer name/token note); confirm holds and clears cart.
+
+- [x] Sync Add Role permissions with full sidebar menu structure
+	- Files: backend/config/permissionCatalog.js, backend/controllers/rolesController.js, backend/routes/{roleRoutes,reportRoutes}.js, frontend/src/app/roles/manage/permission-options.js + page.jsx, frontend/src/components/common/{navigation.js,sidebar.jsx,app-shell.jsx}, frontend/src/store/use-auth.js.
+	- Decisions: 34 sidebar pages each get <page>:read/<page>:write flags stored on the role; backend expands them to legacy flags so existing route guards keep working (non-report routes stay module-level). Report routes accept per-report flags exactly. Legacy roles are mapped to page flags when edited. Sidebar/route gating uses page flags when a role has any.
+	- Validation: users-roles and reports tests pass; frontend build passes.

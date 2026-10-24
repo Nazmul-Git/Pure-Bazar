@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 import { AlertTriangle, KeyRound, Pencil, Plus, Shield, Trash2 } from 'lucide-react';
 import { Button, Input, Modal } from '@/components/ui';
 import { createRole, deleteRole, getRoles, getUsers, updateRole } from '@/services/admin';
-import { permissionGroups, presets, sensitivePrefixes } from './permission-options';
+import { permissionGroups, presets, sensitivePrefixes, toFormPermissions } from './permission-options';
 const emptyForm = { name: '', permissions: ['dashboard:read'] };
 
 export default function RoleManagementPage() {
@@ -49,7 +49,7 @@ export default function RoleManagementPage() {
 
   function startEdit(role) {
     setEditingRole(role);
-    setForm({ name: role.name, permissions: role.permissions || [] });
+    setForm({ name: role.name, permissions: toFormPermissions(role.permissions || []) });
     setError('');
     setDialogOpen(true);
   }

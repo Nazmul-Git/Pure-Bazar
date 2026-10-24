@@ -22,8 +22,12 @@ const wrap = (handler) => async (req, res, next) => {
     next(error);
   }
 };
-const salesStockAccess = authorizeMiddleware({ anyPermissions: ['reports:read', 'reports:sales-stock:read'] });
-const reportsAccess = authorizeMiddleware({ permissions: ['reports:read'] });
+const reportAccess = (key, legacy) => authorizeMiddleware({ anyPermissions: [...legacy, `${key}:read`, `${key}:write`] });
+const salesAccess = reportAccess('reports.sales', ['reports:read', 'reports:sales-stock:read']);
+const stockAccess = reportAccess('reports.stock', ['reports:read', 'reports:sales-stock:read']);
+const vendorProfitAccess = reportAccess('reports.vendor-profit', ['reports:read']);
+const profitLossAccess = reportAccess('reports.profit-loss', ['reports:read']);
+const vatDiscountAccess = reportAccess('reports.vat-discount', ['reports:read']);
 const exportFormats = [
   query('format').optional().isIn(['json', 'xlsx', 'pdf']).withMessage('format must be json, xlsx or pdf'),
 ];
@@ -39,7 +43,7 @@ const sendReportExport = async (res, format, filename, sheet) => {
   return res.send(await toPdf(sheet));
 };
 
-router.get('/sales', salesStockAccess, dateRange, [
+router.get('/sales', salesAccess, dateRange, [
   query('groupBy').optional().isIn(['day', 'month']).withMessage('groupBy must be day or month'),
   ...exportFormats,
 ], validateRequest, wrap(async (req, res) => {
@@ -62,7 +66,7 @@ router.get('/sales', salesStockAccess, dateRange, [
   });
 }));
 
-router.get('/stock', salesStockAccess, dateRange, [
+router.get('/stock', stockAccess, dateRange, [
   query('lowStockThreshold').optional().isFloat({ min: 0 }).withMessage('Threshold must be 0 or more').toFloat(),
   ...exportFormats,
 ], validateRequest, wrap(async (req, res) => {
@@ -87,7 +91,7 @@ router.get('/stock', salesStockAccess, dateRange, [
   });
 }));
 
-router.get('/vendor-profitability', reportsAccess, dateRange, [
+router.get('/vendor-profitability', vendorProfitAccess, dateRange, [
   ...exportFormats,
 ], validateRequest, wrap(async (req, res) => {
   const report = await vendorProfitability(req.query);
@@ -109,7 +113,7 @@ router.get('/vendor-profitability', reportsAccess, dateRange, [
   });
 }));
 
-router.get('/profit-loss', reportsAccess, dateRange, exportFormats, validateRequest, wrap(async (req, res) => {
+router.get('/profit-loss', profitLossAccess, dateRange, exportFormats, validateRequest, wrap(async (req, res) => {
   const report = await profitLoss(req.query);
   const format = req.query.format || 'json';
   if (format === 'json') return res.json({ success: true, report });
@@ -129,7 +133,7 @@ router.get('/profit-loss', reportsAccess, dateRange, exportFormats, validateRequ
   });
 }));
 
-router.get('/vat-discount', reportsAccess, dateRange, exportFormats, validateRequest, wrap(async (req, res) => {
+router.get('/vat-discount', vatDiscountAccess, dateRange, exportFormats, validateRequest, wrap(async (req, res) => {
   const report = await vatDiscountReport(req.query);
   const format = req.query.format || 'json';
   if (format === 'json') return res.json({ success: true, report });

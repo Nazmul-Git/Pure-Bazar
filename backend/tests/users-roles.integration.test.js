@@ -219,6 +219,19 @@ describe('users and roles endpoints', () => {
     });
   });
 
+  it('stores every page-level read/write flag and expands to route-guard permissions', async () => {
+    const { granularPermissions } = require('../config/permissionCatalog');
+    const response = await request(app).post('/api/roles').set(auth).send({
+      name: 'Everything Pages', permissions: granularPermissions,
+    });
+
+    expect(response.status).toBe(201);
+    const stored = Role.create.mock.calls[0][0].permissions;
+    expect(granularPermissions).toHaveLength(68);
+    expect(stored).toEqual(expect.arrayContaining(granularPermissions));
+    expect(stored).toEqual(expect.arrayContaining(['stock:transfer:receive', 'vendor-payouts:write', 'payroll:write']));
+  });
+
   it('rejects unknown and duplicate role permissions', async () => {
     const unknown = await request(app).post('/api/roles').set(auth).send({
       name: 'Unknown Access', permissions: ['system:root'],

@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import Header from './header';
 import Sidebar from './sidebar';
-import { getCurrentSection, getRoutePermissions } from './navigation';
+import { getCurrentSection, getPageKey, getRoutePermissions } from './navigation';
 import useAuth from '@/store/use-auth';
 import { restoreAuth } from '@/store/auth-slice';
 
@@ -31,7 +31,7 @@ export default function AppShell({ children }) {
   }
   if (pathname === '/login') return isAuthenticated ? null : children;
   if (!isAuthenticated) return <main className="auth-status" role="status">Redirecting to sign in...</main>;
-  if (!canAccess(getRoutePermissions(pathname))) {
+  if (!canAccess(getRoutePermissions(pathname), getPageKey(pathname))) {
     return (
       <main className="auth-status">
         <section className="access-denied">
