@@ -1,6 +1,6 @@
 const express = require('express');
 const { query } = require('express-validator');
-const { getDashboard } = require('../services/dashboardService');
+const { getDashboardForUser } = require('../services/roleDashboardService');
 const authMiddleware = require('../middlewares/authMiddleware');
 const authorizeMiddleware = require('../middlewares/authorizeMiddleware');
 const validateRequest = require('../middlewares/validateRequest');
@@ -11,7 +11,7 @@ router.get('/', authMiddleware, authorizeMiddleware({ permissions: ['dashboard:r
   query('lowStockThreshold').optional().isFloat({ min: 0 }).withMessage('Threshold must be 0 or more').toFloat(),
 ], validateRequest, async (req, res, next) => {
   try {
-    const dashboard = await getDashboard({ lowStockThreshold: req.query.lowStockThreshold });
+    const dashboard = await getDashboardForUser(req.user, { lowStockThreshold: req.query.lowStockThreshold });
     return res.json({ success: true, dashboard });
   } catch (error) {
     return next(error);

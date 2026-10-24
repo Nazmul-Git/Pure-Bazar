@@ -339,3 +339,8 @@
 	- Files: frontend/src/components/pos/error-toast.jsx (new), pos-billing-page.jsx, app/globals.css (pb-toast-in animation).
 	- Decisions: stock-limit and form validation errors show as a top-right dark glass toast with orange accent border, icon, dismiss button; no full-width banner. Inline checkout/preview errors remain in the bill summary.
 	- Validation: frontend production build passes.
+
+- [x] Add role-specific work progress metrics and customized KPI dashboards
+	- Files: backend/services/roleDashboardService.js (new), routes/dashboardRoutes.js, services/dashboardService.js (exports lowStockAlerts), models/Settings.js + controllers/settingsController.js (dailySalesTarget), tests/role-dashboard.integration.test.js; frontend/src/components/dashboard/{cashier-dashboard,inventory-dashboard,dashboard-shared}.jsx, dashboard-screen.jsx, dashboard.css.
+	- Decisions: GET /dashboard picks the view server-side from the user's role, so each role only receives its own data. Super Admin/Owner/'*' = full enterprise view (unchanged); Cashier/Outlet Cashier = own bills only (today's sales vs target, bill count, Cash/bKash/Card split, open-shift cash, recent bills, Open POS Billing button); Inventory Manager = stock out/low counters, pending GRNs (Draft), reorder suggestions (restore 2x threshold), fastest movers (30 days of SALE movements), recent adjustments; other roles get an empty 'general' view (no business data). Daily target is a new optional setting dailySalesTarget (0 = not set, progress bar replaced by a hint).
+	- Validation: backend 36 suites / 212 tests pass (role tests assert cashier/inventory responses contain no revenue/margin/payables); frontend production build passes.

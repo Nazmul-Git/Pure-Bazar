@@ -6,6 +6,7 @@ const vendorPayoutMethods = ['Cash', 'Bank', 'bKash', 'Nagad'];
 const settingsInputSchema = Joi.object({
   shareholderDiscountPercent: Joi.number().min(0).max(100),
   stockAdjustmentApprovalLimit: Joi.number().min(0).precision(2),
+  dailySalesTarget: Joi.number().min(0).precision(2),
   vatEnabled: Joi.boolean(),
   defaultVatRate: Joi.number().min(0).max(100),
   vatPriceMode: Joi.string().valid('INCLUDED', 'EXCLUDED'),

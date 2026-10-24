@@ -96,4 +96,4 @@ async function getDashboard({ now = new Date(), lowStockThreshold = DEFAULT_LOW_
   };
 }
 
-module.exports = { getDashboard, dhakaBounds, DEFAULT_LOW_STOCK_THRESHOLD };
+module.exports = { getDashboard, dhakaBounds, lowStockAlerts, DEFAULT_LOW_STOCK_THRESHOLD };

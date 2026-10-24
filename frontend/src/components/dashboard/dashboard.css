@@ -35,3 +35,11 @@
 .dash-card-link { margin-top: 10px; }
 @media (max-width: 1100px) { .dash-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } .dash-grid, .dash-grid.even { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 560px) { .dash-metrics { grid-template-columns: minmax(0, 1fr); } .dash-chart-box { height: 240px; } }
+.dash-progress { background: rgba(148, 163, 184, .2); border-radius: 999px; height: 14px; overflow: hidden; width: 100%; }
+.dash-progress-fill { background: linear-gradient(90deg, #82C341, #5f9a26); border-radius: 999px; height: 100%; transition: width .4s; }
+.dash-progress-fill.orange { background: linear-gradient(90deg, #F58220, #E07318); }
+.dash-bar-row { align-items: stretch; display: flex; flex-direction: column; gap: 6px; }
+.dash-bar-head { display: flex; justify-content: space-between; }
+.dash-cta { display: flex; }
+.dash-cta-button { align-items: center; background: #F58220; border-radius: 12px; color: #fff; display: inline-flex; font-size: 16px; font-weight: 700; gap: 10px; padding: 14px 28px; text-decoration: none; }
+.dash-cta-button:hover { background: #E07318; }

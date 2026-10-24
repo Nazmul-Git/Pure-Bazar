@@ -6,21 +6,17 @@ import Link from 'next/link';
 import { Activity, ArrowDownRight, ArrowUpRight, BadgeDollarSign, Package, RefreshCw, Wallet } from 'lucide-react';
 import { Button, Card } from '@/components/ui';
 import { getDashboard } from '@/services/dashboard';
+import CashierDashboard from './cashier-dashboard';
+import InventoryDashboard from './inventory-dashboard';
+import { MetricCard, formatMoney, timeFormat } from './dashboard-shared';
 import { PaymentDonut, RevenueExpenseBars, SalesTrendChart } from './dashboard-charts';
 import './dashboard.css';
 
-const currency = new Intl.NumberFormat('en-BD', { style: 'currency', currency: 'BDT' });
-const timeFormat = new Intl.DateTimeFormat('en-BD', {
-  dateStyle: 'medium',
-  timeStyle: 'short',
-  timeZone: 'Asia/Dhaka',
-});
 const dateFormat = new Intl.DateTimeFormat('en-BD', {
   dateStyle: 'full',
   timeZone: 'Asia/Dhaka',
 });
 
-const formatMoney = (amount) => currency.format(Number(amount) || 0);
 const readable = (value) => String(value || '').replaceAll('_', ' ').toLowerCase();
 
 function ChangeBadge({ change }) {
@@ -31,20 +27,6 @@ function ChangeBadge({ change }) {
     <span className={`dash-kpi-badge ${direction}`}>
       <Icon size={12} />{change > 0 ? '+' : ''}{change.toFixed(1)}% vs yesterday
     </span>
-  );
-}
-
-function MetricCard({ label, value, description, icon: Icon, tint, badge }) {
-  return (
-    <Card className="dash-kpi">
-      <div className="dashboard-metric-top">
-        <span className="dashboard-metric-label">{label}</span>
-        <span className="dash-kpi-icon"><Icon size={18} /></span>
-      </div>
-      <strong className="dashboard-metric-value">{value}</strong>
-      {badge}
-      <span className="dashboard-metric-description">{description}</span>
-    </Card>
   );
 }
 
@@ -107,6 +89,12 @@ export default function DashboardScreen() {
 
       {loading && !dashboard ? (
         <p className="dashboard-status" role="status">Loading your dashboard...</p>
+      ) : dashboard?.view === 'cashier' ? (
+        <CashierDashboard dashboard={dashboard} />
+      ) : dashboard?.view === 'inventory' ? (
+        <InventoryDashboard dashboard={dashboard} />
+      ) : dashboard?.view === 'general' ? (
+        <p className="dashboard-empty">No dashboard widgets are configured for your role.</p>
       ) : dashboard && (
         <>
           <div className="dash-metrics">

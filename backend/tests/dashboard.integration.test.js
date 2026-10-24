@@ -128,7 +128,7 @@ describe('dashboard API', () => {
       permissions = ['dashboard:read'];
       models.User.findById.mockImplementation(() => ({
         populate: jest.fn(async () => ({
-          _id: userId, isActive: true, roleId: { _id: userId, name: 'Role', permissions },
+          _id: userId, isActive: true, roleId: { _id: userId, name: 'Super Admin', permissions },
         })),
       }));
     });
