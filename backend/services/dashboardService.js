@@ -2,6 +2,8 @@ const {
   AuditLog, Expense, Order, Product, StockMovement, VendorLedger, VendorStatement,
 } = require('../models');
 
+const { buildTrends } = require('./dashboardTrends');
+
 const DHAKA_OFFSET_MS = 6 * 60 * 60 * 1000;
 const DEFAULT_LOW_STOCK_THRESHOLD = 10;
 const RECENT_ACTIVITY_LIMIT = 10;
@@ -89,6 +91,7 @@ async function getDashboard({ now = new Date(), lowStockThreshold = DEFAULT_LOW_
     })),
     vendorPayablesDue: money(sumCents(statements, (statement) => statement.netPayable)),
     monthExpenses: money(sumCents(monthExpenses, (expense) => expense.amount)),
+    ...buildTrends(orders, expenses, now),
     generatedAt: now,
   };
 }

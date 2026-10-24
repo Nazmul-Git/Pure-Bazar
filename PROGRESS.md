@@ -319,3 +319,8 @@
 	- Files: frontend/src/app/globals.css, frontend/src/app/theme.css, frontend/src/components/pos/hold-sale-modal.jsx, frontend/src/components/pos/held-sales.jsx.
 	- Decisions: Primary buttons use #F58220 with #E07318 hover, white text, and orange focus/active rings; navigation accents remain Pure Green #82C341; POS modal confirmation and restore actions use shared primary/neutral button variants.
 	- Validation: Frontend production build passes.
+
+- [x] Enhance dashboard with dynamic Recharts visualizations and modern KPI cards
+	- Files: backend/services/{dashboardTrends,dashboardService}.js, frontend/src/components/dashboard/{dashboard-screen,dashboard-charts}.jsx, dashboard.css, frontend/package.json (recharts).
+	- Decisions: dashboard API now also returns salesTrend (daily 14d / weekly 8w / monthly 6m), monthlyFinance (revenue vs expenses, 6 months) and yesterdaySales, all Asia/Dhaka and cent-rounded; Area chart with #82C341 to #F58220 gradients and Daily/Weekly/Monthly toggle; payment donut with custom tooltip and legend; grouped revenue/expense bars; KPI cards tinted with glow icons and "vs yesterday" badge on Today's sales (other cards have no prior-period data, so no invented percentages); fixed-height chart boxes avoid layout shift; stock and activity cards have status badges and orange action links (Restock, View all).
+	- Validation: dashboard integration tests pass; frontend production build passes.
