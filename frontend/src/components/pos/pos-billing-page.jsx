@@ -14,6 +14,8 @@ import {
 } from './held-sales';
 import HoldSaleModal from './hold-sale-modal';
 import billingUtils from '@/services/pos-billing-utils.cjs';
+import { STOCK_LIMIT_MESSAGE, clampQuantity, hasStockProblem } from '@/services/pos-cart-utils.cjs';
+import InvoiceModal from './invoice-modal';
 
 const { createPreviewPayload, paymentTotalMatches } = billingUtils;
 const WALLET_DISCOUNT_RATE = 0.05;
@@ -38,6 +40,17 @@ export default function PosBillingPage() {
   const [successMessage, setSuccessMessage] = useState('');
   const [heldOpen, setHeldOpen] = useState(false);
   const [holdOpen, setHoldOpen] = useState(false);
+  const [toast, setToast] = useState('');
+  const [receipt, setReceipt] = useState(null);
+  const itemsRef = useRef(items);
+  itemsRef.current = items;
+  const toastTimer = useRef(null);
+  const showToast = useCallback((message) => {
+    setToast(message);
+    clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(''), 3500);
+  }, []);
+  useEffect(() => () => clearTimeout(toastTimer.current), []);
   const { held, hold, remove: discardHeld } = useHeldSales();
   const latestPreview = useRef(0);
   const selectedMethods = methods.includes('WALLET') ? ['WALLET'] : methods;
@@ -99,26 +112,39 @@ export default function PosBillingPage() {
 
   const addItem = useCallback((product) => {
     setSuccessMessage('');
+    const stock = Math.floor(Number(product.stock) || 0);
+    const existing = itemsRef.current.find((item) => item.productId === String(product.productId));
+    if (stock < 1 || (existing && Number(existing.quantity) >= stock)) {
+      showToast(STOCK_LIMIT_MESSAGE);
+      if (stock < 1 && !existing) return;
+    }
     setItems((current) => {
       const found = current.find((item) => item.productId === String(product.productId));
       if (found) {
+        if (Number(found.quantity) >= stock) return current;
         return current.map((item) => item.productId === found.productId
-          ? { ...item, quantity: Number(item.quantity) + 1 }
+          ? { ...item, stock, quantity: Number(item.quantity) + 1 }
           : item);
       }
+      if (stock < 1) return current;
       return [...current, {
         productId: String(product.productId),
         name: product.name,
         barcode: product.barcode,
         mrp: Number(product.mrp),
+        stock,
         quantity: 1,
         discount: null,
       }];
     });
-  }, []);
+  }, [showToast]);
 
-  function updateQuantity(productId, quantity) {
-    setItems((current) => current.map((item) => item.productId === productId ? { ...item, quantity } : item));
+  function updateQuantity(productId, value) {
+    const target = items.find((item) => item.productId === productId);
+    if (!target) return;
+    const { quantity, limited } = clampQuantity(value, target.stock);
+    if (limited) showToast(STOCK_LIMIT_MESSAGE);
+    setItems((current) => current.map((item) => item.productId === productId ? { ...item, quantity: Math.max(quantity, 1) } : item));
   }
 
   function updateItemDiscount(productId, patch) {
@@ -165,6 +191,7 @@ export default function PosBillingPage() {
       setAmounts({});
       setDiscountApproved(false);
       setBill(null);
+      if (data.receipt) setReceipt(data.receipt);
     } catch (error) {
       if (error.response?.status === 409 && error.response.data?.sufficient === false) {
         setMethods(['CASH']);
@@ -228,7 +255,7 @@ export default function PosBillingPage() {
   const approvalReady = !bill?.discountApprovalRequired || (canApprove && discountApproved);
   const canCheckout = canWrite && items.length > 0 && bill && !previewLoading && !previewError
     && !formError && !checkoutLoading && selectedMethods.length > 0
-    && paymentsMatch && approvalReady;
+    && paymentsMatch && approvalReady && !hasStockProblem(items);
 
   if (!initialized) return <p role="status" className="py-10 text-center">Loading your POS session...</p>;
   if (!token || !canRead) return <p role="alert" className="rounded bg-red-50 p-4 text-red-800">You do not have permission to view the POS.</p>;
@@ -247,6 +274,8 @@ export default function PosBillingPage() {
           <HeldBillsButton count={held.length} onClick={() => setHeldOpen(true)} />
         </div>
       </header>
+      {toast && <div role="alert" className="fixed right-4 top-4 z-50 rounded-lg bg-red-600 px-4 py-3 text-sm font-medium text-white shadow-lg">{toast}</div>}
+      {receipt && <InvoiceModal receipt={receipt} onClose={() => setReceipt(null)} />}
       {holdOpen && <HoldSaleModal onConfirm={confirmHold} onCancel={() => setHoldOpen(false)} />}
       {heldOpen && <HeldBillsModal held={held} onRestore={restoreSale} onDiscard={discardHeld} onClose={() => setHeldOpen(false)} />}
       {successMessage && <p role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900">{successMessage}</p>}

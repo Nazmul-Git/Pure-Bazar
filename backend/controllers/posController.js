@@ -1,28 +1,8 @@
-const {
-  Product, Shareholder, WalletAuditLog,
-} = require('../models');
+const { Shareholder, WalletAuditLog } = require('../models');
+const { scanItem, searchItems } = require('../services/posCatalogService');
 const probashiWalletService = require('../services/probashiWalletService');
 const { loadBill, billOutput, statusError } = require('../services/posBillService');
 const posCheckoutService = require('../services/posCheckoutService');
-
-async function scanItem(req, res, next) {
-  try {
-    const product = await Product.findOne({ barcode: req.params.barcode }).lean();
-    if (!product) throw statusError('Product barcode was not found', 404);
-    return res.json({
-      success: true,
-      item: {
-        productId: product._id,
-        name: product.name,
-        barcode: product.barcode,
-        mrp: product.mrp,
-        vendorPrice: product.vendorPrice,
-      },
-    });
-  } catch (error) {
-    return next(error);
-  }
-}
 
 async function buildBill(req, res, next) {
   try {
@@ -71,6 +51,7 @@ module.exports = {
   buildBill,
   finalizeBill: posCheckoutService.finalizeBill,
   scanItem,
+  searchItems,
   syncOfflineBill: posCheckoutService.syncOfflineBill,
   verifyMember,
 };

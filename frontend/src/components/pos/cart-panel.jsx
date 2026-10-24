@@ -22,7 +22,7 @@ export default function CartPanel({ items, onQuantity, onRemove, onDiscount }) {
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <h3 className="truncate font-medium text-slate-900">{item.name}</h3>
-                  <p className="text-xs text-slate-500">{item.barcode} · ৳{money(item.mrp)} each</p>
+                  <p className="text-xs text-slate-500">{item.barcode} · ৳{money(item.mrp)} each · {item.stock} in stock</p>
                 </div>
                 <button
                   type="button"
@@ -37,26 +37,29 @@ export default function CartPanel({ items, onQuantity, onRemove, onDiscount }) {
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    className="rounded border border-slate-300 p-2"
+                    className="rounded border border-slate-300 p-2 disabled:opacity-40"
                     aria-label={`Decrease ${item.name} quantity`}
-                    onClick={() => onQuantity(item.productId, Math.max(0.01, Number(item.quantity) - 1))}
+                    onClick={() => onQuantity(item.productId, Number(item.quantity) - 1)}
+                    disabled={Number(item.quantity) <= 1}
                   >
                     <Minus size={14} />
                   </button>
                   <Input
                     label="Qty"
                     type="number"
-                    min="0.01"
-                    step="0.01"
+                    min="1"
+                    max={item.stock}
+                    step="1"
                     value={item.quantity}
                     onChange={(event) => onQuantity(item.productId, event.target.value)}
                     className="w-24"
                   />
                   <button
                     type="button"
-                    className="rounded border border-slate-300 p-2"
+                    className="rounded border border-slate-300 p-2 disabled:opacity-40"
                     aria-label={`Increase ${item.name} quantity`}
                     onClick={() => onQuantity(item.productId, Number(item.quantity) + 1)}
+                    disabled={Number(item.quantity) >= Number(item.stock)}
                   >
                     <Plus size={14} />
                   </button>

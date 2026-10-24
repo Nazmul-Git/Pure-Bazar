@@ -60,6 +60,9 @@ router.post('/:orderId/return', write, [
     value.walletRefunded === true || !value.walletRefundMethod
   )).withMessage('walletRefundMethod requires walletRefunded to be true'),
 ], validateRequest, posHistoryController.returnBill);
+router.get('/search', read, [
+  query('q').isString().trim().isLength({ min: 1, max: 100 }),
+], validateRequest, posController.searchItems);
 router.get('/scan/:barcode', read, [
   param('barcode').isString().trim().isLength({ min: 1, max: 100 }),
 ], validateRequest, posController.scanItem);
