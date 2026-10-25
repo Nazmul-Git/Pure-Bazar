@@ -26,6 +26,13 @@ const optionalId = (field) => body(field).optional({ nullable: true }).isMongoId
 const optionalPrice = (field) => body(field).optional().isFloat({ min: 0 }).toFloat()
   .withMessage(`${field} must be zero or greater`);
 
+const pieceRules = [
+  body('unitsPerPackage').optional({ nullable: true }).isInt({ min: 1 }).toInt()
+    .withMessage('unitsPerPackage must be a whole number of 1 or more'),
+  body('subUnitPriceOverride').optional({ nullable: true }).isFloat({ min: 0 }).toFloat()
+    .withMessage('subUnitPriceOverride must be zero or greater'),
+];
+
 router.get('/', read, productsController.listProducts);
 router.post('/', write, [
   name, categoryId, unitId, ownerType, vendorPrice, mrp,
@@ -34,6 +41,7 @@ router.post('/', write, [
     .withMessage('vatApplicable must be a boolean'),
   optionalPrice('vatRate').custom((value) => value === undefined || value <= 100)
     .withMessage('vatRate must be between 0 and 100'),
+  ...pieceRules,
 ], validateRequest, productsController.createProduct);
 router.get('/:id', read, [id], validateRequest, productsController.getProduct);
 router.put('/:id', write, [
@@ -53,6 +61,7 @@ router.put('/:id', write, [
     .withMessage('vatApplicable must be a boolean'),
   optionalPrice('vatRate').custom((value) => value === undefined || value <= 100)
     .withMessage('vatRate must be between 0 and 100'),
+  ...pieceRules,
   body('reason').optional().isString().trim().isLength({ min: 1, max: 500 })
     .withMessage('Reason must be 1 to 500 characters'),
 ], validateRequest, productsController.updateProduct);

@@ -23,6 +23,8 @@ const emptyForm = {
   unitValue: '',
   vatApplicable: false,
   vatRate: '',
+  unitsPerPackage: '',
+  subUnitPriceOverride: '',
 };
 
 const money = (value) => new Intl.NumberFormat('en-BD', {
@@ -59,6 +61,13 @@ export default function ProductFormModal({
   const warningAmount = hasPrices ? roundedMoney(roundedMrp * discountPercent / 100) : 0;
   const marginWarning = margin !== null && margin >= 0 && margin < warningAmount;
   const invalidMrp = hasPrices && mrp < vendorPrice;
+  const unitsPerPackage = Number(form.unitsPerPackage);
+  const hasPieces = Number.isInteger(unitsPerPackage) && unitsPerPackage > 1 && hasPrices;
+  const autoPiecePrice = hasPieces
+    ? Math.ceil(Math.round(roundedMrp * 100) / unitsPerPackage - 1e-9) / 100
+    : null;
+  const overrideValue = form.subUnitPriceOverride === '' ? null : roundedMoney(Number(form.subUnitPriceOverride));
+  const invalidOverride = hasPieces && overrideValue !== null && overrideValue < autoPiecePrice;
 
   useEffect(() => {
     if (!open) return undefined;
@@ -113,6 +122,11 @@ export default function ProductFormModal({
       return;
     }
 
+    if (invalidOverride) {
+      setError(`Piece price cannot be below the margin-safe price of ${money(autoPiecePrice)}.`);
+      return;
+    }
+
     const payload = {
       name: form.name.trim(),
       categoryId: form.categoryId,
@@ -123,6 +137,8 @@ export default function ProductFormModal({
       ...(form.ownerType === 'VENDOR' ? { vendorId: form.vendorId.trim() } : {}),
       vendorPrice: roundedVendorPrice,
       mrp: roundedMrp,
+      ...(hasPieces ? { unitsPerPackage } : {}),
+      ...(hasPieces && overrideValue !== null ? { subUnitPriceOverride: overrideValue } : {}),
       vatApplicable: form.vatApplicable,
       ...(form.vatApplicable && form.vatRate !== '' ? { vatRate: Number(form.vatRate) } : {}),
     };
@@ -218,6 +234,18 @@ export default function ProductFormModal({
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
+            <Input label="Pieces per package" name="unitsPerPackage" type="number" min="1" step="1" value={form.unitsPerPackage} onChange={(event) => update('unitsPerPackage', event.target.value)} />
+            <Input label="Custom piece price (৳, optional)" name="subUnitPriceOverride" type="number" min="0" step="0.01" value={form.subUnitPriceOverride} onChange={(event) => update('subUnitPriceOverride', event.target.value)} disabled={!hasPieces} />
+          </div>
+          {hasPieces && (
+            <p role="status" className={`text-xs ${invalidOverride ? 'text-red-700' : 'text-slate-600'}`}>
+              {invalidOverride
+                ? `Custom piece price must be at least ${money(autoPiecePrice)}.`
+                : `Piece price: ${money(overrideValue ?? autoPiecePrice)}${overrideValue === null ? ' (rounded up automatically)' : ' (custom)'}`}
+            </p>
+          )}
+
+          <div className="grid gap-4 sm:grid-cols-2">
             <label className="flex min-h-10 items-center gap-2 text-sm font-medium text-slate-700">
               <input type="checkbox" name="vatApplicable" checked={form.vatApplicable} onChange={(event) => update('vatApplicable', event.target.checked)} />
               VAT applicable
@@ -228,7 +256,7 @@ export default function ProductFormModal({
           {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{error}</p>}
           <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
             <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
-            <Button type="submit" disabled={saving || catalogLoading || !hasPrices || invalidMrp}>{saving ? 'Saving...' : 'Save product'}</Button>
+            <Button type="submit" disabled={saving || catalogLoading || !hasPrices || invalidMrp || invalidOverride}>{saving ? 'Saving...' : 'Save product'}</Button>
           </div>
         </form>
       </Modal>

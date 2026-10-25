@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { calculateSubUnitPrice, effectiveSubUnitPrice } = require('../utils/piecePricing');
 const { generateEan13Barcode, isValidEan13 } = require('../utils/productIdentifiers');
 
 const productSchema = new mongoose.Schema({
@@ -12,6 +13,9 @@ const productSchema = new mongoose.Schema({
   vendorPrice: { type: Number, required: true, min: 0 },
   mrp: { type: Number, required: true, min: 0 },
   margin: { type: Number, min: 0 },
+  unitsPerPackage: { type: Number, min: 1, validate: { validator: Number.isInteger, message: 'Units per package must be a whole number' } },
+  subUnitPriceOverride: { type: Number, min: 0 },
+  subUnitPrice: { type: Number, min: 0 },
   vatApplicable: { type: Boolean, default: false },
   vatRate: { type: Number, min: 0, max: 100 },
   barcode: {
@@ -29,6 +33,16 @@ const productSchema = new mongoose.Schema({
 productSchema.pre('validate', function calculateMargin() {
   if (Number.isFinite(this.mrp) && Number.isFinite(this.vendorPrice)) {
     this.margin = Math.round((this.mrp - this.vendorPrice + Number.EPSILON) * 100) / 100;
+  }
+  if (this.unitsPerPackage > 1 && Number.isFinite(this.mrp)) {
+    const floor = calculateSubUnitPrice(this.mrp, this.unitsPerPackage);
+    if (Number.isFinite(this.subUnitPriceOverride) && this.subUnitPriceOverride < floor) {
+      this.invalidate('subUnitPriceOverride', `Piece price cannot be below the margin-safe price of ${floor.toFixed(2)}`);
+    }
+    this.subUnitPrice = effectiveSubUnitPrice(this);
+  } else {
+    this.subUnitPrice = undefined;
+    this.subUnitPriceOverride = undefined;
   }
   if (this.ownerType === 'VENDOR' && !this.vendorId) {
     this.invalidate('vendorId', 'Vendor-owned products require a vendor');

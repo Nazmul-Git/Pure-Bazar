@@ -4,7 +4,7 @@ const {
 
 const editableFields = [
   'name', 'categoryId', 'brandId', 'unitId', 'unitValue', 'ownerType', 'vendorId',
-  'vendorPrice', 'mrp', 'vatApplicable', 'vatRate',
+  'vendorPrice', 'mrp', 'vatApplicable', 'vatRate', 'unitsPerPackage', 'subUnitPriceOverride',
 ];
 
 function statusError(message, status) {
@@ -34,6 +34,7 @@ function productSnapshot(product) {
   return Object.fromEntries([
     'name', 'categoryId', 'brandId', 'unitId', 'unitValue', 'ownerType', 'vendorId',
     'vendorPrice', 'mrp', 'margin', 'vatApplicable', 'vatRate', 'barcode',
+    'unitsPerPackage', 'subUnitPriceOverride', 'subUnitPrice',
   ].filter((field) => data[field] !== undefined)
     .map((field) => [field, data[field]?.toString && field.endsWith('Id') ? data[field].toString() : data[field]]));
 }

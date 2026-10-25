@@ -117,8 +117,8 @@ async function commitBill(req, res, next, offline) {
     let order;
     await session.withTransaction(async () => {
       const quantities = new Map();
-      result.lines.forEach(({ item }) => {
-        quantities.set(item.productId, (quantities.get(item.productId) || 0) + item.quantity);
+      result.lines.forEach(({ item, pricing }) => {
+        quantities.set(item.productId, (quantities.get(item.productId) || 0) + pricing.stockQuantity);
       });
       const stock = await StockMovement.aggregate([
         {
@@ -140,13 +140,13 @@ async function commitBill(req, res, next, offline) {
         ...(offline ? { offlineId: req.body.offlineId, soldAt: saleDate } : {}),
         channel: 'POS',
         lines: result.bill.ledgerLines.map((line, index) => {
-          const { item, product } = result.lines[index];
+          const { item, product, pricing } = result.lines[index];
           return {
             productId: product._id,
             productName: product.name,
             barcode: product.barcode,
             quantity: line.quantity,
-            mrp: product.mrp,
+            mrp: pricing.unitPrice,
             subtotal: line.subtotal,
             itemDiscountAmount: line.itemDiscountAmount,
             billDiscountAmount: line.billDiscountAmount,

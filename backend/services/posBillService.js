@@ -3,6 +3,7 @@ const {
   Category, Product, Settings, Shareholder,
 } = require('../models');
 const { calculateBill } = require('./billEngine');
+const { linePricing } = require('../utils/piecePricing');
 
 const methods = ['CASH', 'BKASH', 'NAGAD', 'CARD', 'WALLET'];
 const manualDiscountSchema = Joi.object({
@@ -20,6 +21,7 @@ const billSchema = Joi.object({
   items: Joi.array().min(1).items(Joi.object({
     productId: Joi.string().hex().length(24).lowercase().required(),
     quantity: Joi.number().positive().required(),
+    unit: Joi.string().valid('PACKAGE', 'PIECE'),
     discount: manualDiscountSchema.optional(),
   }).unknown(false)).required(),
   payments: Joi.array().min(1).items(Joi.object({
@@ -83,16 +85,24 @@ async function loadBill(body, user, settingsInput) {
   const verifiedMember = shareholder?.verified === true && shareholder.active === true;
   const walletEligible = verifiedMember && shareholder.walletEnabled === true;
   const settings = settingsInput || await loadSettings();
+  const pricing = body.items.map((item) => {
+    const linePrice = linePricing(productsById.get(item.productId), item);
+    if (!linePrice) throw statusError('Product cannot be sold by the piece');
+    if (item.unit === 'PIECE' && !Number.isInteger(item.quantity)) {
+      throw statusError('Piece quantity must be a whole number');
+    }
+    return linePrice;
+  });
   const bill = calculateBill({
-    items: body.items.map((item) => {
+    items: body.items.map((item, index) => {
       const product = productsById.get(item.productId);
       return {
         productId: product._id,
         vendorId: product.vendorId,
         ownerType: product.ownerType,
         quantity: item.quantity,
-        mrp: product.mrp,
-        vendorPrice: product.vendorPrice,
+        mrp: pricing[index].unitPrice,
+        vendorPrice: pricing[index].unitVendorPrice,
         vatApplicable: product.vatApplicable,
         vatRate: product.vatRate,
         categoryVatRate: categoryRates.get(product.categoryId?.toString()),
@@ -112,7 +122,9 @@ async function loadBill(body, user, settingsInput) {
   }
   return {
     bill,
-    lines: body.items.map((item) => ({ item, product: productsById.get(item.productId) })),
+    lines: body.items.map((item, index) => ({
+      item, product: productsById.get(item.productId), pricing: pricing[index],
+    })),
     payments,
     shareholder,
     verifiedMember,

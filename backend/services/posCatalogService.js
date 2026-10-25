@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const { Product, StockMovement } = require('../models');
 const { statusError } = require('./posBillService');
 const { resolveOutlet } = require('./posCheckoutService');
+const { effectiveSubUnitPrice } = require('../utils/piecePricing');
 
 async function stockByProduct(outletId, productIds) {
   if (!productIds.length) return new Map();
@@ -24,7 +25,9 @@ function toItem(product, stock) {
     barcode: product.barcode,
     mrp: product.mrp,
     vendorPrice: product.vendorPrice,
-    stock: stock.get(String(product._id)) || 0,
+        subUnitPrice: effectiveSubUnitPrice(product) ?? undefined,
+        unitsPerPackage: product.unitsPerPackage,
+        stock: stock.get(String(product._id)) || 0,
   };
 }
 
