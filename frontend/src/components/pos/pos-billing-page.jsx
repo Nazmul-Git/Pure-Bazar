@@ -130,7 +130,7 @@ export default function PosBillingPage() {
       if (stock < 1) return current;
       return [...current, {
         productId: String(product.productId),
-        name: product.name,
+        name: product.displayName || product.name,
         barcode: product.barcode,
         mrp: Number(product.mrp),
         stock,

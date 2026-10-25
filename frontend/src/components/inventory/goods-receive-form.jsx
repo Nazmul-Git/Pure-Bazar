@@ -107,7 +107,7 @@ export default function GoodsReceiveForm() {
       if (current.some((line) => line.productId === product.id)) return current;
       return [...current, {
         productId: product.id,
-        productName: product.name,
+        productName: product.displayName || product.name,
         barcode: product.barcode,
         receivedQuantity: 1,
         acceptedQuantity: 1,
@@ -264,7 +264,7 @@ export default function GoodsReceiveForm() {
                 disabled={lines.some((line) => line.productId === product.id)}
               >
                 <span>
-                  <strong className="block text-sm text-slate-800">{product.name}</strong>
+                  <strong className="block text-sm text-slate-800">{product.displayName || product.name}</strong>
                   <small className="text-slate-500">{product.barcode}</small>
                 </span>
                 <span className="whitespace-nowrap text-xs text-slate-500">

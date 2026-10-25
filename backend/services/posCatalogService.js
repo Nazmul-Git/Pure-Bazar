@@ -3,6 +3,7 @@ const { Product, StockMovement } = require('../models');
 const { statusError } = require('./posBillService');
 const { resolveOutlet } = require('./posCheckoutService');
 const { effectiveSubUnitPrice } = require('../utils/piecePricing');
+const { unitLabelMap, displayFields } = require('../utils/productDisplay');
 
 async function stockByProduct(outletId, productIds) {
   if (!productIds.length) return new Map();
@@ -18,10 +19,11 @@ async function stockByProduct(outletId, productIds) {
   return new Map(rows.map((row) => [row._id.toString(), Math.max(0, row.quantity)]));
 }
 
-function toItem(product, stock) {
+function toItem(product, stock, labels = new Map()) {
   return {
     productId: product._id,
     name: product.name,
+    ...displayFields(product, labels),
     barcode: product.barcode,
     mrp: product.mrp,
     vendorPrice: product.vendorPrice,
@@ -37,7 +39,7 @@ async function scanItem(req, res, next) {
     if (!product) throw statusError('Product barcode was not found', 404);
     const outletId = await resolveOutlet(req.query, req.user);
     const stock = await stockByProduct(outletId, [product._id]);
-    return res.json({ success: true, item: toItem(product, stock) });
+    return res.json({ success: true, item: toItem(product, stock, await unitLabelMap([product])) });
   } catch (error) {
     return next(error);
   }
@@ -53,7 +55,8 @@ async function searchItems(req, res, next) {
     }).sort({ name: 1 }).limit(10).lean();
     const outletId = await resolveOutlet(req.query, req.user);
     const stock = await stockByProduct(outletId, products.map((product) => product._id));
-    return res.json({ success: true, items: products.map((product) => toItem(product, stock)) });
+    const labels = await unitLabelMap(products);
+    return res.json({ success: true, items: products.map((product) => toItem(product, stock, labels)) });
   } catch (error) {
     return next(error);
   }

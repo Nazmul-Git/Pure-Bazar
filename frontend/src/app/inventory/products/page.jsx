@@ -13,7 +13,7 @@ const money = (value) => new Intl.NumberFormat('en-BD', {
 }).format(Number(value) || 0);
 
 const columns = [
-  { key: 'name', label: 'Product' },
+  { key: 'name', label: 'Product', render: (value, product) => product.displayName || value },
   { key: 'barcode', label: 'Barcode' },
   { key: 'ownerType', label: 'Owner', render: (value) => value === 'VENDOR' ? 'Vendor' : 'Company' },
   { key: 'vendorPrice', label: 'Vendor price', render: money },

@@ -1,6 +1,7 @@
 const {
   AuditLog, Brand, Category, PriceHistory, Product, Settings, Unit, Vendor,
 } = require('../models');
+const { unitLabelMap, displayFields } = require('../utils/productDisplay');
 
 const editableFields = [
   'name', 'categoryId', 'brandId', 'unitId', 'unitValue', 'ownerType', 'vendorId',
@@ -39,11 +40,12 @@ function productSnapshot(product) {
     .map((field) => [field, data[field]?.toString && field.endsWith('Id') ? data[field].toString() : data[field]]));
 }
 
-function productOutput(product, discountPercent) {
+function productOutput(product, discountPercent, labels = new Map()) {
   const data = productData(product);
   const maximumDiscount = Math.round((data.mrp * discountPercent / 100 + Number.EPSILON) * 100) / 100;
   const result = productSnapshot(data);
   result.id = data._id.toString();
+  Object.assign(result, displayFields(data, labels));
   result.marginWarning = data.margin < maximumDiscount;
   result.createdAt = data.createdAt;
   result.updatedAt = data.updatedAt;
@@ -87,9 +89,10 @@ async function listProducts(req, res, next) {
       Product.find().sort({ name: 1 }).lean(),
       discountPercent(),
     ]);
+    const labels = await unitLabelMap(products);
     return res.json({
       success: true,
-      products: products.map((product) => productOutput(product, percent)),
+      products: products.map((product) => productOutput(product, percent, labels)),
       marginWarningPercent: percent,
     });
   } catch (error) {
@@ -104,7 +107,8 @@ async function getProduct(req, res, next) {
       discountPercent(),
     ]);
     if (!product) throw statusError('Product not found', 404);
-    return res.json({ success: true, product: productOutput(product, percent) });
+    const labels = await unitLabelMap([product]);
+    return res.json({ success: true, product: productOutput(product, percent, labels) });
   } catch (error) {
     return next(error);
   }
@@ -126,7 +130,7 @@ async function createProduct(req, res, next) {
     });
     return res.status(201).json({
       success: true,
-      product: productOutput(product, await discountPercent()),
+      product: productOutput(product, await discountPercent(), await unitLabelMap([product])),
     });
   } catch (error) {
     return handleError(error, next);
@@ -174,7 +178,7 @@ async function updateProduct(req, res, next) {
 
     return res.json({
       success: true,
-      product: productOutput(product, await discountPercent()),
+      product: productOutput(product, await discountPercent(), await unitLabelMap([product])),
     });
   } catch (error) {
     return handleError(error, next);

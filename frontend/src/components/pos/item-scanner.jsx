@@ -99,7 +99,7 @@ export default function ItemScanner({ onAdd }) {
                 className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left hover:bg-slate-50"
               >
                 <span className="min-w-0">
-                  <span className="block truncate text-sm font-medium text-slate-900">{item.name}</span>
+                  <span className="block truncate text-sm font-medium text-slate-900">{item.displayName || item.name}</span>
                   <span className="flex items-center gap-1 text-xs text-slate-500"><Barcode size={12} /> {item.barcode}</span>
                 </span>
                 <span className="shrink-0 text-right text-xs">

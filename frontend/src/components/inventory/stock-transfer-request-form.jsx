@@ -68,7 +68,7 @@ export default function StockTransferRequestForm({
         : item);
       return [...current, {
         productId: product.id,
-        productName: product.name,
+        productName: product.displayName || product.name,
         barcode: product.barcode,
         stockQuantity,
         requestedQuantity: 1,
@@ -152,7 +152,7 @@ export default function StockTransferRequestForm({
             {searchError && <p role="alert" className="mt-1 text-xs text-red-700">{searchError}</p>}
             {matches.length > 0 && <div className="absolute z-10 mt-1 max-h-52 w-full overflow-y-auto rounded border border-slate-200 bg-white shadow-lg">
               {matches.map((product) => <button key={product.id} type="button" className="block w-full border-b border-slate-100 px-3 py-2 text-left hover:bg-slate-50" onClick={() => addRequestProduct(product)}>
-                <span className="block text-sm font-medium">{product.name}</span>
+                <span className="block text-sm font-medium">{product.displayName || product.name}</span>
                 <small className="text-slate-500">{product.barcode} · Central Warehouse stock: {product.stockQuantity}</small>
               </button>)}
             </div>}

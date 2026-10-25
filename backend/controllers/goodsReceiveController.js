@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const {
   AuditLog, GoodsReceive, Location, Product, StockMovement, Vendor,
 } = require('../models');
+const { unitLabelMap, displayFields } = require('../utils/productDisplay');
 
 function statusError(message, status) {
   const error = new Error(message);
@@ -107,15 +108,17 @@ async function searchProducts(req, res, next) {
         filter._id = { $in: grouped.filter(({ quantity }) => quantity > 0).map(({ _id }) => _id) };
       }
     }
-    let productQuery = Product.find(filter).select('_id name barcode ownerType vendorId')
+    let productQuery = Product.find(filter)    .select('_id name unitId barcode ownerType vendorId')
       .sort({ name: 1 });
     if (warehouseId) productQuery = productQuery.limit(Math.min(Number(req.query.limit) || 10, 10));
     const products = await productQuery.lean();
+    const labels = await unitLabelMap(products);
     return res.json({
       success: true,
       products: products.map((product) => ({
         id: product._id.toString(),
         name: product.name,
+        ...displayFields(product, labels),
         barcode: product.barcode,
         ownerType: product.ownerType,
         vendorId: product.vendorId?.toString() || null,

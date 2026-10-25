@@ -355,3 +355,6 @@
 - [x] Retail Piece Price label/placeholder
 	- Files: frontend/src/components/inventory/product-form-modal.jsx.
 	- Decisions: label 'Retail Piece Price (Optional)', bilingual placeholder; empty value already falls back to MRP / piecesPerPackage (rounded up).
+- [x] Unit in product display name
+	- Files: backend/utils/productDisplay.js; productsController, posCatalogService, goodsReceiveController (add unitLabel + displayName); products page, POS scanner/cart, GRN and transfer forms use displayName.
+	- Decisions: stored product name unchanged; display is 'Name [UnitAbbreviation]'. Backend tests pass except pre-existing locations test (isActive field).

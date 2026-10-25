@@ -9,7 +9,7 @@ jest.mock('../models', () => ({
   PriceHistory: { create: jest.fn() },
   Product: { create: jest.fn(), find: jest.fn(), findById: jest.fn() },
   Settings: { findOne: jest.fn() },
-  Unit: { exists: jest.fn() },
+  Unit: { exists: jest.fn(), find: jest.fn() },
   User: { findById: jest.fn() },
   Vendor: { exists: jest.fn() },
 }));
@@ -82,6 +82,13 @@ describe('product endpoints', () => {
     AuditLog.create.mockResolvedValue({});
     PriceHistory.create.mockResolvedValue({});
     Product.find.mockReturnValue(chain([product]));
+    Unit.find.mockReturnValue({ select: () => ({ lean: () => Promise.resolve([{ _id: unitId, name: 'Box', abbreviation: 'Box' }]) }) });
+  });
+
+  it('adds the unit to the display name without changing the stored name', async () => {
+    const response = await request(app).get('/api/products').set(auth);
+
+    expect(response.body.products[0]).toMatchObject({ name: 'Rice', unitLabel: 'Box', displayName: 'Rice [Box]' });
   });
 
   it('lists products with calculated margin warning and VAT data', async () => {
