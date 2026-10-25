@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const { AuditLog, Settings } = require('../models');
+const { AuditLog, Location, Settings } = require('../models');
 
 const paymentMethods = ['Cash', 'Bank', 'bKash', 'Nagad', 'Card', 'Wallet'];
 const vendorPayoutMethods = ['Cash', 'Bank', 'bKash', 'Nagad'];
@@ -56,6 +56,16 @@ function termsMatch(existing, incoming) {
     && new Date(existing.effectiveFrom).getTime() === new Date(incoming.effectiveFrom).getTime();
 }
 
+async function syncOutletLocations(outlets) {
+  const names = [...new Set(outlets.map((outlet) => String(outlet.name || '').trim()).filter(Boolean))];
+  await Promise.all(names.map((name) => Location.findOneAndUpdate(
+    { type: 'OUTLET', name },
+    { $set: { isActive: true }, $setOnInsert: { type: 'OUTLET', name } },
+    { upsert: true, runValidators: true, setDefaultsOnInsert: true },
+  )));
+  await Location.updateMany({ type: 'OUTLET', name: { $nin: names } }, { $set: { isActive: false } });
+}
+
 async function getSettings(req, res, next) {
   try {
     const settings = await Settings.findOne({ singleton: 'global' }).lean();
@@ -107,6 +117,7 @@ async function updateSettings(req, res, next) {
       { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true },
     );
     const after = settingsResponse(settings);
+    if (value.outlets) await syncOutletLocations(value.outlets);
     await AuditLog.create({
       actorId: req.user._id,
       action: 'UPDATE',

@@ -138,6 +138,10 @@
 	- Files: Replaced the transfer product dropdown with barcode scanning and server-side product search; added Central Warehouse stock display and request quantity limits; enforced transfer request stock and whole-number quantity limits in the API with integration tests.
 	- Decisions: Reuse the existing stock product search API and barcode scanner hook; debounce search by 300 ms and request at most 10 results; check requested totals against movement-derived Central Warehouse stock inside the transfer transaction.
 	- Validation: Full backend Jest suite passes (17 suites, 86 tests); frontend production build passes. Goods Receive already uses a server-searched product list with a 250 ms debounce, while Barcode Labels loads and filters the full product catalog client-side; neither screen was changed.
+- [x] Fix outlet transfers dropdown to load dynamic outlets from settings
+	- Files: settingsController.js (syncs saved outlets into OUTLET Locations, deactivates removed ones), locationController.js (returns isActive), stock-transfers-page.jsx (dropdown shows active outlets only), test in settings.integration.test.js.
+	- Decisions: Transfers use Location ids, so Settings outlets are mirrored by name into Locations on save; removed outlets are deactivated, not deleted, to keep transfer history.
+	- Validation: Settings and stock tests pass.
 - [x] Goods Receive auto challan and vendor product auto-load
 	- Files: `GET /api/stock/vendors/:id/next-challan` (goodsReceiveController, stockRoutes), `getNextChallanNumber` in services/stock.js, goods-receive-form.jsx, test in goods-receive.integration.test.js.
 	- Decisions: Challan is CHN-{vendor memberId}-{count+1, 4 digits}, bumped until unused; field stays editable. Selecting a vendor immediately lists all its products; the search box filters them server-side (250 ms debounce).

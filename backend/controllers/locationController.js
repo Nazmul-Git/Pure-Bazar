@@ -10,6 +10,7 @@ async function listLocations(req, res, next) {
         id: location._id.toString(),
         type: location.type,
         name: location.name,
+        isActive: location.isActive !== false,
       })),
     });
   } catch (error) {

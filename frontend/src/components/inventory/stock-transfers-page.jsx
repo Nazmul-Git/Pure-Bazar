@@ -56,7 +56,7 @@ export default function StockTransfersPage() {
         setTransfers(transferResponse.data.stockTransfers);
         setLocations(availableLocations);
         setSourceId(user?.locationId || availableLocations.find(({ type }) => type === 'CENTRAL')?.id || '');
-        setOutletId(availableLocations.find(({ type }) => type === 'OUTLET')?.id || '');
+        setOutletId(availableLocations.find(({ type, isActive }) => type === 'OUTLET' && isActive !== false)?.id || '');
       })
       .catch((requestError) => active && setError(
         requestError.response?.data?.message || 'Unable to load outlet transfers.',
@@ -70,7 +70,7 @@ export default function StockTransfersPage() {
   )), [statusFilter, transfers]);
   const selectedTransfer = transfers.find(({ id }) => id === selectedId);
   const sourceLocations = locations.filter(({ type }) => type === 'CENTRAL');
-  const outletLocations = locations.filter(({ type }) => type === 'OUTLET');
+  const outletLocations = locations.filter(({ type, isActive }) => type === 'OUTLET' && isActive !== false);
 
   function selectTransfer(transfer) {
     setSelectedId(transfer.id);

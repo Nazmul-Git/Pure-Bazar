@@ -26,9 +26,10 @@ jest.mock('../models', () => ({
     }),
   })), { findOne: jest.fn(), findOneAndUpdate: jest.fn() }),
   User: { findById: jest.fn() },
+  Location: { findOneAndUpdate: jest.fn(), updateMany: jest.fn() },
 }));
 
-const { AuditLog, Settings, User } = require('../models');
+const { AuditLog, Location, Settings, User } = require('../models');
 const settingsRoutes = require('../routes/settingsRoutes');
 const errorMiddleware = require('../middlewares/errorMiddleware');
 
@@ -100,12 +101,30 @@ describe('settings and audit endpoints', () => {
     Settings.findOne.mockReturnValue(chain(baseSettings));
     Settings.findOneAndUpdate.mockResolvedValue(baseSettings);
     AuditLog.create.mockResolvedValue({});
+    Location.findOneAndUpdate.mockResolvedValue({});
+    Location.updateMany.mockResolvedValue({});
     AuditLog.find.mockReturnValue({
       sort: jest.fn().mockReturnThis(),
       limit: jest.fn().mockReturnThis(),
       populate: jest.fn().mockReturnThis(),
       lean: jest.fn().mockResolvedValue([]),
     });
+  });
+
+  it('syncs saved outlets into OUTLET locations', async () => {
+    const outlets = [{ name: 'Gulshan', code: 'GUL' }];
+    Settings.findOneAndUpdate.mockResolvedValue(settingsDocument({ outlets }));
+    const response = await request(app).put('/api/settings').set(auth).send({ outlets });
+    expect(response.status).toBe(200);
+    expect(Location.findOneAndUpdate).toHaveBeenCalledWith(
+      { type: 'OUTLET', name: 'Gulshan' },
+      expect.objectContaining({ $set: { isActive: true } }),
+      expect.any(Object),
+    );
+    expect(Location.updateMany).toHaveBeenCalledWith(
+      { type: 'OUTLET', name: { $nin: ['Gulshan'] } },
+      { $set: { isActive: false } },
+    );
   });
 
   it('returns defaults and protects settings from unauthenticated or non-admin access', async () => {
