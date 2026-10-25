@@ -57,6 +57,7 @@
 	- Decisions: Receipt, role-discount, and outlet settings are edited with structured controls (role discount table, receipt fields, outlet add/edit/remove list) and serialized back to the same JSON shapes on save; prevent saving defaults if settings fail to load; show only Probashi status, never credentials.
 	- Update: Modernized settings page (files: settings-editors.jsx, settings-fields.jsx, settings-form.jsx) with Pure Green #82C341 accents; frontend build passes.
 	- Validation: Frontend production build passes; focused settings and audit API tests pass (1 suite, 5 tests); audit detail modal open and close behavior verified in the browser.
+	- Update: Audit log details modal is human-readable: the audit-logs API resolves user/product IDs to names (backend/services/auditResolver.js), the modal hides _id/__v, formats ISO dates (e.g. 25 Oct 2026, 07:57 PM) and title-cases labels; resolver unit test added.
 - [ ] 2.1
 - [x] 2.1a Category brand unit API
 	- Files: Inventory CRUD controller/routes, brand logo upload middleware and model fields, server route registration, and inventory API integration tests.

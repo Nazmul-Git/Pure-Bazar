@@ -10,10 +10,42 @@ function describeActor(actor) {
   return actor.name || actor.email || 'Unknown user';
 }
 
+const HIDDEN_KEYS = new Set(['_id', '__v', 'id']);
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:?\d{2})$/;
+
+function formatDateTime(date) {
+  const day = date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  const time = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+  return `${day}, ${time}`;
+}
+
 function formatValue(value) {
   if (value === null || value === undefined) return '—';
   if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+  if (typeof value === 'string' && ISO_DATE.test(value)) {
+    const date = new Date(value);
+    if (!Number.isNaN(date.getTime())) return formatDateTime(date);
+  }
   return String(value);
+}
+
+function titleCase(key) {
+  return key
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/[_-]+/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase())
+    .replace(/ Id$/, '');
+}
+
+function labelFromPath(path) {
+  return path
+    .split('.')
+    .map((segment) => {
+      const match = segment.match(/^(.*?)((?:\[\d+\])*)$/);
+      const indexes = (match[2].match(/\d+/g) || []).map((n) => ` ${Number(n) + 1}`).join('');
+      return `${titleCase(match[1])}${indexes}`;
+    })
+    .join(' › ');
 }
 
 function flattenValues(value, path = '', result = {}) {
@@ -21,7 +53,7 @@ function flattenValues(value, path = '', result = {}) {
     if (value.length === 0 && path) result[path] = '—';
     value.forEach((item, index) => flattenValues(item, `${path}[${index}]`, result));
   } else if (value && typeof value === 'object' && !(value instanceof Date)) {
-    const entries = Object.entries(value);
+    const entries = Object.entries(value).filter(([key]) => !HIDDEN_KEYS.has(key));
     if (entries.length === 0 && path) result[path] = '—';
     entries.forEach(([key, item]) => flattenValues(item, path ? `${path}.${key}` : key, result));
   } else if (path) {
@@ -42,10 +74,11 @@ function getChangeRows(log) {
   const changedRows = Array.from(new Set([...Object.keys(previous), ...Object.keys(next)]))
     .sort()
     .filter((key) => previous[key] !== next[key])
-    .map((key) => ({ key, previous: previous[key] || '—', next: next[key] || '—' }));
+    .map((key) => ({ key, label: labelFromPath(key), previous: previous[key] || '—', next: next[key] || '—' }));
   const metadata = flattenSnapshot(log.metadata);
   const metadataRows = Object.entries(metadata).map(([key, value]) => ({
     key: `Metadata.${key}`,
+    label: `Metadata › ${labelFromPath(key)}`,
     previous: '—',
     next: value,
   }));
@@ -67,7 +100,7 @@ function ChangeComparison({ log }) {
           <tbody>
             {rows.map((row) => (
               <tr key={row.key}>
-                <th scope="row" className="font-medium">{row.key}</th>
+                <th scope="row" className="font-medium">{row.label}</th>
                 <td className="whitespace-normal break-words">{row.previous}</td>
                 <td className="whitespace-normal break-words">{row.next}</td>
               </tr>
@@ -131,7 +164,7 @@ export default function AuditTrailPage() {
   }
 
   const columns = [
-    { key: 'createdAt', label: 'Date and time', render: (value) => new Date(value).toLocaleString() },
+    { key: 'createdAt', label: 'Date and time', render: (value) => formatDateTime(new Date(value)) },
     { key: 'actorId', label: 'User', render: (value) => describeActor(value) },
     { key: 'action', label: 'Action' },
     { key: 'entity', label: 'Area' },

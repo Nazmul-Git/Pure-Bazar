@@ -1,6 +1,6 @@
 const Joi = require('joi');
 const { AuditLog, Location, Settings } = require('../models');
-
+const { resolveAuditNames } = require('../services/auditResolver');
 const paymentMethods = ['Cash', 'Bank', 'bKash', 'Nagad', 'Card', 'Wallet'];
 const vendorPayoutMethods = ['Cash', 'Bank', 'bKash', 'Nagad'];
 const settingsInputSchema = Joi.object({
@@ -157,7 +157,7 @@ async function listAuditLogs(req, res, next) {
       .limit(100)
       .populate('actorId', 'name email')
       .lean();
-    return res.json({ success: true, auditLogs: logs });
+    return res.json({ success: true, auditLogs: await resolveAuditNames(logs) });
   } catch (error) {
     return next(error);
   }
