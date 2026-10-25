@@ -347,3 +347,7 @@
 	- Files: backend/utils/piecePricing.js, Product model/controller/routes (unitsPerPackage, subUnitPriceOverride, subUnitPrice), POS bill/checkout/catalog services (unit: PIECE), product form modal, backend/tests/piece-pricing.test.js.
 	- Decisions: piece price = ceil(MRP / pieces to the cent), e.g. 1000/30 = 33.34; manager override allowed but not below the rounded price; PIECE cart lines multiply pieces by that price and deduct pieces/unitsPerPackage from stock.
 	- Validation: 30 pieces of a BDT 1000 box total 1000.20; backend jest (37 suites) and frontend build pass.
+
+- [x] Retail Piece Price label/placeholder
+	- Files: frontend/src/components/inventory/product-form-modal.jsx.
+	- Decisions: label 'Retail Piece Price (Optional)', bilingual placeholder; empty value already falls back to MRP / piecesPerPackage (rounded up).

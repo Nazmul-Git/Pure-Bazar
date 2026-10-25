@@ -235,7 +235,7 @@ export default function ProductFormModal({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <Input label="Pieces per package" name="unitsPerPackage" type="number" min="1" step="1" value={form.unitsPerPackage} onChange={(event) => update('unitsPerPackage', event.target.value)} />
-            <Input label="Custom piece price (৳, optional)" name="subUnitPriceOverride" type="number" min="0" step="0.01" value={form.subUnitPriceOverride} onChange={(event) => update('subUnitPriceOverride', event.target.value)} disabled={!hasPieces} />
+            <Input label="Retail Piece Price (Optional)" placeholder="খুচরা পিস মূল্য (ঐচ্ছিক)" name="subUnitPriceOverride" type="number" min="0" step="0.01" value={form.subUnitPriceOverride} onChange={(event) => update('subUnitPriceOverride', event.target.value)} disabled={!hasPieces} />
           </div>
           {hasPieces && (
             <p role="status" className={`text-xs ${invalidOverride ? 'text-red-700' : 'text-slate-600'}`}>
