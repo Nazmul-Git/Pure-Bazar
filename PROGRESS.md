@@ -383,3 +383,7 @@
 - [x] Bilingual English/Bengali language switcher
 	- Files: frontend/src/i18n/ (language-provider.jsx, translate.js, bn*.js dictionaries), components/common/language-switcher.jsx (header, next to the bell), tests/i18n.test.mjs; sidebar/header/app-shell and ui primitives (Table, Modal, Button, Input, Select, Card, Badge) translate via a lookup; static page text wrapped in <T>.
 	- Decisions: English text is the dictionary key, unknown/dynamic text falls back to English; choice saved in localStorage (purebazar-language) and applied after hydration. Validation: 'npm test' in frontend passes (6 tests incl. a check that every <T> literal has a Bengali entry); frontend build passes; not browser-tested.
+
+- [x] Standardize dynamic toast notifications across all system modules
+	- Files: 27 pages/components (Expenses, Revenue Ledger, Payout Approval, Wallet Reconciliation, Vendors, Shareholders, HR & Payroll, Reports, Inventory, Roles) now call hooks/use-toast-messages and their inline error/notice banners were removed.
+	- Decisions: POS shift-close/returns/sales-history and small modal field errors keep inline text. Validation: frontend npm test and next build pass; not browser-tested.

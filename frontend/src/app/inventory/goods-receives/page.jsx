@@ -7,6 +7,7 @@ import { ArrowUpRight, Check, Plus } from 'lucide-react';
 import { Badge, Button, Card, Input, Table } from '@/components/ui';
 import { approveGoodsReceive, getGoodsReceives, getReceiveVendors } from '@/services/stock';
 import { T } from '@/i18n/language-provider';
+import useToastMessages from '@/hooks/use-toast-messages';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
 const formatDate = (value) => new Intl.DateTimeFormat('en-BD', { dateStyle: 'medium' }).format(new Date(value));
@@ -27,6 +28,7 @@ export default function GoodsReceivesPage() {
   const [loading, setLoading] = useState(true);
   const [approvingId, setApprovingId] = useState('');
   const [error, setError] = useState('');
+  useToastMessages({ error });
   const [search, setSearch] = useState('');
 
   useEffect(() => {
@@ -120,7 +122,6 @@ export default function GoodsReceivesPage() {
         </div>
         {canWrite && <Link href="/inventory/goods-receives/new" className="ui-button button-primary button-md"><Plus size={17} /> <T>{"New GRN"}</T></Link>}
       </div>
-      {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
       <Card title="Goods Receive Notes" description={`${receives.length} total GRN${receives.length === 1 ? '' : 's'}`}>
         <div className="mb-4 max-w-sm">
           <Input label="Search GRNs" name="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Challan, vendor, or status" />

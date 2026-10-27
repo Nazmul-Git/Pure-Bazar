@@ -7,6 +7,7 @@ import { ArrowLeft, CheckCircle2, RefreshCw } from 'lucide-react';
 import { Button, Card, Input, Select } from '@/components/ui';
 import { getCurrentVendorTerms, registerVendor } from '@/services/vendor';
 import { T } from '@/i18n/language-provider';
+import useToastMessages from '@/hooks/use-toast-messages';
 
 const emptyForm = {
   memberId: '',
@@ -32,6 +33,7 @@ export default function VendorRegisterForm() {
   const [accepted, setAccepted] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  useToastMessages({ error });
   const [registered, setRegistered] = useState(null);
 
   useEffect(() => {
@@ -108,7 +110,6 @@ export default function VendorRegisterForm() {
         )}
       </div>
 
-      {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
       {registered && (
         <p role="status" className="flex items-center gap-2 rounded border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
           <CheckCircle2 size={18} /> {registered.name} was registered as a vendor.

@@ -8,6 +8,7 @@ import { getVendorStatements, getVendors } from '@/services/vendor';
 import { approvePayoutBatch } from '@/services/finance';
 import { formatFinanceDate, formatFinanceMoney, sumMoneyCents } from './finance-utils';
 import { T } from '@/i18n/language-provider';
+import useToastMessages from '@/hooks/use-toast-messages';
 
 export default function PayoutApprovalPage() {
   const { token, user, initialized } = useSelector((state) => state.auth);
@@ -21,6 +22,7 @@ export default function PayoutApprovalPage() {
   const [reload, setReload] = useState(0);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  useToastMessages({ success: notice, error });
 
   useEffect(() => {
     if (!token || !canRead) return undefined;
@@ -109,8 +111,6 @@ export default function PayoutApprovalPage() {
           <RefreshCw size={16} /> Refresh
         </Button>
       </div>
-      {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
-      {notice && <p role="status" className="rounded border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">{notice}</p>}
       <Card
         title="Draft statements"
         description="Approval is all-or-nothing: every selected statement must still be Draft."

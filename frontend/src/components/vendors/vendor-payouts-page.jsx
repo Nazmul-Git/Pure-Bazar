@@ -14,6 +14,7 @@ import {
   makePaymentPayload,
 } from './vendor-payout-utils';
 import { T } from '@/i18n/language-provider';
+import useToastMessages from '@/hooks/use-toast-messages';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
 const badgeTone = (status) => ({ Draft: 'warning', Approved: 'info' }[status] || 'neutral');
@@ -39,6 +40,7 @@ export default function VendorPayoutsPage() {
   const [reload, setReload] = useState(0);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  useToastMessages({ success: notice, error });
 
   useEffect(() => {
     if (!token || !canRead) return undefined;
@@ -129,8 +131,6 @@ export default function VendorPayoutsPage() {
         </div>
       </div>
 
-      {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
-      {notice && <p role="status" className="rounded border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">{notice}</p>}
 
       <div className="grid gap-4 sm:grid-cols-3">
         <Card title="Open statements"><p className="text-2xl font-semibold text-slate-900">{rows.length}</p><p className="mt-1 text-xs text-slate-500"><T>{"Draft and approved statements"}</T></p></Card>

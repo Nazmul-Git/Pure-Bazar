@@ -7,6 +7,7 @@ import { Pencil, Plus, Trash2, Users } from 'lucide-react';
 import { Badge, Button, Input, Modal, Select } from '@/components/ui';
 import { createUser, deleteUser, getRoles, getUsers, updateUser } from '@/services/admin';
 import { T } from '@/i18n/language-provider';
+import useToastMessages from '@/hooks/use-toast-messages';
 
 const emptyForm = { name: '', email: '', password: '', roleId: '', isActive: true };
 
@@ -18,6 +19,7 @@ export default function RoleUsersPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  useToastMessages({ error });
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [form, setForm] = useState(emptyForm);
@@ -103,7 +105,6 @@ export default function RoleUsersPage() {
         <Link href="/roles/users" aria-current="page" className="border-b-2 border-blue-600 pb-3 text-sm font-semibold text-blue-700"><T>{"Users"}</T></Link>
       </nav>
 
-      {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
 
       <div className="overflow-hidden rounded-md border border-slate-200 bg-white">
         <div className="flex items-center gap-3 border-b border-slate-200 px-4 py-3">

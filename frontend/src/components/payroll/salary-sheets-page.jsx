@@ -11,6 +11,7 @@ import {
 } from '@/services/payroll';
 import { employeeId, formatPayrollMoney, monthNow } from './payroll-utils.mjs';
 import { T } from '@/i18n/language-provider';
+import useToastMessages from '@/hooks/use-toast-messages';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
 const paymentMethods = ['Cash', 'Bank', 'bKash', 'Nagad', 'Card'];
@@ -35,6 +36,7 @@ export default function SalarySheetsPage() {
   const [reload, setReload] = useState(0);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  useToastMessages({ success: notice, error });
 
   useEffect(() => {
     if (!token || !canRead) return undefined;
@@ -190,8 +192,6 @@ export default function SalarySheetsPage() {
         <h1 className="text-2xl font-semibold text-slate-900"><T>{"Salary Sheet"}</T></h1>
         <p className="mt-1 text-sm text-slate-600"><T>{"Prepare monthly payroll, review deductions, and record salary payments."}</T></p>
       </div>
-      {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
-      {notice && <p role="status" className="rounded border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">{notice}</p>}
 
       <Card title="Create monthly sheet" description="A sheet includes active employees and eligible paid advances. Only one sheet can exist per month.">
         <form className="flex flex-wrap items-end gap-3" onSubmit={createSheet}>

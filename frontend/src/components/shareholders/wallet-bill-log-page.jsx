@@ -7,6 +7,7 @@ import { Badge, Button, Card, Input, Table } from '@/components/ui';
 import { getWalletLogs } from '@/services/shareholder';
 import { formatFinanceMoney, localDateInput } from '@/components/finance/finance-utils';
 import { T } from '@/i18n/language-provider';
+import useToastMessages from '@/hooks/use-toast-messages';
 
 function formatLogDate(value) {
   const date = new Date(value);
@@ -25,6 +26,7 @@ export default function WalletBillLogPage() {
   const [loading, setLoading] = useState(true);
   const [reload, setReload] = useState(0);
   const [error, setError] = useState('');
+  useToastMessages({ error });
 
   useEffect(() => {
     if (!token || !canRead) return undefined;
@@ -83,7 +85,6 @@ export default function WalletBillLogPage() {
         </Button>
       </div>
 
-      {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
 
       <Card title="Filter wallet activity">
         <form className="grid gap-3 sm:grid-cols-3" onSubmit={(event) => {

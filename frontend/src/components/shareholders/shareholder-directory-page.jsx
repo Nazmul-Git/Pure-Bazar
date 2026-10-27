@@ -6,6 +6,7 @@ import { Search, ShoppingBag } from 'lucide-react';
 import { Badge, Button, Card, Input, Select, Table } from '@/components/ui';
 import { getShareholderPurchases, searchShareholders } from '@/services/shareholder';
 import { T } from '@/i18n/language-provider';
+import useToastMessages from '@/hooks/use-toast-messages';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
 const formatDate = (value) => new Intl.DateTimeFormat('en-BD', {
@@ -44,6 +45,7 @@ export default function ShareholderDirectoryPage() {
   const [loadingPurchases, setLoadingPurchases] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [error, setError] = useState('');
+  useToastMessages({ error });
 
   async function submitSearch(event) {
     event.preventDefault();
@@ -154,7 +156,6 @@ export default function ShareholderDirectoryPage() {
         <p className="mt-1 text-sm text-slate-600"><T>{"Find a member by mobile number or member ID and review their purchase history."}</T></p>
       </div>
 
-      {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
 
       <Card title="Find a shareholder" description="Search by one member identifier.">
         <form className="flex flex-col gap-3 sm:flex-row sm:items-end" onSubmit={submitSearch}>

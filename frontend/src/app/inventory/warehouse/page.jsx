@@ -7,6 +7,7 @@ import { Badge, Card, Input, Table } from '@/components/ui';
 import { formatStock } from '@/services/stock-units.cjs';
 import { getLocations, getWarehouseStock } from '@/services/stock';
 import { T } from '@/i18n/language-provider';
+import useToastMessages from '@/hooks/use-toast-messages';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
 
@@ -17,6 +18,7 @@ export default function WarehousePage() {
   const [stock, setStock] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  useToastMessages({ error });
   const [search, setSearch] = useState('');
 
   useEffect(() => {
@@ -69,7 +71,6 @@ export default function WarehousePage() {
         <h1 className="text-2xl font-semibold text-slate-900">{location?.name || 'Central Warehouse'} Stock</h1>
         <p className="mt-1 text-sm text-slate-600"><T>{"Current balance is calculated from approved stock movements."}</T></p>
       </div>
-      {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
       <Card title="Stock on hand" description={`${stock.length} products with stock movement history`}>
         <div className="mb-4 max-w-sm">
           <Input label="Search stock" name="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Product name or barcode" />

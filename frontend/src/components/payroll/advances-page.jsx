@@ -6,6 +6,7 @@ import { Badge, Button, Card, Input, Select, Table } from '@/components/ui';
 import { createAdvance, getAdvances, getEmployees, transitionAdvance } from '@/services/payroll';
 import { employeeId, formatPayrollDate, formatPayrollMoney } from './payroll-utils.mjs';
 import { T } from '@/i18n/language-provider';
+import useToastMessages from '@/hooks/use-toast-messages';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
 const statusTone = { Draft: 'warning', Approved: 'success', Paid: 'success', Rejected: 'neutral' };
@@ -27,6 +28,7 @@ export default function AdvancesPage() {
   const [reload, setReload] = useState(0);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  useToastMessages({ success: notice, error });
 
   useEffect(() => {
     if (!token || !canRead) return undefined;
@@ -131,8 +133,6 @@ export default function AdvancesPage() {
         <h1 className="text-2xl font-semibold text-slate-900"><T>{"Salary Advances"}</T></h1>
         <p className="mt-1 text-sm text-slate-600"><T>{"Record requests, track approval and payment, and see deductions assigned to a salary sheet."}</T></p>
       </div>
-      {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
-      {notice && <p role="status" className="rounded border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">{notice}</p>}
 
       {canWrite && (
         <Card title="Record an advance" description="New requests begin in Draft. Paid advances may be deducted on a future salary sheet.">

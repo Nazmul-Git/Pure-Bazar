@@ -11,6 +11,7 @@ import {
   createGoodsReceive, getLocations, getNextChallanNumber, getReceiveVendors, getWarehouseStock, searchReceiveProducts,
 } from '@/services/stock';
 import { T } from '@/i18n/language-provider';
+import useToastMessages from '@/hooks/use-toast-messages';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
 
@@ -23,6 +24,7 @@ export default function GoodsReceiveForm() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  useToastMessages({ error });
   const [searchError, setSearchError] = useState('');
   const [location, setLocation] = useState(null);
   const [vendors, setVendors] = useState([]);
@@ -190,7 +192,6 @@ export default function GoodsReceiveForm() {
         </Button>
       </div>
 
-      {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
 
       <Card title="Receive details" description="The selected Central Warehouse is loaded automatically.">
         <div className="grid gap-4 md:grid-cols-2">

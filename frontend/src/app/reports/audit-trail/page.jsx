@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { Button, Input, Modal, Select, Table } from '@/components/ui';
 import { getAuditLogs, getUsers } from '@/services/admin';
 import { T } from '@/i18n/language-provider';
+import useToastMessages from '@/hooks/use-toast-messages';
 
 function describeActor(actor) {
   if (!actor || typeof actor !== 'object') return 'Unknown user';
@@ -120,6 +121,7 @@ export default function AuditTrailPage() {
   const [filters, setFilters] = useState({ who: '', what: '', from: '', to: '' });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  useToastMessages({ error });
   const [selectedLog, setSelectedLog] = useState(null);
 
   async function loadLogs(nextFilters = filters) {
@@ -197,7 +199,6 @@ export default function AuditTrailPage() {
         </div>
       </form>
 
-      {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
       {loading
         ? <p role="status" className="py-10 text-center text-slate-500"><T>{"Loading audit trail..."}</T></p>
         : <Table columns={columns} rows={logs} rowKey="_id" pageSize={15} emptyMessage="No audit events match these filters." />}

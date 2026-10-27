@@ -9,6 +9,7 @@ import {
 } from '@/services/finance';
 import { formatFinanceDate, formatFinanceMoney, localDateInput } from './finance-utils';
 import { T } from '@/i18n/language-provider';
+import useToastMessages from '@/hooks/use-toast-messages';
 
 function statusBadge(record) {
   if (record.status === 'Matched') return <Badge tone="success">Matched</Badge>;
@@ -28,6 +29,7 @@ export default function WalletReconciliationPage() {
   const [reload, setReload] = useState(0);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  useToastMessages({ success: notice, error });
   const [resolving, setResolving] = useState(null);
   const [reason, setReason] = useState('');
   const [saving, setSaving] = useState(false);
@@ -117,8 +119,6 @@ export default function WalletReconciliationPage() {
         </Button>
       </div>
 
-      {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
-      {notice && <p role="status" className="rounded border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">{notice}</p>}
 
       <Card title="Daily reconciliation" description="Run once the day's wallet transactions are available. The run is idempotent; resolved mismatches are preserved." actions={
         <Button onClick={runReconciliation} disabled={!canWrite || loading || running || !date || date > localDateInput()}>

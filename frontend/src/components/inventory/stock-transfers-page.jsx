@@ -9,6 +9,7 @@ import {
   createStockTransfer, dispatchStockTransfer, getLocations, getStockTransfers, receiveStockTransfer,
 } from '@/services/stock';
 import { T } from '@/i18n/language-provider';
+import useToastMessages from '@/hooks/use-toast-messages';
 
 const statuses = ['Requested', 'Dispatched', 'Received', 'Discrepancy'];
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
@@ -42,6 +43,7 @@ export default function StockTransfersPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  useToastMessages({ success: notice, error });
 
   useEffect(() => {
     if (!initialized) return undefined;
@@ -171,8 +173,6 @@ export default function StockTransfersPage() {
         <h1 className="text-2xl font-semibold text-slate-900"><T>{"Outlet Transfers"}</T></h1>
         <p className="mt-1 text-sm text-slate-600"><T>{"Request stock, dispatch from the central warehouse, and confirm outlet deliveries."}</T></p>
       </div>
-      {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
-      {notice && <p role="status" className="rounded border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{notice}</p>}
 
       {canWrite && (
         <StockTransferRequestForm

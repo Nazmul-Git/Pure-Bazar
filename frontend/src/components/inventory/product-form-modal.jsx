@@ -11,6 +11,7 @@ import QuickAddCategoryModal from './quick-add-category-modal';
 import QuickAddUnitModal from './quick-add-unit-modal';
 import VendorAutocomplete from './vendor-autocomplete';
 import { T } from '@/i18n/language-provider';
+import useToastMessages from '@/hooks/use-toast-messages';
 
 const emptyForm = {
   name: '',
@@ -49,6 +50,7 @@ export default function ProductFormModal({
   const [quickAdd, setQuickAdd] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  useToastMessages({ error });
 
   const can = (permission) => permissions.includes('*') || permissions.includes(permission);
   const vendorPrice = Number(form.vendorPrice);
@@ -254,7 +256,6 @@ export default function ProductFormModal({
             <Input label="VAT rate (%)" name="vatRate" type="number" min="0" max="100" step="0.01" value={form.vatRate} onChange={(event) => update('vatRate', event.target.value)} required={form.vatApplicable} disabled={!form.vatApplicable} />
           </div>
 
-          {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{error}</p>}
           <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
             <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
             <Button type="submit" disabled={saving || catalogLoading || !hasPrices || invalidMrp || invalidOverride}>{saving ? 'Saving...' : 'Save product'}</Button>

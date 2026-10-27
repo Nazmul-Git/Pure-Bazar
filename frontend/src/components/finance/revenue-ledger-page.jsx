@@ -7,6 +7,7 @@ import { Button, Card, Input, Table } from '@/components/ui';
 import { getRevenueLedger } from '@/services/finance';
 import { firstDayOfMonth, formatFinanceMoney, localDateInput } from './finance-utils';
 import { T } from '@/i18n/language-provider';
+import useToastMessages from '@/hooks/use-toast-messages';
 
 const columns = [
   { key: 'category', label: 'Category' },
@@ -25,6 +26,7 @@ export default function RevenueLedgerPage() {
   const [loading, setLoading] = useState(true);
   const [reload, setReload] = useState(0);
   const [error, setError] = useState('');
+  useToastMessages({ error });
 
   useEffect(() => {
     if (!token || !canRead) return undefined;
@@ -64,7 +66,6 @@ export default function RevenueLedgerPage() {
         </Button>
       </div>
 
-      {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
 
       <Card title="Reporting period" description="VAT is reported separately and is not included in company income.">
         <div className="grid gap-3 sm:grid-cols-3">

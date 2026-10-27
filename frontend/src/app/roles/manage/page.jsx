@@ -8,6 +8,7 @@ import { Button, Input, Modal } from '@/components/ui';
 import { createRole, deleteRole, getRoles, getUsers, updateRole } from '@/services/admin';
 import { permissionGroups, presets, sensitivePrefixes, toFormPermissions } from './permission-options';
 import { T } from '@/i18n/language-provider';
+import useToastMessages from '@/hooks/use-toast-messages';
 const emptyForm = { name: '', permissions: ['dashboard:read'] };
 
 export default function RoleManagementPage() {
@@ -17,6 +18,7 @@ export default function RoleManagementPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  useToastMessages({ error });
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingRole, setEditingRole] = useState(null);
   const [form, setForm] = useState(emptyForm);
@@ -120,7 +122,6 @@ export default function RoleManagementPage() {
         <Link href="/roles/users" className="pb-3 text-sm font-medium text-slate-500 hover:text-slate-900"><T>{"Users"}</T></Link>
       </nav>
 
-      {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
 
       <div className="overflow-hidden rounded-md border border-slate-200 bg-white">
         <div className="flex items-center gap-3 border-b border-slate-200 px-4 py-3">

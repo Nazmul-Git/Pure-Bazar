@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { Button, Table } from '@/components/ui';
 import { T } from '@/i18n/language-provider';
+import useToastMessages from '@/hooks/use-toast-messages';
 
 export default function MasterDataPage({
   title, itemName, description, resource, itemProp, permission, columns, getItems, createItem, updateItem, deleteItem, FormModal,
@@ -13,6 +14,7 @@ export default function MasterDataPage({
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  useToastMessages({ error });
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [deletingId, setDeletingId] = useState('');
@@ -94,7 +96,6 @@ export default function MasterDataPage({
         </div>
         {canWrite && <Button onClick={startCreate}><Plus size={17} /> Quick add {itemName.toLowerCase()}</Button>}
       </div>
-      {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
       {loading
         ? <p role="status" className="py-10 text-center text-sm text-slate-500">Loading {title.toLowerCase()}...</p>
         : <Table columns={tableColumns} rows={items} rowKey="id" emptyMessage={`No ${title.toLowerCase()} found.`} />}

@@ -13,6 +13,7 @@ import {
   updateVendorStatement,
 } from '@/services/vendor';
 import { T } from '@/i18n/language-provider';
+import useToastMessages from '@/hooks/use-toast-messages';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
 const today = new Date().toISOString().slice(0, 10);
@@ -60,6 +61,7 @@ export default function VendorLedgerPage() {
   const [reload, setReload] = useState(0);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  useToastMessages({ success: notice, error });
   const selectedVendor = useMemo(
     () => vendors.find((vendor) => vendor.id === vendorId),
     [vendors, vendorId],
@@ -178,8 +180,6 @@ export default function VendorLedgerPage() {
           <RefreshCw size={16} /> Refresh
         </Button>
       </div>
-      {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
-      {notice && <p role="status" className="rounded border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">{notice}</p>}
 
       <Card title="Ledger period" description="Choose a vendor and date range to review posted sales earnings.">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

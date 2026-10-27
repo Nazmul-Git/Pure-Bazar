@@ -7,6 +7,7 @@ import { Badge, Button, Card, Select, Table } from '@/components/ui';
 import { getEmployees, getPayslip, getSalarySheet, getSalarySheets } from '@/services/payroll';
 import { employeeId, formatPayrollDate, formatPayrollMoney } from './payroll-utils.mjs';
 import { T } from '@/i18n/language-provider';
+import useToastMessages from '@/hooks/use-toast-messages';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
 
@@ -23,6 +24,7 @@ export default function PayslipPage() {
   const [payslip, setPayslip] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  useToastMessages({ error });
 
   useEffect(() => {
     if (!token || !canRead) return undefined;
@@ -107,7 +109,6 @@ export default function PayslipPage() {
         </div>
         {payslip && <Button variant="secondary" onClick={() => window.print()}><Printer size={16} /> <T>{"Print payslip"}</T></Button>}
       </div>
-      {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
 
       <Card title="Choose payslip" description="Select a salary sheet and employee to view their read-only statement.">
         <div className="grid gap-3 sm:grid-cols-2">

@@ -17,6 +17,7 @@ import {
   localDateInput,
 } from './finance-utils';
 import { T } from '@/i18n/language-provider';
+import useToastMessages from '@/hooks/use-toast-messages';
 
 const paymentMethods = ['Cash', 'Bank', 'bKash', 'Nagad', 'Card'];
 const newForm = () => ({
@@ -44,6 +45,7 @@ export default function ExpensesPage() {
   const [reload, setReload] = useState(0);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  useToastMessages({ success: notice, error });
 
   useEffect(() => {
     if (!token || !canRead) return undefined;
@@ -149,8 +151,6 @@ export default function ExpensesPage() {
         <h1 className="text-2xl font-semibold text-slate-900"><T>{"Expenses"}</T></h1>
         <p className="mt-1 text-sm text-slate-600"><T>{"Track operating expenses by category, location and payment method."}</T></p>
       </div>
-      {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
-      {notice && <p role="status" className="rounded border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">{notice}</p>}
 
       {canWrite && (
         <Card title={editingId ? 'Edit expense' : 'Record an expense'} description="Expenses in a paid payroll month and payroll-generated entries cannot be edited.">

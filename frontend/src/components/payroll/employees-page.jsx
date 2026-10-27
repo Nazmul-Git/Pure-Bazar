@@ -6,6 +6,7 @@ import { Badge, Button, Card, Input, Select, Table } from '@/components/ui';
 import { getEmployees, saveEmployee } from '@/services/payroll';
 import { formatPayrollDate, formatPayrollMoney } from './payroll-utils.mjs';
 import { T } from '@/i18n/language-provider';
+import useToastMessages from '@/hooks/use-toast-messages';
 
 const blankEmployee = () => ({
   employeeCode: '', name: '', phone: '', email: '', designation: '', department: '',
@@ -27,6 +28,7 @@ export default function EmployeesPage() {
   const [reload, setReload] = useState(0);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  useToastMessages({ success: notice, error });
 
   useEffect(() => {
     if (!token || !canRead) return undefined;
@@ -116,8 +118,6 @@ export default function EmployeesPage() {
         <h1 className="text-2xl font-semibold text-slate-900"><T>{"Employees"}</T></h1>
         <p className="mt-1 text-sm text-slate-600"><T>{"Maintain employee details and current payroll status."}</T></p>
       </div>
-      {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
-      {notice && <p role="status" className="rounded border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">{notice}</p>}
 
       {canWrite && (
         <Card title={editingId ? 'Edit employee' : 'Add employee'} description="Employee codes must be unique. Base salary is recorded in BDT.">

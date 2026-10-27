@@ -8,6 +8,7 @@ import { buildBarcodeLabels } from '@/services/barcodeEngine';
 import { getProducts } from '@/services/inventory';
 import { downloadOutput, printESC } from '@/utils/print-esc';
 import { T } from '@/i18n/language-provider';
+import useToastMessages from '@/hooks/use-toast-messages';
 
 export default function BarcodesPage() {
   const { token, user, initialized } = useSelector((state) => state.auth);
@@ -19,6 +20,7 @@ export default function BarcodesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  useToastMessages({ success: notice, error });
 
   useEffect(() => {
     if (!initialized) return undefined;
@@ -114,8 +116,6 @@ export default function BarcodesPage() {
         <h1 className="text-2xl font-semibold text-slate-900"><T>{"Barcode & Price Labels"}</T></h1>
         <p className="mt-1 text-sm text-slate-600"><T>{"Select products and label quantities, then preview, print, or export printer commands."}</T></p>
       </header>
-      {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
-      {notice && <p role="status" className="rounded border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{notice}</p>}
       <div className="grid gap-5 xl:grid-cols-[1.2fr_1fr]">
         <Card title="Product catalog" description={`${products.length} products available`}>
           <div className="mb-4 max-w-sm">

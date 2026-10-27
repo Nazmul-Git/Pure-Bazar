@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import { Button, Card, Input, Table } from '@/components/ui';
 import { downloadReport, getReport } from '@/services/reports';
 import { T } from '@/i18n/language-provider';
+import useToastMessages from '@/hooks/use-toast-messages';
 
 const reportConfig = {
   sales: {
@@ -125,6 +126,7 @@ export default function ReportScreen({ type }) {
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState('');
   const [error, setError] = useState('');
+  useToastMessages({ error });
 
   const loadReport = useCallback(async (params) => {
     setLoading(true);
@@ -226,7 +228,6 @@ export default function ReportScreen({ type }) {
         </div>
       </form>
 
-      {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
       {loading ? (
         <p role="status" className="py-10 text-center text-slate-500"><T>{"Loading report..."}</T></p>
       ) : report && (
