@@ -66,6 +66,7 @@ export default function DashboardScreen() {
   const lowStock = dashboard?.lowStockAlerts || [];
   const recentActivity = dashboard?.recentActivity || [];
   const salesChange = percentChange(dashboard?.todaySales, dashboard?.yesterdaySales);
+  const has = (section) => dashboard?.view !== 'general' || dashboard.sections.includes(section);
 
   return (
     <section className="dashboard-page">
@@ -94,17 +95,19 @@ export default function DashboardScreen() {
         <CashierDashboard dashboard={dashboard} />
       ) : dashboard?.view === 'inventory' ? (
         <InventoryDashboard dashboard={dashboard} />
-      ) : dashboard?.view === 'general' ? (
+      ) : dashboard?.view === 'general' && !dashboard.sections?.length ? (
         <p className="dashboard-empty"><T>{"No dashboard widgets are configured for your role."}</T></p>
       ) : dashboard && (
         <>
           <div className="dash-metrics">
-            <MetricCard label="Today's sales" value={formatMoney(dashboard.todaySales)} description={`${dashboard.todayBillCount} bills today`} icon={BadgeDollarSign} tint="#82C341" badge={<ChangeBadge change={salesChange} />} />
-            <MetricCard label="Total sales" value={formatMoney(dashboard.totalSales)} description="All paid orders" icon={Activity} tint="#3B82F6" />
-            <MetricCard label="Margin income" value={formatMoney(dashboard.marginIncome)} description="Company net from vendor ledger" icon={Wallet} tint="#8B5CF6" />
-            <MetricCard label="Vendor payables due" value={formatMoney(dashboard.vendorPayablesDue)} description="Approved statements awaiting payment" icon={Package} tint="#F58220" />
+            {has('sales') && <MetricCard label="Today's sales" value={formatMoney(dashboard.todaySales)} description={`${dashboard.todayBillCount} bills today`} icon={BadgeDollarSign} tint="#82C341" badge={<ChangeBadge change={salesChange} />} />}
+            {has('finance') && <MetricCard label="Total sales" value={formatMoney(dashboard.totalSales)} description="All paid orders" icon={Activity} tint="#3B82F6" />}
+            {has('finance') && <MetricCard label="Margin income" value={formatMoney(dashboard.marginIncome)} description="Company net from vendor ledger" icon={Wallet} tint="#8B5CF6" />}
+            {has('finance') && <MetricCard label="Vendor payables due" value={formatMoney(dashboard.vendorPayablesDue)} description="Approved statements awaiting payment" icon={Package} tint="#F58220" />}
+            {has('inventory') && <MetricCard label="Low stock alerts" value={String(lowStock.length)} description={`At or below ${dashboard.lowStockThreshold} units`} icon={Package} tint="#F58220" />}
           </div>
 
+          {has('sales') && (
           <div className="dash-grid">
             <Card title="Sales trend" description="Paid sales over time (Asia/Dhaka).">
               <SalesTrendChart trend={dashboard.salesTrend} />
@@ -117,8 +120,10 @@ export default function DashboardScreen() {
               </div>
             </Card>
           </div>
+          )}
 
           <div className="dash-grid even">
+            {has('finance') && (
             <Card title="Revenue vs expenses" description="Last six months, side by side.">
               <RevenueExpenseBars data={dashboard.monthlyFinance} />
               <div className="dashboard-chart-footer">
@@ -126,7 +131,9 @@ export default function DashboardScreen() {
                 <strong>{formatMoney(dashboard.monthExpenses)}</strong>
               </div>
             </Card>
+            )}
 
+            {has('inventory') && (
             <Card title="Stock to watch" description={`Products at or below ${dashboard.lowStockThreshold} units.`}
               actions={<Link className="dash-action" href="/inventory/goods-receives/new"><T>{"Restock"}</T></Link>}>
               <div className="dashboard-panel-summary">
@@ -152,6 +159,7 @@ export default function DashboardScreen() {
                 <p className="dashboard-empty"><T>{"No products are below the stock threshold."}</T></p>
               )}
             </Card>
+            )}
           </div>
 
           <Card title="Recent activity" description="Latest recorded actions."

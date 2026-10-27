@@ -122,6 +122,17 @@ describe('role-specific dashboards', () => {
     expect(d.vendorPayablesDue).toBe(50);
   });
 
+  it('custom role with module read access inherits matching widgets', async () => {
+    role = { name: 'Operations Manager', permissions: ['dashboard:read', 'inventory.products:read', 'pos.sales:read'] };
+    const d = await get();
+    expect(d.view).toBe('general');
+    expect(d.sections).toEqual(['sales', 'inventory']);
+    expect(d.todaySales).toBe(5300.3);
+    expect(d.lowStockAlerts).toHaveLength(2);
+    expect(d.recentActivity).toEqual([]);
+    ['totalSales', 'marginIncome', 'vendorPayablesDue'].forEach((key) => expect(d).not.toHaveProperty(key));
+  });
+
   it('other roles get no business data', async () => {
     role = { name: 'Finance', permissions: ['dashboard:read'] };
     expect(await get()).toEqual({ view: 'general', generatedAt: expect.any(String) });

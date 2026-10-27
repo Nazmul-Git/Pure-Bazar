@@ -387,3 +387,7 @@
 - [x] Standardize dynamic toast notifications across all system modules
 	- Files: 27 pages/components (Expenses, Revenue Ledger, Payout Approval, Wallet Reconciliation, Vendors, Shareholders, HR & Payroll, Reports, Inventory, Roles) now call hooks/use-toast-messages and their inline error/notice banners were removed.
 	- Decisions: POS shift-close/returns/sales-history and small modal field errors keep inline text. Validation: frontend npm test and next build pass; not browser-tested.
+
+- [x] Fix dashboard widget mapping for Operations Manager and custom roles
+	- Files: backend/services/roleDashboardService.js, frontend dashboard-screen.jsx, role-dashboard test.
+	- Decisions: roles with dashboard:read plus sales/inventory/finance read permissions get matching cards; roles with none still see the empty message.

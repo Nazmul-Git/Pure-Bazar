@@ -1,6 +1,7 @@
 const {
   GoodsReceive, Order, Product, Settings, Shift, StockAdjustment, StockMovement,
 } = require('../models');
+const { expandPermissions } = require('../config/permissionCatalog');
 const { getDashboard, dhakaBounds, lowStockAlerts, DEFAULT_LOW_STOCK_THRESHOLD } = require('./dashboardService');
 
 const RECENT_LIMIT = 10;
@@ -136,12 +137,36 @@ async function getInventoryDashboard(now, lowStockThreshold = DEFAULT_LOW_STOCK_
   };
 }
 
+const MODULE_PERMISSIONS = {
+  sales: ['pos:read', 'orders:read', 'pos.sales:read', 'pos.history:read'],
+  inventory: ['stock:read', 'products:read', 'inventory.grn:read', 'inventory.products:read', 'inventory.adjustments:read'],
+  finance: ['finance:read', 'expenses:read', 'vendors:read', 'finance.revenue:read', 'finance.expenses:read'],
+};
+const SALES_KEYS = ['todaySales', 'todayBillCount', 'todayByPaymentMethod', 'walletBillTotal', 'salesTrend'];
+const INVENTORY_KEYS = ['lowStockThreshold', 'lowStockAlerts'];
+const FINANCE_KEYS = ['totalSales', 'marginIncome', 'vendorPayablesDue', 'monthExpenses', 'monthlyFinance'];
+const SECTION_KEYS = { sales: SALES_KEYS, inventory: INVENTORY_KEYS, finance: FINANCE_KEYS };
+
+// Custom roles with dashboard:read inherit cards for the modules they can read.
+async function getModuleDashboard(user, now, lowStockThreshold) {
+  const granted = new Set(expandPermissions(user?.permissions || []));
+  const sections = Object.keys(MODULE_PERMISSIONS)
+    .filter((name) => MODULE_PERMISSIONS[name].some((permission) => granted.has(permission)));
+  if (!sections.length) return { view: 'general', generatedAt: now };
+  const full = await getDashboard({ now, lowStockThreshold });
+  const dashboard = { view: 'general', sections, recentActivity: full.recentActivity, generatedAt: now };
+  sections.forEach((name) => SECTION_KEYS[name].forEach((key) => {
+    if (key in full) dashboard[key] = full[key];
+  }));
+  return dashboard;
+}
+
 async function getDashboardForUser(user, { now = new Date(), lowStockThreshold } = {}) {
   const view = resolveDashboardView(user);
   if (view === 'admin') return { view, ...(await getDashboard({ now, lowStockThreshold })) };
   if (view === 'cashier') return getCashierDashboard(user, now);
   if (view === 'inventory') return getInventoryDashboard(now, lowStockThreshold);
-  return { view: 'general', generatedAt: now };
+  return getModuleDashboard(user, now, lowStockThreshold);
 }
 
 module.exports = { getDashboardForUser, resolveDashboardView };
