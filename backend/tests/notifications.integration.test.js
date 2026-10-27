@@ -31,6 +31,9 @@ jest.mock('../models', () => {
     AuditLog: collection('AuditLog'),
     Settings: collection('Settings'),
     Shift: collection('Shift'),
+    WalletReconciliation: collection('WalletReconciliation'),
+    SalarySheet: collection('SalarySheet'),
+    SalaryAdvance: collection('SalaryAdvance'),
   };
 });
 
@@ -58,6 +61,10 @@ describe('GET /api/notifications', () => {
       StockAdjustment: [{ _id: id(), status: 'Pending', reason: 'Damage' }, { _id: id(), status: 'Approved' }],
       StockTransfer: [{ _id: id(), status: 'Requested' }, { _id: id(), status: 'Dispatched' }, { _id: id(), status: 'Received' }],
       GoodsReceive: [{ _id: id(), status: 'Draft' }],
+      VendorStatement: [{ _id: id(), status: 'Draft', statementNumber: 'VS-1' }, { _id: id(), status: 'Approved' }, { _id: id(), status: 'Paid' }],
+      WalletReconciliation: [{ _id: id(), status: 'Mismatch' }, { _id: id(), status: 'Matched' }],
+      SalarySheet: [{ _id: id(), status: 'Draft', month: '2026-10' }],
+      SalaryAdvance: [{ _id: id(), status: 'Draft' }, { _id: id(), status: 'Paid' }],
       Product: [{ _id: p1, name: 'Rice', barcode: '1' }],
       StockMovement: [{ productId: p1, quantity: 2 }],
     };
@@ -67,15 +74,20 @@ describe('GET /api/notifications', () => {
   });
 
   it('aggregates every pending approval with a deep link', async () => {
-    permissions = ['stock:read', 'stock:transfer:read'];
+    permissions = ['stock:read', 'stock:transfer:read', 'vendor-payouts:read', 'finance:read', 'payroll:read', 'salary-advances:read'];
     const { body } = await get().expect(200);
     const byKey = Object.fromEntries(body.notifications.groups.map((g) => [g.key, g]));
-    expect(body.notifications.total).toBe(6);
+    expect(body.notifications.total).toBe(11);
     expect(byKey['stock-counts']).toEqual(expect.objectContaining({ count: 1, href: '/inventory/stock-counts' }));
     expect(byKey['stock-adjustments'].count).toBe(1);
     expect(byKey.transfers).toEqual(expect.objectContaining({ count: 2, href: '/inventory/transfers' }));
     expect(byKey['goods-receives'].count).toBe(1);
     expect(byKey['low-stock'].items[0].title).toContain('Rice');
+    expect(byKey['vendor-payouts']).toEqual(expect.objectContaining({ count: 1, href: '/vendors/payouts' }));
+    expect(byKey['payout-approvals'].href).toBe('/finance/batch-payout');
+    expect(byKey['wallet-reconciliation'].href).toBe('/finance/wallet-reconciliation');
+    expect(byKey['salary-sheets']).toEqual(expect.objectContaining({ count: 1, href: '/payroll/salary-sheets' }));
+    expect(byKey['salary-advances']).toEqual(expect.objectContaining({ count: 1, href: '/payroll/advances' }));
   });
 
   it('hides groups the user has no permission for', async () => {
@@ -86,7 +98,7 @@ describe('GET /api/notifications', () => {
 
   it('is empty when nothing is pending', async () => {
     permissions = ['*'];
-    global.__db = { StockCount: [], StockAdjustment: [], StockTransfer: [], GoodsReceive: [], Product: [], StockMovement: [] };
+    global.__db = { StockCount: [], StockAdjustment: [], StockTransfer: [], GoodsReceive: [], VendorStatement: [], WalletReconciliation: [], SalarySheet: [], SalaryAdvance: [], Product: [], StockMovement: [] };
     const { body } = await get().expect(200);
     expect(body.notifications).toEqual({ total: 0, groups: [] });
   });
