@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import useToastMessages from '@/hooks/use-toast-messages';
 import { useSelector } from 'react-redux';
 import { Button, Input, Select } from '@/components/ui';
 import { getRoles, getSettings, updateSettings } from '@/services/admin';
@@ -36,6 +37,7 @@ export default function SettingsForm() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  useToastMessages({ success: notice, error });
 
   useEffect(() => {
     if (!token) return undefined;
@@ -104,7 +106,8 @@ export default function SettingsForm() {
       const values = { ...defaultSettings, ...data.settings };
       setSettings(values);
       setLimitRows((rows) => limitsToRows(values.discountLimitByRole, rows.map((row) => row.role)));
-      setNotice('Settings saved successfully.');
+      setNotice('');
+      setTimeout(() => setNotice('Settings saved successfully.'), 0);
     } catch (requestError) {
       setError(requestError.response?.data?.message || 'Unable to save settings.');
     } finally {
@@ -137,8 +140,6 @@ export default function SettingsForm() {
         <Button type="submit" disabled={saving}>{saving ? 'Saving...' : 'Save settings'}</Button>
       </div>
 
-      {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
-      {notice && <p role="status" className="rounded border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">{notice}</p>}
 
       <SettingsSection title="Sales, tax, and discounts" description="Configure checkout tax calculations and discount limits.">
         <div className="grid gap-4 sm:grid-cols-2">

@@ -19,6 +19,7 @@ import {
 } from '@/services/pos-cart-utils.cjs';
 import InvoiceModal from './invoice-modal';
 import ErrorToast from './error-toast';
+import useToastMessages from '@/hooks/use-toast-messages';
 
 const { createPreviewPayload, paymentTotalMatches } = billingUtils;
 const WALLET_DISCOUNT_RATE = 0.05;
@@ -41,6 +42,7 @@ export default function PosBillingPage() {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  useToastMessages({ success: successMessage, error: checkoutError || previewError });
   const [heldOpen, setHeldOpen] = useState(false);
   const [holdOpen, setHoldOpen] = useState(false);
   const [toast, setToast] = useState('');
@@ -291,7 +293,6 @@ export default function PosBillingPage() {
       {receipt && <InvoiceModal receipt={receipt} onClose={() => setReceipt(null)} />}
       {holdOpen && <HoldSaleModal onConfirm={confirmHold} onCancel={() => setHoldOpen(false)} />}
       {heldOpen && <HeldBillsModal held={held} onRestore={restoreSale} onDiscard={discardHeld} onClose={() => setHeldOpen(false)} />}
-      {successMessage && <p role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900">{successMessage}</p>}
       <ItemScanner onAdd={addItem} />
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="space-y-5">

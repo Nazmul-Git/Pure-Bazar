@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
+import useToastMessages from '@/hooks/use-toast-messages';
 import { Plus, Search } from 'lucide-react';
 import { Badge, Button, Input, Table } from '@/components/ui';
 import ProductFormModal from '@/components/inventory/product-form-modal';
@@ -33,6 +34,8 @@ export default function ProductsPage() {
   const [marginWarningPercent, setMarginWarningPercent] = useState(5);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+  useToastMessages({ success: notice, error });
   const [search, setSearch] = useState('');
   const [formOpen, setFormOpen] = useState(false);
   const permissions = user?.permissions || [];
@@ -68,6 +71,8 @@ export default function ProductsPage() {
     const { data } = await createProduct(token, payload);
     setProducts((current) => [...current, data.product].sort((a, b) => a.name.localeCompare(b.name)));
     setError('');
+    setNotice('');
+    setTimeout(() => setNotice('Product created successfully.'), 0);
   }
 
   if (!initialized || loading) return <p role="status" className="py-10 text-center text-sm text-slate-500">Loading products...</p>;
@@ -84,7 +89,6 @@ export default function ProductsPage() {
         {canWrite && <Button onClick={() => setFormOpen(true)}><Plus size={17} /> Add New Product</Button>}
       </div>
 
-      {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
       <div className="max-w-sm">
         <Input label="Search products" name="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Name or barcode" />
         <Search size={16} aria-hidden="true" className="pointer-events-none relative -mt-7 ml-auto mr-3 text-slate-400" />

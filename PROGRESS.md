@@ -375,3 +375,7 @@
 	- Decisions: header bell shows a blinking red counter badge; dropdown groups Stock Counts (PendingApproval), Adjustments (Pending), Transfers (Requested/Dispatched), GRNs (Draft) and Low Stock; each group/item links to its module page. Groups are filtered by the user's stock:read / stock:transfer:read permissions. Polls every 30s, on focus and on open.
 	- Validation: 3 new tests pass; backend 38/39 suites pass (only pre-existing locations test fails); frontend build passes.
 
+
+- [x] Floating toast notifications
+	- Files: frontend/src/components/common/toaster.jsx (Sonner Toaster in app/layout.jsx, top-right, 3.5s auto-dismiss), hooks/use-toast-messages.js; Stock Counts, POS, Products and Settings now fire toast.success/toast.error and the inline banners were removed.
+	- Decisions: Sonner added as dependency; Settings load-failure banner kept because the form is not rendered then. Validation: frontend build passes (no frontend UI test runner exists); not browser-tested.

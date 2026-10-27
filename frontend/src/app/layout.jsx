@@ -2,6 +2,7 @@ import './globals.css';
 import './theme.css';
 import { ThemeProvider, themeInitScript } from '@/components/common/theme-provider';
 import StoreProvider from '@/store/provider';
+import AppToaster from '@/components/common/toaster';
 import AppShell from '@/components/common/app-shell';
 
 export const metadata = {
@@ -19,6 +20,7 @@ export default function RootLayout({ children }) {
         <ThemeProvider>
           <StoreProvider>
             <AppShell>{children}</AppShell>
+            <AppToaster />
           </StoreProvider>
         </ThemeProvider>
       </body>

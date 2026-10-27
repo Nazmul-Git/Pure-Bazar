@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
+import useToastMessages from '@/hooks/use-toast-messages';
 import { Badge, Button, Card, Input, Select, Table } from '@/components/ui';
 import useBarcodeScanner from '@/hooks/use-barcode-scanner';
 import { getProducts } from '@/services/inventory';
@@ -33,6 +34,7 @@ export default function StockCountsPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  useToastMessages({ success: notice, error });
 
   useEffect(() => {
     if (!initialized) return undefined;
@@ -173,8 +175,6 @@ export default function StockCountsPage() {
         <h1 className="text-2xl font-semibold text-slate-900">Stock Count</h1>
         <p className="mt-1 text-sm text-slate-600">Scan or select products, record physical quantities, then post the count.</p>
       </header>
-      {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
-      {notice && <p role="status" className="rounded border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{notice}</p>}
       {canWrite && (
         <Card title="Start stock count" description="The system quantity is captured when the count is submitted.">
           <form className="space-y-4" onSubmit={submit}>
