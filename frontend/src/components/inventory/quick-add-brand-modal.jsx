@@ -3,12 +3,14 @@
 import { useEffect, useState } from 'react';
 import { Button, Input, Modal } from '@/components/ui';
 import { T } from '@/i18n/language-provider';
+import useToastMessages from '@/hooks/use-toast-messages';
 
 export default function QuickAddBrandModal({ open, onClose, onSubmit, brand = null }) {
   const [name, setName] = useState('');
   const [logo, setLogo] = useState(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  useToastMessages({ error });
 
   useEffect(() => {
     if (open) {
@@ -38,7 +40,6 @@ export default function QuickAddBrandModal({ open, onClose, onSubmit, brand = nu
         <Input label="Brand name" name="name" value={name} onChange={(event) => setName(event.target.value)} required maxLength={100} autoFocus />
         <Input label={brand?.logoUrl ? 'Replace logo (optional)' : 'Logo (optional)'} name="logo" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => setLogo(event.target.files?.[0] || null)} />
         <p className="text-xs text-slate-500"><T>{"PNG, JPEG, or WebP; maximum 2 MB."}</T></p>
-        {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
         <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
           <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
           <Button type="submit" disabled={saving}>{saving ? 'Saving...' : brand ? 'Save changes' : 'Add brand'}</Button>

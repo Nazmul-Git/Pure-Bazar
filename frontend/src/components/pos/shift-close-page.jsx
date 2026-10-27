@@ -9,6 +9,7 @@ import {
 } from '@/services/pos-admin';
 import { paymentMethodLabel } from '@/services/pos-screen-utils.cjs';
 import { T } from '@/i18n/language-provider';
+import useToastMessages from '@/hooks/use-toast-messages';
 
 const currency = new Intl.NumberFormat('en-BD', { style: 'currency', currency: 'BDT' });
 const amount = (value) => (value == null ? '—' : currency.format(Number(value) || 0));
@@ -57,6 +58,7 @@ export default function ShiftClosePage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  useToastMessages({ success: notice, error });
 
   const loadCurrent = useCallback(async () => {
     setError('');
@@ -137,8 +139,6 @@ export default function ShiftClosePage() {
         {shift && <Badge tone="success">Shift open</Badge>}
         {closedShift && !shift && <Badge tone="neutral">Shift closed</Badge>}
       </header>
-      {error && <p className="field-error" role="alert">{error}</p>}
-      {notice && <p className="text-sm text-green-700" role="status">{notice}</p>}
       {loading ? <Card><p className="m-0 text-slate-500" role="status"><T>{"Loading shift…"}</T></p></Card> : (
         <>
           {currentShift && currentReport && (

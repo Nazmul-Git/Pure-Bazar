@@ -391,3 +391,5 @@
 - [x] Fix dashboard widget mapping for Operations Manager and custom roles
 	- Files: backend/services/roleDashboardService.js, frontend dashboard-screen.jsx, role-dashboard test.
 	- Decisions: roles with dashboard:read plus sales/inventory/finance read permissions get matching cards; roles with none still see the empty message.
+
+- Global toast migration: removed remaining inline error/notice banners (POS shift close, returns, sales history, item scanner, shareholder modal, roles/users, roles/manage, quick-add brand/category/unit modals); all now use useToastMessages (sonner). Dashboard load-error banner (with retry) and permission/loading states intentionally kept.

@@ -8,6 +8,7 @@ import usePosSales from '@/hooks/use-pos-sales';
 import { returnPosOrder } from '@/services/pos-admin';
 import { isWalletSale, paymentMethodLabel } from '@/services/pos-screen-utils.cjs';
 import { T } from '@/i18n/language-provider';
+import useToastMessages from '@/hooks/use-toast-messages';
 
 const currency = new Intl.NumberFormat('en-BD', { style: 'currency', currency: 'BDT' });
 const amount = (value) => currency.format(Number(value) || 0);
@@ -24,6 +25,7 @@ export default function ReturnsPage() {
   const [saving, setSaving] = useState(false);
   const [actionError, setActionError] = useState('');
   const [notice, setNotice] = useState('');
+  useToastMessages({ success: notice, error });
   const canWrite = hasPermission('pos:write');
   const eligibleOrders = orders.filter((order) => order.paymentStatus === 'PAID');
 
@@ -76,9 +78,7 @@ export default function ReturnsPage() {
         </div>
       </Card>
       {!canWrite && <p className="m-0 text-sm text-slate-500"><T>{"You can view eligible bills, but POS write permission is required to process returns."}</T></p>}
-      {error && <p className="field-error" role="alert">{error}</p>}
       {actionError && !selected && <p className="field-error" role="alert">{actionError}</p>}
-      {notice && <p className="text-sm text-green-700" role="status">{notice}</p>}
       <Card title="Eligible bills" description={`${eligibleOrders.length} paid bills in the latest results.`}>
         {loading ? <p className="m-0 text-slate-500" role="status"><T>{"Loading bills…"}</T></p> : <Table columns={columns} rows={rows} rowKey="id" emptyMessage="No paid bills are available to return." />}
       </Card>

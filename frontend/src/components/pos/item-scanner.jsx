@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Barcode, LoaderCircle, Search } from 'lucide-react';
 import Input from '@/components/ui/input';
 import { posErrorMessage, scanPosItem, searchPosItems } from '@/services/pos';
+import useToastMessages from '@/hooks/use-toast-messages';
 
 export default function ItemScanner({ onAdd }) {
   const [query, setQuery] = useState('');
@@ -11,6 +12,7 @@ export default function ItemScanner({ onAdd }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  useToastMessages({ error });
   const busy = useRef(false);
   const searchId = useRef(0);
 
@@ -113,7 +115,6 @@ export default function ItemScanner({ onAdd }) {
           ))}
         </ul>
       )}
-      {error && <p role="alert" className="mt-3 text-sm text-red-700">{error}</p>}
       <p className="mt-2 flex items-center gap-1 text-xs text-slate-500">
         <Search size={13} /> Each scan adds one; quantity is capped at available stock.
       </p>

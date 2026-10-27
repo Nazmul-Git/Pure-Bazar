@@ -8,6 +8,7 @@ import Select from '@/components/ui/select';
 import Modal from '@/components/ui/modal';
 import { posErrorMessage, verifyPosMember } from '@/services/pos';
 import { T } from '@/i18n/language-provider';
+import useToastMessages from '@/hooks/use-toast-messages';
 
 export default function ShareholderModal({ open, onClose, onVerified }) {
   const [searchType, setSearchType] = useState('mobile');
@@ -15,6 +16,7 @@ export default function ShareholderModal({ open, onClose, onVerified }) {
   const [member, setMember] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  useToastMessages({ error });
 
   function close() {
     setIdentifier('');
@@ -55,7 +57,6 @@ export default function ShareholderModal({ open, onClose, onVerified }) {
           autoComplete="off"
           required
         />
-        {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
         {member && (
           <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
             <p className="flex items-center gap-2 font-medium text-emerald-900">

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Eye, RefreshCw, Search } from 'lucide-react';
 import { Badge, Button, Card, Input, Modal, Select, Table } from '@/components/ui';
 import usePosSales from '@/hooks/use-pos-sales';
+import useToastMessages from '@/hooks/use-toast-messages';
 import {
   paymentMethodLabel, sumMoney,
 } from '@/services/pos-screen-utils.cjs';
@@ -45,6 +46,7 @@ export default function SalesHistoryPage() {
   const {
     orders, loading, error, canRead, loadOrders,
   } = usePosSales();
+  useToastMessages({ error });
   const [filters, setFilters] = useState({ from: '', to: '', paymentMethod: '' });
   const [selected, setSelected] = useState(null);
   const rows = orders.map((order) => ({ ...order, id: orderId(order) }));
@@ -77,7 +79,6 @@ export default function SalesHistoryPage() {
           <div className="flex items-end"><Button type="submit" disabled={loading}><Search size={16} /> <T>{"Apply"}</T></Button></div>
         </form>
       </Card>
-      {error && <p className="field-error" role="alert">{error}</p>}
       <div className="grid gap-3 sm:grid-cols-2">
         <Card><p className="m-0 text-sm text-slate-500"><T>{"Bills in results"}</T></p><strong className="mt-1 block text-xl">{orders.length}</strong></Card>
         <Card><p className="m-0 text-sm text-slate-500"><T>{"Paid sales total"}</T></p><strong className="mt-1 block text-xl">{amount(paidTotal)}</strong></Card>

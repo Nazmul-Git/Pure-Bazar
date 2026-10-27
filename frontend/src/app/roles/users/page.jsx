@@ -146,7 +146,6 @@ export default function RoleUsersPage() {
             {roles.map((role) => <option key={role._id} value={role._id}>{role.name}</option>)}
           </Select>
           {editingUser && <label className="flex items-center gap-2 text-sm text-slate-700"><input type="checkbox" checked={form.isActive} onChange={(event) => setForm({ ...form, isActive: event.target.checked })} /> Account is active</label>}
-          {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
           <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
             <Button variant="secondary" type="button" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button type="submit" disabled={saving || !roles.length}>{saving ? 'Saving...' : 'Save user'}</Button>

@@ -234,7 +234,6 @@ export default function RoleManagementPage() {
               <p><strong><T>{"High-risk permissions selected."}</T></strong> This non-Super Admin role will receive sensitive permissions for settings, role administration, vendor payouts, or audit logs. You will be asked to confirm before saving.</p>
             </div>
           )}
-          {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
           <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
             <Button variant="secondary" type="button" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button type="submit" disabled={saving}>{saving ? 'Saving...' : 'Save role'}</Button>
