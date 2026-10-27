@@ -368,3 +368,10 @@
 - [x] Display stock counts in human-readable box and piece units
 	- Files: frontend/src/services/stock-units.cjs (+test); stockController.js (returns unitsPerPackage, rounds quantity); stock-counts-page.jsx; warehouse/page.jsx.
 	- Decisions: stored quantity stays in boxes (fraction); UI shows 'N Box(es) and M Pcs' and Stock Count takes Boxes + Pieces inputs converted to boxes on save. Only pre-existing locations test fails.
+
+
+- [x] Global notification and approval alert system
+	- Files: backend/services/notificationService.js, routes/notificationRoutes.js (GET /api/notifications), server.js, tests/notifications.integration.test.js; frontend/src/components/common/{notification-bell.jsx,header.jsx}, services/notifications.js, app/globals.css.
+	- Decisions: header bell shows a blinking red counter badge; dropdown groups Stock Counts (PendingApproval), Adjustments (Pending), Transfers (Requested/Dispatched), GRNs (Draft) and Low Stock; each group/item links to its module page. Groups are filtered by the user's stock:read / stock:transfer:read permissions. Polls every 30s, on focus and on open.
+	- Validation: 3 new tests pass; backend 38/39 suites pass (only pre-existing locations test fails); frontend build passes.
+

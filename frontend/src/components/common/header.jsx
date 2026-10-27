@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ChevronDown, LogOut, Menu, Settings, UserRound } from 'lucide-react';
 import useAuth from '@/store/use-auth';
 import Button from '@/components/ui/button';
+import NotificationBell from './notification-bell';
 
 export default function Header({ section, onMenuClick }) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -41,6 +42,8 @@ export default function Header({ section, onMenuClick }) {
           <span className="header-section">{section}</span>
         </div>
       </div>
+      <div className="header-actions">
+      {canAccess(['stock:read']) || canAccess(['stock:transfer:read']) ? <NotificationBell /> : null}
       <div className="user-menu-wrap" ref={wrapRef}>
         <button
           className="user-menu-trigger"
@@ -65,6 +68,7 @@ export default function Header({ section, onMenuClick }) {
             </Button>
           </div>
         )}
+      </div>
       </div>
     </header>
   );
