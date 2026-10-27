@@ -7,6 +7,7 @@ import { Plus, Search } from 'lucide-react';
 import { Badge, Button, Input, Table } from '@/components/ui';
 import ProductFormModal from '@/components/inventory/product-form-modal';
 import { createProduct, getProducts } from '@/services/inventory';
+import { T } from '@/i18n/language-provider';
 
 const money = (value) => new Intl.NumberFormat('en-BD', {
   style: 'currency',
@@ -75,18 +76,18 @@ export default function ProductsPage() {
     setTimeout(() => setNotice('Product created successfully.'), 0);
   }
 
-  if (!initialized || loading) return <p role="status" className="py-10 text-center text-sm text-slate-500">Loading products...</p>;
-  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">You do not have permission to view products.</p>;
+  if (!initialized || loading) return <p role="status" className="py-10 text-center text-sm text-slate-500"><T>{"Loading products..."}</T></p>;
+  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><T>{"You do not have permission to view products."}</T></p>;
 
   return (
     <section className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Inventory</p>
-          <h1 className="text-2xl font-semibold text-slate-900">All Products</h1>
-          <p className="mt-1 text-sm text-slate-600">Review product ownership, prices, margins, and VAT.</p>
+          <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"Inventory"}</T></p>
+          <h1 className="text-2xl font-semibold text-slate-900"><T>{"All Products"}</T></h1>
+          <p className="mt-1 text-sm text-slate-600"><T>{"Review product ownership, prices, margins, and VAT."}</T></p>
         </div>
-        {canWrite && <Button onClick={() => setFormOpen(true)}><Plus size={17} /> Add New Product</Button>}
+        {canWrite && <Button onClick={() => setFormOpen(true)}><Plus size={17} /> <T>{"Add New Product"}</T></Button>}
       </div>
 
       <div className="max-w-sm">

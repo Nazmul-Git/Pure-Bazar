@@ -7,6 +7,7 @@ import useAuth from '@/store/use-auth';
 import usePosSales from '@/hooks/use-pos-sales';
 import { returnPosOrder } from '@/services/pos-admin';
 import { isWalletSale, paymentMethodLabel } from '@/services/pos-screen-utils.cjs';
+import { T } from '@/i18n/language-provider';
 
 const currency = new Intl.NumberFormat('en-BD', { style: 'currency', currency: 'BDT' });
 const amount = (value) => currency.format(Number(value) || 0);
@@ -61,25 +62,25 @@ export default function ReturnsPage() {
   ];
   const rows = eligibleOrders.map((order) => ({ ...order, id: orderId(order) }));
 
-  if (!canRead) return <section className="access-denied"><h1>Access denied</h1><p>Your role does not have POS read permission.</p></section>;
+  if (!canRead) return <section className="access-denied"><h1><T>{"Access denied"}</T></h1><p><T>{"Your role does not have POS read permission."}</T></p></section>;
 
   return (
     <div className="space-y-5">
       <header className="flex flex-wrap items-end justify-between gap-3">
-        <div><h1 className="m-0 text-2xl font-semibold">Returns &amp; Exchanges</h1><p className="mb-0 mt-1 text-sm text-slate-500">Find a paid bill to process a full-bill return.</p></div>
-        <Button variant="secondary" onClick={() => loadOrders()} disabled={loading}><RefreshCw size={16} /> Refresh</Button>
+        <div><h1 className="m-0 text-2xl font-semibold"><T>{"Returns & Exchanges"}</T></h1><p className="mb-0 mt-1 text-sm text-slate-500"><T>{"Find a paid bill to process a full-bill return."}</T></p></div>
+        <Button variant="secondary" onClick={() => loadOrders()} disabled={loading}><RefreshCw size={16} /> <T>{"Refresh"}</T></Button>
       </header>
       <Card>
         <div className="rounded border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
           Returns are supported for the entire bill only. Partial returns and direct exchanges are not available; complete a return, then ring up replacement items as a new sale.
         </div>
       </Card>
-      {!canWrite && <p className="m-0 text-sm text-slate-500">You can view eligible bills, but POS write permission is required to process returns.</p>}
+      {!canWrite && <p className="m-0 text-sm text-slate-500"><T>{"You can view eligible bills, but POS write permission is required to process returns."}</T></p>}
       {error && <p className="field-error" role="alert">{error}</p>}
       {actionError && !selected && <p className="field-error" role="alert">{actionError}</p>}
       {notice && <p className="text-sm text-green-700" role="status">{notice}</p>}
       <Card title="Eligible bills" description={`${eligibleOrders.length} paid bills in the latest results.`}>
-        {loading ? <p className="m-0 text-slate-500" role="status">Loading bills…</p> : <Table columns={columns} rows={rows} rowKey="id" emptyMessage="No paid bills are available to return." />}
+        {loading ? <p className="m-0 text-slate-500" role="status"><T>{"Loading bills…"}</T></p> : <Table columns={columns} rows={rows} rowKey="id" emptyMessage="No paid bills are available to return." />}
       </Card>
       <Modal open={Boolean(selected)} onClose={() => !saving && setSelected(null)} title="Confirm full-bill return">
         {selected && (
@@ -89,15 +90,15 @@ export default function ReturnsPage() {
               <p className="mb-0 mt-1 text-slate-600">{dateTime(selected.soldAt || selected.createdAt)} · {selected.lines?.length || 0} line items</p>
               <p className="mb-0 mt-3 font-semibold">Full refund: {amount(selected.grandTotal)}</p>
             </div>
-            <p className="m-0 text-sm text-slate-600">All items on this bill will be restored to stock. This action cannot be reversed.</p>
+            <p className="m-0 text-sm text-slate-600"><T>{"All items on this bill will be restored to stock. This action cannot be reversed."}</T></p>
             {isWalletSale(selected) && (
               <Select label="Wallet refund status" value={refundMethod} onChange={(event) => setRefundMethod(event.target.value)}>
-                <option value="">Not yet refunded</option>
-                <option value="MANUAL">Refund completed manually</option>
-                <option value="API">Refund completed via API</option>
+                <option value=""><T>{"Not yet refunded"}</T></option>
+                <option value="MANUAL"><T>{"Refund completed manually"}</T></option>
+                <option value="API"><T>{"Refund completed via API"}</T></option>
               </Select>
             )}
-            {isWalletSale(selected) && refundMethod === 'API' && <p className="m-0 text-xs text-slate-500">This records a completed refund; it does not initiate a provider transaction.</p>}
+            {isWalletSale(selected) && refundMethod === 'API' && <p className="m-0 text-xs text-slate-500"><T>{"This records a completed refund; it does not initiate a provider transaction."}</T></p>}
             {actionError && <p className="m-0 field-error" role="alert">{actionError}</p>}
             <div className="flex justify-end gap-2">
               <Button type="button" variant="secondary" disabled={saving} onClick={() => setSelected(null)}>Cancel</Button>

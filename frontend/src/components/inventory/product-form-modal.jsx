@@ -10,6 +10,7 @@ import QuickAddBrandModal from './quick-add-brand-modal';
 import QuickAddCategoryModal from './quick-add-category-modal';
 import QuickAddUnitModal from './quick-add-unit-modal';
 import VendorAutocomplete from './vendor-autocomplete';
+import { T } from '@/i18n/language-provider';
 
 const emptyForm = {
   name: '',
@@ -183,8 +184,8 @@ export default function ProductFormModal({
           <div className="grid gap-4 sm:grid-cols-2">
             <Input label="Product name" name="name" value={form.name} onChange={(event) => update('name', event.target.value)} required maxLength={150} autoFocus />
             <Select label="Owner" name="ownerType" value={form.ownerType} onChange={(event) => update('ownerType', event.target.value)}>
-              <option value="COMPANY">Company</option>
-              <option value="VENDOR">Vendor</option>
+              <option value="COMPANY"><T>{"Company"}</T></option>
+              <option value="VENDOR"><T>{"Vendor"}</T></option>
             </Select>
           </div>
 
@@ -195,29 +196,29 @@ export default function ProductFormModal({
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex items-end gap-2">
               <Select label="Category" name="categoryId" value={form.categoryId} onChange={(event) => update('categoryId', event.target.value)} required className="min-w-0 flex-1">
-                <option value="">Select category</option>
+                <option value=""><T>{"Select category"}</T></option>
                 {categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
               </Select>
-              {can('categories:write') && <Button type="button" variant="secondary" size="sm" aria-label="Quick add category" title="Quick add category" onClick={() => setQuickAdd('category')}><Plus size={15} /> Quick Add</Button>}
+              {can('categories:write') && <Button type="button" variant="secondary" size="sm" aria-label="Quick add category" title="Quick add category" onClick={() => setQuickAdd('category')}><Plus size={15} /> <T>{"Quick Add"}</T></Button>}
             </div>
             <div className="flex items-end gap-2">
               <Select label="Brand" name="brandId" value={form.brandId} onChange={(event) => update('brandId', event.target.value)} className="min-w-0 flex-1">
-                <option value="">Select brand (optional)</option>
+                <option value=""><T>{"Select brand (optional)"}</T></option>
                 {brands.map((brand) => <option key={brand.id} value={brand.id}>{brand.name}</option>)}
               </Select>
-              {can('brands:write') && <Button type="button" variant="secondary" size="sm" aria-label="Quick add brand" title="Quick add brand" onClick={() => setQuickAdd('brand')}><Plus size={15} /> Quick Add</Button>}
+              {can('brands:write') && <Button type="button" variant="secondary" size="sm" aria-label="Quick add brand" title="Quick add brand" onClick={() => setQuickAdd('brand')}><Plus size={15} /> <T>{"Quick Add"}</T></Button>}
             </div>
             <div className="flex items-end gap-2">
               <Input label="Unit Quantity / Value" name="unitValue" type="number" min="0" step="any" value={form.unitValue} onChange={(event) => update('unitValue', event.target.value)} placeholder="e.g. 500" className="min-w-0 flex-1" />
               <Select label="Unit" name="unitId" value={form.unitId} onChange={(event) => update('unitId', event.target.value)} required className="min-w-0 flex-1">
-                <option value="">Select unit</option>
+                <option value=""><T>{"Select unit"}</T></option>
                 {units.map((unit) => <option key={unit.id} value={unit.id}>{unit.name} ({unit.abbreviation})</option>)}
               </Select>
-              {can('units:write') && <Button type="button" variant="secondary" size="sm" aria-label="Quick add unit" title="Quick add unit" onClick={() => setQuickAdd('unit')}><Plus size={15} /> Quick Add</Button>}
+              {can('units:write') && <Button type="button" variant="secondary" size="sm" aria-label="Quick add unit" title="Quick add unit" onClick={() => setQuickAdd('unit')}><Plus size={15} /> <T>{"Quick Add"}</T></Button>}
             </div>
             <Input label="Barcode" name="barcode" value="Generated when product is saved" readOnly />
           </div>
-          {catalogLoading && <p role="status" className="text-xs text-slate-500">Loading product categories, brands, and units...</p>}
+          {catalogLoading && <p role="status" className="text-xs text-slate-500"><T>{"Loading product categories, brands, and units..."}</T></p>}
           {catalogErrors.map((message) => <p key={message} role="alert" className="text-xs text-amber-800">{message}</p>)}
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -225,11 +226,11 @@ export default function ProductFormModal({
             <Input label="MRP (৳)" name="mrp" type="number" min="0" step="0.01" value={form.mrp} onChange={(event) => update('mrp', event.target.value)} required />
           </div>
           <div className="rounded border border-slate-200 bg-slate-50 px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Margin</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500"><T>{"Margin"}</T></p>
             <p className={`mt-1 text-lg font-semibold ${marginWarning || invalidMrp ? 'text-amber-800' : 'text-slate-900'}`}>
               {margin === null ? 'Enter prices to calculate' : money(margin)}
             </p>
-            {invalidMrp && <p role="alert" className="mt-1 text-xs text-red-700">MRP must be greater than or equal to vendor price.</p>}
+            {invalidMrp && <p role="alert" className="mt-1 text-xs text-red-700"><T>{"MRP must be greater than or equal to vendor price."}</T></p>}
             {marginWarning && !invalidMrp && <p role="status" className="mt-1 text-xs text-amber-800">Margin is below the {discountPercent}% shareholder discount threshold ({money(warningAmount)}).</p>}
           </div>
 

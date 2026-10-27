@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { PauseCircle, X } from 'lucide-react';
 import Button from '@/components/ui/button';
 import { lineTotal } from '@/services/pos-cart-utils.cjs';
+import { T } from '@/i18n/language-provider';
 
 const STORAGE_KEY = 'purebazar.pos.heldSales';
 const round2 = (n) => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
@@ -57,7 +58,7 @@ export function HeldBillsModal({ held, onRestore, onDiscard, onClose }) {
           <h2 className="text-lg font-semibold text-slate-900">Held Bills ({held.length})</h2>
           <button type="button" aria-label="Close" onClick={onClose}><X size={18} /></button>
         </div>
-        {held.length === 0 && <p className="py-6 text-center text-sm text-slate-500">No held bills.</p>}
+        {held.length === 0 && <p className="py-6 text-center text-sm text-slate-500"><T>{"No held bills."}</T></p>}
         <ul className="space-y-2">
           {held.map((sale) => (
             <li key={sale.id} className="rounded-lg border border-slate-200 p-3 text-sm">

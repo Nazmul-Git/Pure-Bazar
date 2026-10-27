@@ -6,6 +6,7 @@ import Select from '@/components/ui/select';
 import {
   availableStock, canSellPieces, isPiece, lineTotal, unitPrice,
 } from '@/services/pos-cart-utils.cjs';
+import { T } from '@/i18n/language-provider';
 
 const money = (value) => (Number(value) || 0).toFixed(2);
 
@@ -13,11 +14,11 @@ export default function CartPanel({ items, onQuantity, onUnit, onRemove, onDisco
   return (
     <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
       <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
-        <h2 className="font-semibold text-slate-900">Current bill</h2>
+        <h2 className="font-semibold text-slate-900"><T>{"Current bill"}</T></h2>
         <span className="text-sm text-slate-500">{items.length} {items.length === 1 ? 'item' : 'items'}</span>
       </div>
       {items.length === 0 ? (
-        <p className="px-4 py-12 text-center text-sm text-slate-500">Scan an item barcode to start a bill.</p>
+        <p className="px-4 py-12 text-center text-sm text-slate-500"><T>{"Scan an item barcode to start a bill."}</T></p>
       ) : (
         <ul className="divide-y divide-slate-100">
           {items.map((item) => (
@@ -73,8 +74,8 @@ export default function CartPanel({ items, onQuantity, onUnit, onRemove, onDisco
                     value={item.unit || 'PACKAGE'}
                     onChange={(event) => onUnit(item.productId, event.target.value)}
                   >
-                    <option value="PACKAGE">Box</option>
-                    <option value="PIECE">Pcs</option>
+                    <option value="PACKAGE"><T>{"Box"}</T></option>
+                    <option value="PIECE"><T>{"Pcs"}</T></option>
                   </Select>
                 )}
                 <Select
@@ -82,8 +83,8 @@ export default function CartPanel({ items, onQuantity, onUnit, onRemove, onDisco
                   value={item.discount?.type || 'PERCENT'}
                   onChange={(event) => onDiscount(item.productId, { type: event.target.value })}
                 >
-                  <option value="PERCENT">Percent</option>
-                  <option value="FIXED">Fixed amount</option>
+                  <option value="PERCENT"><T>{"Percent"}</T></option>
+                  <option value="FIXED"><T>{"Fixed amount"}</T></option>
                 </Select>
                 <Input
                   label={item.discount?.type === 'FIXED' ? 'Discount (৳)' : 'Discount (%)'}

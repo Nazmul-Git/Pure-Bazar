@@ -7,6 +7,7 @@ import BarcodeGraphic from '@/components/inventory/barcode-graphic';
 import { buildBarcodeLabels } from '@/services/barcodeEngine';
 import { getProducts } from '@/services/inventory';
 import { downloadOutput, printESC } from '@/utils/print-esc';
+import { T } from '@/i18n/language-provider';
 
 export default function BarcodesPage() {
   const { token, user, initialized } = useSelector((state) => state.auth);
@@ -103,15 +104,15 @@ export default function BarcodesPage() {
     { key: 'actions', label: 'Labels', render: (_, product) => <Button size="sm" variant="secondary" onClick={() => addProduct(product)}>Add</Button> },
   ];
 
-  if (!initialized || loading) return <p role="status" className="py-10 text-center text-sm text-slate-500">Loading barcode labels...</p>;
-  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">You do not have permission to generate product labels.</p>;
+  if (!initialized || loading) return <p role="status" className="py-10 text-center text-sm text-slate-500"><T>{"Loading barcode labels..."}</T></p>;
+  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><T>{"You do not have permission to generate product labels."}</T></p>;
 
   return (
     <section className="space-y-5">
       <header>
-        <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Inventory</p>
-        <h1 className="text-2xl font-semibold text-slate-900">Barcode &amp; Price Labels</h1>
-        <p className="mt-1 text-sm text-slate-600">Select products and label quantities, then preview, print, or export printer commands.</p>
+        <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"Inventory"}</T></p>
+        <h1 className="text-2xl font-semibold text-slate-900"><T>{"Barcode & Price Labels"}</T></h1>
+        <p className="mt-1 text-sm text-slate-600"><T>{"Select products and label quantities, then preview, print, or export printer commands."}</T></p>
       </header>
       {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
       {notice && <p role="status" className="rounded border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{notice}</p>}
@@ -125,11 +126,11 @@ export default function BarcodesPage() {
         <Card title="Label batch" description="Add products more than once or adjust the number of copies.">
           <div className="mb-4 max-w-xs">
             <Select label="Label format" name="labelType" value={labelType} onChange={(event) => setLabelType(event.target.value)}>
-              <option value="price">Barcode + price label</option>
-              <option value="barcode">Barcode-only label</option>
+              <option value="price"><T>{"Barcode + price label"}</T></option>
+              <option value="barcode"><T>{"Barcode-only label"}</T></option>
             </Select>
           </div>
-          {queue.length === 0 ? <p className="rounded border border-dashed border-slate-300 p-5 text-center text-sm text-slate-500">Add one or more products to create a batch.</p> : (
+          {queue.length === 0 ? <p className="rounded border border-dashed border-slate-300 p-5 text-center text-sm text-slate-500"><T>{"Add one or more products to create a batch."}</T></p> : (
             <div className="space-y-2">
               {queue.map((item) => {
                 const product = products.find((entry) => entry.id === item.productId);
@@ -154,7 +155,7 @@ export default function BarcodesPage() {
         <div id="label-print-preview" className="label-grid">
           {generated?.labels.map((label, index) => (
             <article className="label-card" key={`${label.barcode}-${index}`}>
-              <strong className="label-brand">PureBazar</strong>
+              <strong className="label-brand"><T>{"PureBazar"}</T></strong>
               <strong className="label-name">{label.name}</strong>
               <BarcodeGraphic value={label.barcode} />
               {labelType === 'price' && <strong className="label-price">BDT {label.price}</strong>}

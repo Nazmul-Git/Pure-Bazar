@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react';
 import Button from '@/components/ui/button';
 import useAuth from '@/store/use-auth';
+import { T } from '@/i18n/language-provider';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -28,29 +29,29 @@ export default function LoginPage() {
     <main className="login-screen">
       <aside className="login-brand-panel">
         <a className="login-brand" href="/login" aria-label="PureBazar home">
-          <span className="login-brand-mark">PB</span>
-          <span>PureBazar</span>
+          <span className="login-brand-mark"><T>{"PB"}</T></span>
+          <span><T>{"PureBazar"}</T></span>
         </a>
         <div className="login-brand-copy">
-          <span className="login-kicker">INVENTORY AND POINT OF SALE</span>
-          <h1>Good operations start with a clear view.</h1>
-          <p>Your workspace for stock, sales, and the people who keep things moving.</p>
+          <span className="login-kicker"><T>{"INVENTORY AND POINT OF SALE"}</T></span>
+          <h1><T>{"Good operations start with a clear view."}</T></h1>
+          <p><T>{"Your workspace for stock, sales, and the people who keep things moving."}</T></p>
         </div>
         <span className="login-brand-foot">PUREBAZAR <span>·</span> OPERATIONS</span>
       </aside>
 
       <section className="login-form-panel" aria-labelledby="login-title">
         <div className="login-form-wrap">
-          <div className="login-mobile-brand"><span className="login-brand-mark">PB</span> PureBazar</div>
+          <div className="login-mobile-brand"><span className="login-brand-mark"><T>{"PB"}</T></span> PureBazar</div>
           <div className="login-heading">
-            <span className="login-kicker">YOUR WORKSPACE</span>
-            <h2 id="login-title">Welcome back</h2>
-            <p>Sign in with your staff account to continue.</p>
+            <span className="login-kicker"><T>{"YOUR WORKSPACE"}</T></span>
+            <h2 id="login-title"><T>{"Welcome back"}</T></h2>
+            <p><T>{"Sign in with your staff account to continue."}</T></p>
           </div>
 
           <form className="login-form" onSubmit={handleSubmit}>
             <label className="ui-field" htmlFor="email">
-              <span className="field-label">Email address</span>
+              <span className="field-label"><T>{"Email address"}</T></span>
               <span className="login-password-wrap">
                 <Mail className="login-field-icon" size={17} aria-hidden="true" />
                 <input
@@ -68,7 +69,7 @@ export default function LoginPage() {
               </span>
             </label>
             <label className="ui-field" htmlFor="password">
-              <span className="field-label">Password</span>
+              <span className="field-label"><T>{"Password"}</T></span>
               <span className="login-password-wrap">
                 <LockKeyhole className="login-field-icon" size={17} aria-hidden="true" />
                 <input

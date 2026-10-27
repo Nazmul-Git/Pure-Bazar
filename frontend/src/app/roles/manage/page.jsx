@@ -7,6 +7,7 @@ import { AlertTriangle, KeyRound, Pencil, Plus, Shield, Trash2 } from 'lucide-re
 import { Button, Input, Modal } from '@/components/ui';
 import { createRole, deleteRole, getRoles, getUsers, updateRole } from '@/services/admin';
 import { permissionGroups, presets, sensitivePrefixes, toFormPermissions } from './permission-options';
+import { T } from '@/i18n/language-provider';
 const emptyForm = { name: '', permissions: ['dashboard:read'] };
 
 export default function RoleManagementPage() {
@@ -107,16 +108,16 @@ export default function RoleManagementPage() {
     <section className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Access control</p>
-          <h1 className="text-2xl font-semibold text-slate-900">Manage roles</h1>
-          <p className="mt-1 text-sm text-slate-600">Define permissions for each team role.</p>
+          <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"Access control"}</T></p>
+          <h1 className="text-2xl font-semibold text-slate-900"><T>{"Manage roles"}</T></h1>
+          <p className="mt-1 text-sm text-slate-600"><T>{"Define permissions for each team role."}</T></p>
         </div>
-        <Button onClick={startCreate}><Plus size={17} /> Add role</Button>
+        <Button onClick={startCreate}><Plus size={17} /> <T>{"Add role"}</T></Button>
       </div>
 
       <nav aria-label="Role administration" className="flex gap-5 border-b border-slate-200">
-        <Link href="/roles/manage" aria-current="page" className="border-b-2 border-blue-600 pb-3 text-sm font-semibold text-blue-700">Roles</Link>
-        <Link href="/roles/users" className="pb-3 text-sm font-medium text-slate-500 hover:text-slate-900">Users</Link>
+        <Link href="/roles/manage" aria-current="page" className="border-b-2 border-blue-600 pb-3 text-sm font-semibold text-blue-700"><T>{"Roles"}</T></Link>
+        <Link href="/roles/users" className="pb-3 text-sm font-medium text-slate-500 hover:text-slate-900"><T>{"Users"}</T></Link>
       </nav>
 
       {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
@@ -124,31 +125,31 @@ export default function RoleManagementPage() {
       <div className="overflow-hidden rounded-md border border-slate-200 bg-white">
         <div className="flex items-center gap-3 border-b border-slate-200 px-4 py-3">
           <Shield size={18} className="text-slate-500" />
-          <h2 className="text-sm font-semibold text-slate-800">System roles</h2>
+          <h2 className="text-sm font-semibold text-slate-800"><T>{"System roles"}</T></h2>
           <span className="ml-auto text-xs text-slate-500">{roles.length} roles</span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[700px] text-left text-sm">
             <thead className="bg-slate-50 text-xs uppercase text-slate-500">
-              <tr><th className="px-4 py-3 font-semibold">Role</th><th className="px-4 py-3 font-semibold">Assigned users</th><th className="px-4 py-3 font-semibold">Permissions</th><th className="px-4 py-3 text-right font-semibold">Actions</th></tr>
+              <tr><th className="px-4 py-3 font-semibold"><T>{"Role"}</T></th><th className="px-4 py-3 font-semibold"><T>{"Assigned users"}</T></th><th className="px-4 py-3 font-semibold"><T>{"Permissions"}</T></th><th className="px-4 py-3 text-right font-semibold"><T>{"Actions"}</T></th></tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {loading ? <tr><td colSpan="4" className="px-4 py-10 text-center text-slate-500">Loading roles...</td></tr>
-                : roles.length === 0 ? <tr><td colSpan="4" className="px-4 py-10 text-center text-slate-500">No roles found.</td></tr>
+              {loading ? <tr><td colSpan="4" className="px-4 py-10 text-center text-slate-500"><T>{"Loading roles..."}</T></td></tr>
+                : roles.length === 0 ? <tr><td colSpan="4" className="px-4 py-10 text-center text-slate-500"><T>{"No roles found."}</T></td></tr>
                   : roles.map((role) => {
                     const permissionList = role.permissions || [];
                     const protectedRole = role.name === 'Super Admin';
                     const assignedCount = users.filter((user) => user.roleId === role._id).length;
                     return (
                       <tr key={role._id}>
-                        <td className="px-4 py-3 font-medium text-slate-900">{role.name}{protectedRole && <span className="ml-2 text-xs font-normal text-slate-500">Built-in</span>}</td>
+                        <td className="px-4 py-3 font-medium text-slate-900">{role.name}{protectedRole && <span className="ml-2 text-xs font-normal text-slate-500"><T>{"Built-in"}</T></span>}</td>
                         <td className="px-4 py-3 text-slate-600">{assignedCount}</td>
                         <td className="px-4 py-3">
                           <div className="flex max-w-xl flex-wrap gap-1.5">
-                            {permissionList.includes('*') ? <span className="rounded bg-amber-50 px-2 py-1 text-xs text-amber-800">All permissions</span>
+                            {permissionList.includes('*') ? <span className="rounded bg-amber-50 px-2 py-1 text-xs text-amber-800"><T>{"All permissions"}</T></span>
                               : permissionList.slice(0, 3).map((permission) => <span key={permission} className="rounded bg-slate-100 px-2 py-1 text-xs text-slate-700">{permission}</span>)}
                             {!permissionList.includes('*') && permissionList.length > 3 && <span className="px-1 py-1 text-xs text-slate-500">+{permissionList.length - 3} more</span>}
-                            {!permissionList.length && <span className="text-xs text-slate-400">No permissions</span>}
+                            {!permissionList.length && <span className="text-xs text-slate-400"><T>{"No permissions"}</T></span>}
                           </div>
                         </td>
                         <td className="px-4 py-3 text-right">
@@ -170,7 +171,7 @@ export default function RoleManagementPage() {
           <Input label="Role name" name="name" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} required minLength={2} maxLength={80} />
           <div className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-xs font-semibold text-slate-700">Permissions</span>
+              <span className="text-xs font-semibold text-slate-700"><T>{"Permissions"}</T></span>
               <div className="flex flex-wrap gap-2">
                 {Object.entries(presets).map(([name, permissions]) => (
                   <Button
@@ -190,8 +191,8 @@ export default function RoleManagementPage() {
                   <legend className="px-1 text-sm font-semibold text-slate-800">{group.name}</legend>
                   <div className="grid grid-cols-[minmax(0,1fr)_3.5rem_3.5rem] gap-x-2 gap-y-3">
                     <span />
-                    <span className="text-center text-xs font-medium text-slate-500">Read</span>
-                    <span className="text-center text-xs font-medium text-slate-500">Write</span>
+                    <span className="text-center text-xs font-medium text-slate-500"><T>{"Read"}</T></span>
+                    <span className="text-center text-xs font-medium text-slate-500"><T>{"Write"}</T></span>
                     {group.rows.map((row) => (
                       <div key={row.label} className="col-span-3 grid grid-cols-subgrid items-center gap-x-2">
                         <span className="text-xs text-slate-700">{row.label}</span>
@@ -229,7 +230,7 @@ export default function RoleManagementPage() {
           )) && (
             <div role="alert" className="flex gap-2 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
               <AlertTriangle size={18} className="mt-0.5 shrink-0" />
-              <p><strong>High-risk permissions selected.</strong> This non-Super Admin role will receive sensitive permissions for settings, role administration, vendor payouts, or audit logs. You will be asked to confirm before saving.</p>
+              <p><strong><T>{"High-risk permissions selected."}</T></strong> This non-Super Admin role will receive sensitive permissions for settings, role administration, vendor payouts, or audit logs. You will be asked to confirm before saving.</p>
             </div>
           )}
           {error && <p role="alert" className="text-sm text-red-700">{error}</p>}

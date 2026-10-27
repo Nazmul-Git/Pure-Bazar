@@ -8,6 +8,7 @@ import {
   getWalletReconciliation, resolveWalletReconciliation, runWalletReconciliation,
 } from '@/services/finance';
 import { formatFinanceDate, formatFinanceMoney, localDateInput } from './finance-utils';
+import { T } from '@/i18n/language-provider';
 
 function statusBadge(record) {
   if (record.status === 'Matched') return <Badge tone="success">Matched</Badge>;
@@ -95,21 +96,21 @@ export default function WalletReconciliationPage() {
       label: 'Action',
       render: (_, record) => record.status === 'Mismatch' && !record.resolved
         ? <Button size="sm" variant="secondary" disabled={!canWrite} onClick={() => { setResolving(record); setReason(''); }}>Resolve</Button>
-        : record.resolved ? <span className="text-xs text-slate-500" title={record.resolutionReason}>Reason recorded</span> : '—',
+        : record.resolved ? <span className="text-xs text-slate-500" title={record.resolutionReason}><T>{"Reason recorded"}</T></span> : '—',
     },
   ];
 
-  if (!initialized) return <p role="status" className="py-10 text-center text-sm text-slate-500">Loading wallet reconciliation...</p>;
-  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">You do not have permission to view wallet reconciliation.</p>;
+  if (!initialized) return <p role="status" className="py-10 text-center text-sm text-slate-500"><T>{"Loading wallet reconciliation..."}</T></p>;
+  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><T>{"You do not have permission to view wallet reconciliation."}</T></p>;
 
   const totals = data.totals;
   return (
     <section className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Finance</p>
-          <h1 className="text-2xl font-semibold text-slate-900">Wallet Reconciliation</h1>
-          <p className="mt-1 text-sm text-slate-600">Compare POS wallet bills with the member's Probashi transaction report.</p>
+          <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"Finance"}</T></p>
+          <h1 className="text-2xl font-semibold text-slate-900"><T>{"Wallet Reconciliation"}</T></h1>
+          <p className="mt-1 text-sm text-slate-600"><T>{"Compare POS wallet bills with the member's Probashi transaction report."}</T></p>
         </div>
         <Button variant="secondary" onClick={() => setReload((value) => value + 1)} disabled={loading || running}>
           <RefreshCw size={16} /> Refresh
@@ -127,7 +128,7 @@ export default function WalletReconciliationPage() {
         <div className="max-w-xs">
           <Input label="Business date" name="date" type="date" max={localDateInput()} value={date} onChange={(event) => setDate(event.target.value)} />
         </div>
-        {!canWrite && <p className="mt-3 text-sm text-slate-500">Read-only access. Finance write permission is required to run or resolve reconciliation records.</p>}
+        {!canWrite && <p className="mt-3 text-sm text-slate-500"><T>{"Read-only access. Finance write permission is required to run or resolve reconciliation records."}</T></p>}
       </Card>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -149,7 +150,7 @@ export default function WalletReconciliationPage() {
       )}
 
       <Card title="Wallet bills" description={`${data.records.length} bill(s) for ${formatFinanceDate(`${date}T00:00:00`)}.`}>
-        {loading ? <p role="status" className="py-8 text-center text-sm text-slate-500">Loading reconciliation records...</p> : (
+        {loading ? <p role="status" className="py-8 text-center text-sm text-slate-500"><T>{"Loading reconciliation records..."}</T></p> : (
           <Table columns={columns} rows={data.records} rowKey="_id" emptyMessage="No wallet bills have been reconciled for this date. Run reconciliation to check the day's bills." />
         )}
       </Card>
@@ -161,9 +162,9 @@ export default function WalletReconciliationPage() {
       >
         {resolving && (
           <form className="space-y-4" onSubmit={resolveMismatch}>
-            <p className="text-sm text-slate-600">Record why this mismatch is considered resolved. This action cannot be undone.</p>
+            <p className="text-sm text-slate-600"><T>{"Record why this mismatch is considered resolved. This action cannot be undone."}</T></p>
             <label className="ui-field" htmlFor="resolution-reason">
-              <span className="field-label">Resolution reason</span>
+              <span className="field-label"><T>{"Resolution reason"}</T></span>
               <textarea id="resolution-reason" className="ui-input min-h-24" minLength={3} maxLength={500} required value={reason} onChange={(event) => setReason(event.target.value)} />
               <span className="text-xs text-slate-500">{reason.trim().length}/500 characters (minimum 3)</span>
             </label>

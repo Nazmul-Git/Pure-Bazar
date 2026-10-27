@@ -8,6 +8,7 @@ import {
   closePosShift, getCurrentPosShift, getPosShiftReport, openPosShift,
 } from '@/services/pos-admin';
 import { paymentMethodLabel } from '@/services/pos-screen-utils.cjs';
+import { T } from '@/i18n/language-provider';
 
 const currency = new Intl.NumberFormat('en-BD', { style: 'currency', currency: 'BDT' });
 const amount = (value) => (value == null ? '—' : currency.format(Number(value) || 0));
@@ -22,9 +23,9 @@ function Report({ shift, report }) {
   return (
     <div className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-3">
-        <Card><small className="text-slate-500">Opening cash</small><strong className="mt-1 block text-lg">{amount(shift.openingCash)}</strong></Card>
-        <Card><small className="text-slate-500">Expected cash</small><strong className="mt-1 block text-lg">{amount(report.expectedCash)}</strong></Card>
-        <Card><small className="text-slate-500">Cash difference</small><strong className="mt-1 block text-lg">{amount(report.cashDifference)}</strong></Card>
+        <Card><small className="text-slate-500"><T>{"Opening cash"}</T></small><strong className="mt-1 block text-lg">{amount(shift.openingCash)}</strong></Card>
+        <Card><small className="text-slate-500"><T>{"Expected cash"}</T></small><strong className="mt-1 block text-lg">{amount(report.expectedCash)}</strong></Card>
+        <Card><small className="text-slate-500"><T>{"Cash difference"}</T></small><strong className="mt-1 block text-lg">{amount(report.cashDifference)}</strong></Card>
       </div>
       <Card title="Tender summary" description="Cash expected includes the opening float.">
         <Table
@@ -125,20 +126,20 @@ export default function ShiftClosePage() {
     }
   }
 
-  if (!canRead) return <section className="access-denied"><h1>Access denied</h1><p>Your role does not have POS read permission.</p></section>;
+  if (!canRead) return <section className="access-denied"><h1><T>{"Access denied"}</T></h1><p><T>{"Your role does not have POS read permission."}</T></p></section>;
 
   const currentShift = shift || closedShift;
   const currentReport = shift ? report : closedReport;
   return (
     <div className="space-y-5">
       <header className="flex flex-wrap items-end justify-between gap-3">
-        <div><h1 className="m-0 text-2xl font-semibold">Cashier Shift / Day Close</h1><p className="mb-0 mt-1 text-sm text-slate-500">Open your register, reconcile tenders, and close the shift.</p></div>
+        <div><h1 className="m-0 text-2xl font-semibold"><T>{"Cashier Shift / Day Close"}</T></h1><p className="mb-0 mt-1 text-sm text-slate-500"><T>{"Open your register, reconcile tenders, and close the shift."}</T></p></div>
         {shift && <Badge tone="success">Shift open</Badge>}
         {closedShift && !shift && <Badge tone="neutral">Shift closed</Badge>}
       </header>
       {error && <p className="field-error" role="alert">{error}</p>}
       {notice && <p className="text-sm text-green-700" role="status">{notice}</p>}
-      {loading ? <Card><p className="m-0 text-slate-500" role="status">Loading shift…</p></Card> : (
+      {loading ? <Card><p className="m-0 text-slate-500" role="status"><T>{"Loading shift…"}</T></p></Card> : (
         <>
           {currentShift && currentReport && (
             <Card title={shift ? 'Current shift' : 'Last closed shift'} description={`${user?.name || 'Cashier'} · Opened ${dateTime(currentShift.openedAt)}${currentShift.closedAt ? ` · Closed ${dateTime(currentShift.closedAt)}` : ''}`}>
@@ -152,7 +153,7 @@ export default function ShiftClosePage() {
                   <Input className="min-w-56 flex-1" label="Opening cash (৳)" type="number" min="0" step="0.01" required value={openingCash} onChange={(event) => setOpeningCash(event.target.value)} />
                   <Button type="submit" disabled={saving}>{saving ? 'Opening…' : 'Open shift'}</Button>
                 </form>
-              ) : <p className="m-0 text-sm text-slate-500">POS write permission is required to open a shift.</p>}
+              ) : <p className="m-0 text-sm text-slate-500"><T>{"POS write permission is required to open a shift."}</T></p>}
             </Card>
           )}
           {shift && (
@@ -162,7 +163,7 @@ export default function ShiftClosePage() {
                   <Input className="min-w-56 flex-1" label="Actual cash counted (৳)" type="number" min="0" step="0.01" required value={actualCash} onChange={(event) => setActualCash(event.target.value)} />
                   <Button type="submit" disabled={saving}>{saving ? 'Closing…' : 'Close shift'}</Button>
                 </form>
-              ) : <p className="m-0 text-sm text-slate-500">POS write permission is required to close a shift.</p>}
+              ) : <p className="m-0 text-sm text-slate-500"><T>{"POS write permission is required to close a shift."}</T></p>}
             </Card>
           )}
         </>

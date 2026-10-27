@@ -7,6 +7,7 @@ import { Badge, Button, Card, Table } from '@/components/ui';
 import { getVendorStatements, getVendors } from '@/services/vendor';
 import { approvePayoutBatch } from '@/services/finance';
 import { formatFinanceDate, formatFinanceMoney, sumMoneyCents } from './finance-utils';
+import { T } from '@/i18n/language-provider';
 
 export default function PayoutApprovalPage() {
   const { token, user, initialized } = useSelector((state) => state.auth);
@@ -93,16 +94,16 @@ export default function PayoutApprovalPage() {
     { key: 'status', label: 'Status', render: () => <Badge tone="warning">Draft</Badge> },
   ];
 
-  if (!initialized) return <p role="status" className="py-10 text-center text-sm text-slate-500">Loading payout approvals...</p>;
-  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">You do not have permission to view payout approvals.</p>;
+  if (!initialized) return <p role="status" className="py-10 text-center text-sm text-slate-500"><T>{"Loading payout approvals..."}</T></p>;
+  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><T>{"You do not have permission to view payout approvals."}</T></p>;
 
   return (
     <section className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Finance</p>
-          <h1 className="text-2xl font-semibold text-slate-900">Payout Approval</h1>
-          <p className="mt-1 text-sm text-slate-600">Select Draft vendor statements and approve them together as one audited batch.</p>
+          <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"Finance"}</T></p>
+          <h1 className="text-2xl font-semibold text-slate-900"><T>{"Payout Approval"}</T></h1>
+          <p className="mt-1 text-sm text-slate-600"><T>{"Select Draft vendor statements and approve them together as one audited batch."}</T></p>
         </div>
         <Button variant="secondary" onClick={() => setReload((value) => value + 1)} disabled={loading || approving}>
           <RefreshCw size={16} /> Refresh
@@ -115,8 +116,8 @@ export default function PayoutApprovalPage() {
         description="Approval is all-or-nothing: every selected statement must still be Draft."
         actions={<Button onClick={approveSelected} disabled={!canWrite || !selected.length || approving || loading}>{approving ? 'Approving...' : `Approve ${selected.length} selected`}</Button>}
       >
-        {!canWrite && <p className="mb-3 text-sm text-slate-500">You have read-only access. Payout approval permission is required to approve statements.</p>}
-        {loading ? <p role="status" className="py-8 text-center text-sm text-slate-500">Loading draft statements...</p> : (
+        {!canWrite && <p className="mb-3 text-sm text-slate-500"><T>{"You have read-only access. Payout approval permission is required to approve statements."}</T></p>}
+        {loading ? <p role="status" className="py-8 text-center text-sm text-slate-500"><T>{"Loading draft statements..."}</T></p> : (
           <>
             <p className="mb-3 text-sm text-slate-600">{drafts.length} drafts · <strong>{formatFinanceMoney(selectedCents / 100)}</strong> selected for approval (maximum 100 per batch)</p>
             <Table columns={columns} rows={drafts} rowKey="_id" emptyMessage="There are no draft statements awaiting approval." />

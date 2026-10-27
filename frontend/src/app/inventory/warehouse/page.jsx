@@ -6,6 +6,7 @@ import { Search } from 'lucide-react';
 import { Badge, Card, Input, Table } from '@/components/ui';
 import { formatStock } from '@/services/stock-units.cjs';
 import { getLocations, getWarehouseStock } from '@/services/stock';
+import { T } from '@/i18n/language-provider';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
 
@@ -58,15 +59,15 @@ export default function WarehousePage() {
     { key: 'quantity', label: 'Current stock', render: (quantity, item) => <strong className="text-slate-900">{formatStock(quantity, item.unitsPerPackage)}</strong> },
   ];
 
-  if (!initialized || loading) return <p role="status" className="py-10 text-center text-sm text-slate-500">Loading Central Warehouse stock...</p>;
-  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">You do not have permission to view warehouse stock.</p>;
+  if (!initialized || loading) return <p role="status" className="py-10 text-center text-sm text-slate-500"><T>{"Loading Central Warehouse stock..."}</T></p>;
+  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><T>{"You do not have permission to view warehouse stock."}</T></p>;
 
   return (
     <section className="space-y-5">
       <div>
-        <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Inventory</p>
+        <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"Inventory"}</T></p>
         <h1 className="text-2xl font-semibold text-slate-900">{location?.name || 'Central Warehouse'} Stock</h1>
-        <p className="mt-1 text-sm text-slate-600">Current balance is calculated from approved stock movements.</p>
+        <p className="mt-1 text-sm text-slate-600"><T>{"Current balance is calculated from approved stock movements."}</T></p>
       </div>
       {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
       <Card title="Stock on hand" description={`${stock.length} products with stock movement history`}>

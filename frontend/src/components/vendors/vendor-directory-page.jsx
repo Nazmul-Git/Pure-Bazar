@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import { Plus, RefreshCw, Search } from 'lucide-react';
 import { Badge, Button, Card, Input, Select, Table } from '@/components/ui';
 import { getVendors, updateVendorStatus } from '@/services/vendor';
+import { T } from '@/i18n/language-provider';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
 
@@ -123,25 +124,25 @@ export default function VendorDirectoryPage() {
   ];
 
   if (!initialized) {
-    return <p role="status" className="py-10 text-center text-sm text-slate-500">Loading vendor directory...</p>;
+    return <p role="status" className="py-10 text-center text-sm text-slate-500"><T>{"Loading vendor directory..."}</T></p>;
   }
   if (!token || !canRead) {
-    return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">You do not have permission to view vendors.</p>;
+    return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><T>{"You do not have permission to view vendors."}</T></p>;
   }
 
   return (
     <section className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Vendors</p>
-          <h1 className="text-2xl font-semibold text-slate-900">Vendor Directory</h1>
-          <p className="mt-1 text-sm text-slate-600">Search registered vendors, review payout details, and manage vendor status.</p>
+          <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"Vendors"}</T></p>
+          <h1 className="text-2xl font-semibold text-slate-900"><T>{"Vendor Directory"}</T></h1>
+          <p className="mt-1 text-sm text-slate-600"><T>{"Search registered vendors, review payout details, and manage vendor status."}</T></p>
         </div>
         <div className="flex gap-2">
           <Button variant="secondary" onClick={() => setReload((count) => count + 1)} disabled={loading}>
             <RefreshCw size={16} /> Refresh
           </Button>
-          {canWrite && <Link href="/vendors/register" className="ui-button button-primary button-md"><Plus size={16} /> Register Vendor</Link>}
+          {canWrite && <Link href="/vendors/register" className="ui-button button-primary button-md"><Plus size={16} /> <T>{"Register Vendor"}</T></Link>}
         </div>
       </div>
 
@@ -152,16 +153,16 @@ export default function VendorDirectoryPage() {
         <form className="grid gap-3 sm:grid-cols-[1fr_12rem_auto]" onSubmit={search}>
           <Input label="Search" name="vendorSearch" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Name, member ID, shop, mobile..." />
           <Select label="Status" name="vendorStatus" value={status} onChange={(event) => setStatus(event.target.value)}>
-            <option value="">All statuses</option>
+            <option value=""><T>{"All statuses"}</T></option>
             {['Active', 'Suspended', 'Closed'].map((value) => <option key={value} value={value}>{value}</option>)}
           </Select>
-          <div className="flex items-end"><Button type="submit"><Search size={16} /> Search</Button></div>
+          <div className="flex items-end"><Button type="submit"><Search size={16} /> <T>{"Search"}</T></Button></div>
         </form>
       </Card>
 
       <Card title="Registered vendors" description={`${vendors.length} vendor${vendors.length === 1 ? '' : 's'} found`}>
         {loading ? (
-          <p role="status" className="py-8 text-center text-sm text-slate-500">Loading vendors...</p>
+          <p role="status" className="py-8 text-center text-sm text-slate-500"><T>{"Loading vendors..."}</T></p>
         ) : (
           <Table columns={columns} rows={vendors} rowKey="id" emptyMessage="No vendors match these filters." />
         )}

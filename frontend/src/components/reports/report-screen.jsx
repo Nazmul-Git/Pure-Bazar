@@ -5,6 +5,7 @@ import { FileDown, FileSpreadsheet } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { Button, Card, Input, Table } from '@/components/ui';
 import { downloadReport, getReport } from '@/services/reports';
+import { T } from '@/i18n/language-provider';
 
 const reportConfig = {
   sales: {
@@ -202,7 +203,7 @@ export default function ReportScreen({ type }) {
   return (
     <section className="space-y-5">
       <header>
-        <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Reports</p>
+        <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"Reports"}</T></p>
         <h1 className="text-2xl font-semibold text-slate-900">{config.title}</h1>
         <p className="mt-1 text-sm text-slate-600">{config.description}</p>
       </header>
@@ -212,9 +213,9 @@ export default function ReportScreen({ type }) {
         <Input label="To date" type="date" min={filters.from || undefined} value={filters.to} onChange={(event) => updateFilter('to', event.target.value)} />
         {type === 'sales' && (
           <label className="ui-field" htmlFor="groupBy">
-            <span className="field-label">Group by</span>
+            <span className="field-label"><T>{"Group by"}</T></span>
             <select id="groupBy" className="ui-input" value={filters.groupBy} onChange={(event) => updateFilter('groupBy', event.target.value)}>
-              <option value="day">Day</option><option value="month">Month</option>
+              <option value="day"><T>{"Day"}</T></option><option value="month"><T>{"Month"}</T></option>
             </select>
           </label>
         )}
@@ -227,7 +228,7 @@ export default function ReportScreen({ type }) {
 
       {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
       {loading ? (
-        <p role="status" className="py-10 text-center text-slate-500">Loading report...</p>
+        <p role="status" className="py-10 text-center text-slate-500"><T>{"Loading report..."}</T></p>
       ) : report && (
         <>
           {metrics.length > 0 && (
@@ -288,7 +289,7 @@ export default function ReportScreen({ type }) {
                 </div>
               }
             >
-              <p className="m-0 text-sm text-slate-600">Exports include income, discounts, expenses, category details, and net profit.</p>
+              <p className="m-0 text-sm text-slate-600"><T>{"Exports include income, discounts, expenses, category details, and net profit."}</T></p>
             </Card>
           )}
         </>

@@ -10,6 +10,7 @@ import CashierDashboard from './cashier-dashboard';
 import InventoryDashboard from './inventory-dashboard';
 import { MetricCard, formatMoney, timeFormat } from './dashboard-shared';
 import { PaymentDonut, RevenueExpenseBars, SalesTrendChart } from './dashboard-charts';
+import { T } from '@/i18n/language-provider';
 import './dashboard.css';
 
 const dateFormat = new Intl.DateTimeFormat('en-BD', {
@@ -72,7 +73,7 @@ export default function DashboardScreen() {
         <div>
           <p className="dashboard-date">{dateFormat.format(new Date())}</p>
           <h1>Welcome back{user?.name ? `, ${user.name}` : ''}</h1>
-          <p className="dashboard-subtitle">Here’s what’s happening across your business today.</p>
+          <p className="dashboard-subtitle"><T>{"Here’s what’s happening across your business today."}</T></p>
         </div>
         <Button variant="secondary" onClick={() => setReload((current) => current + 1)} disabled={loading}>
           <RefreshCw size={16} className={loading ? 'dashboard-spinning' : ''} />
@@ -88,13 +89,13 @@ export default function DashboardScreen() {
       )}
 
       {loading && !dashboard ? (
-        <p className="dashboard-status" role="status">Loading your dashboard...</p>
+        <p className="dashboard-status" role="status"><T>{"Loading your dashboard..."}</T></p>
       ) : dashboard?.view === 'cashier' ? (
         <CashierDashboard dashboard={dashboard} />
       ) : dashboard?.view === 'inventory' ? (
         <InventoryDashboard dashboard={dashboard} />
       ) : dashboard?.view === 'general' ? (
-        <p className="dashboard-empty">No dashboard widgets are configured for your role.</p>
+        <p className="dashboard-empty"><T>{"No dashboard widgets are configured for your role."}</T></p>
       ) : dashboard && (
         <>
           <div className="dash-metrics">
@@ -111,7 +112,7 @@ export default function DashboardScreen() {
             <Card title="Today's sales by payment method" description="Payment totals from today's paid bills.">
               <PaymentDonut byMethod={dashboard.todayByPaymentMethod} />
               <div className="dashboard-chart-footer">
-                <span>Wallet bills</span>
+                <span><T>{"Wallet bills"}</T></span>
                 <strong>{formatMoney(dashboard.walletBillTotal)}</strong>
               </div>
             </Card>
@@ -121,13 +122,13 @@ export default function DashboardScreen() {
             <Card title="Revenue vs expenses" description="Last six months, side by side.">
               <RevenueExpenseBars data={dashboard.monthlyFinance} />
               <div className="dashboard-chart-footer">
-                <span>Expenses this month</span>
+                <span><T>{"Expenses this month"}</T></span>
                 <strong>{formatMoney(dashboard.monthExpenses)}</strong>
               </div>
             </Card>
 
             <Card title="Stock to watch" description={`Products at or below ${dashboard.lowStockThreshold} units.`}
-              actions={<Link className="dash-action" href="/inventory/goods-receives/new">Restock</Link>}>
+              actions={<Link className="dash-action" href="/inventory/goods-receives/new"><T>{"Restock"}</T></Link>}>
               <div className="dashboard-panel-summary">
                 <span className="dashboard-summary-icon"><Package size={17} /></span>
                 <strong>{lowStock.length}</strong>
@@ -148,13 +149,13 @@ export default function DashboardScreen() {
                   ))}
                 </ul>
               ) : (
-                <p className="dashboard-empty">No products are below the stock threshold.</p>
+                <p className="dashboard-empty"><T>{"No products are below the stock threshold."}</T></p>
               )}
             </Card>
           </div>
 
           <Card title="Recent activity" description="Latest recorded actions."
-            actions={<Link className="dash-action" href="/reports/audit-trail">View all</Link>}>
+            actions={<Link className="dash-action" href="/reports/audit-trail"><T>{"View all"}</T></Link>}>
             {recentActivity.length ? (
               <ul className="dashboard-list dashboard-activity">
                 {recentActivity.slice(0, 5).map((item) => (
@@ -168,7 +169,7 @@ export default function DashboardScreen() {
                 ))}
               </ul>
             ) : (
-              <p className="dashboard-empty">No recent activity.</p>
+              <p className="dashboard-empty"><T>{"No recent activity."}</T></p>
             )}
           </Card>
         </>

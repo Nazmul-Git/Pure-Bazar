@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -8,11 +8,13 @@ import Sidebar from './sidebar';
 import { getCurrentSection, getPageKey, getRoutePermissions } from './navigation';
 import useAuth from '@/store/use-auth';
 import { restoreAuth } from '@/store/auth-slice';
+import { useLanguage } from '@/i18n/language-provider';
 
 export default function AppShell({ children }) {
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useDispatch();
+  const { t } = useLanguage();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { initialized, isAuthenticated, canAccess } = useAuth();
 
@@ -27,16 +29,16 @@ export default function AppShell({ children }) {
   }, [initialized, isAuthenticated, pathname, router]);
 
   if (!initialized) {
-    return <main className="auth-status" role="status">Checking your session...</main>;
+    return <main className="auth-status" role="status">{t('Checking your session...')}</main>;
   }
   if (pathname === '/login') return isAuthenticated ? null : children;
-  if (!isAuthenticated) return <main className="auth-status" role="status">Redirecting to sign in...</main>;
+  if (!isAuthenticated) return <main className="auth-status" role="status">{t('Redirecting to sign in...')}</main>;
   if (!canAccess(getRoutePermissions(pathname), getPageKey(pathname))) {
     return (
       <main className="auth-status">
         <section className="access-denied">
-          <h1>Access denied</h1>
-          <p>Your role does not have permission to view this page.</p>
+          <h1>{t('Access denied')}</h1>
+          <p>{t('Your role does not have permission to view this page.')}</p>
         </section>
       </main>
     );

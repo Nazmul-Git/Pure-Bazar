@@ -12,6 +12,7 @@ import {
   getVendors,
   updateVendorStatement,
 } from '@/services/vendor';
+import { T } from '@/i18n/language-provider';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
 const today = new Date().toISOString().slice(0, 10);
@@ -162,16 +163,16 @@ export default function VendorLedgerPage() {
     });
   }
 
-  if (!initialized) return <p role="status" className="py-10 text-center text-sm text-slate-500">Loading vendor ledger...</p>;
-  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">You do not have permission to view vendor ledgers.</p>;
+  if (!initialized) return <p role="status" className="py-10 text-center text-sm text-slate-500"><T>{"Loading vendor ledger..."}</T></p>;
+  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><T>{"You do not have permission to view vendor ledgers."}</T></p>;
 
   return (
     <section className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Vendors</p>
-          <h1 className="text-2xl font-semibold text-slate-900">Vendor Ledger &amp; Earnings</h1>
-          <p className="mt-1 text-sm text-slate-600">Review vendor sales, earnings, and monthly statements.</p>
+          <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"Vendors"}</T></p>
+          <h1 className="text-2xl font-semibold text-slate-900"><T>{"Vendor Ledger & Earnings"}</T></h1>
+          <p className="mt-1 text-sm text-slate-600"><T>{"Review vendor sales, earnings, and monthly statements."}</T></p>
         </div>
         <Button variant="secondary" onClick={() => setReload((value) => value + 1)} disabled={loadingData || !vendorId}>
           <RefreshCw size={16} /> Refresh
@@ -183,7 +184,7 @@ export default function VendorLedgerPage() {
       <Card title="Ledger period" description="Choose a vendor and date range to review posted sales earnings.">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Select label="Vendor" name="vendor" value={vendorId} onChange={(event) => setVendorId(event.target.value)} disabled={loadingVendors}>
-            <option value="">Select a vendor</option>
+            <option value=""><T>{"Select a vendor"}</T></option>
             {vendors.map((vendor) => <option key={vendor.id} value={vendor.id}>{vendor.name} · {vendor.shopName}</option>)}
           </Select>
           <Input label="Statement month" name="month" type="month" value={month} onChange={(event) => chooseMonth(event.target.value)} />
@@ -194,17 +195,17 @@ export default function VendorLedgerPage() {
 
       {selectedVendor && (
         <div className="grid gap-4 sm:grid-cols-3">
-          <Card title="Units sold"><p className="text-2xl font-semibold text-slate-900">{ledger?.totals?.sales ?? '—'}</p><p className="mt-1 text-xs text-slate-500">Sales in selected ledger period</p></Card>
-          <Card title="Vendor earnings"><p className="text-2xl font-semibold text-slate-900">{money(ledger?.totals?.vendorPayable)}</p><p className="mt-1 text-xs text-slate-500">Payable at vendor-price snapshots</p></Card>
-          <Card title="Company margin"><p className="text-2xl font-semibold text-slate-900">{money(ledger?.totals?.companyMargin)}</p><p className="mt-1 text-xs text-slate-500">Net margin from selected sales</p></Card>
+          <Card title="Units sold"><p className="text-2xl font-semibold text-slate-900">{ledger?.totals?.sales ?? '—'}</p><p className="mt-1 text-xs text-slate-500"><T>{"Sales in selected ledger period"}</T></p></Card>
+          <Card title="Vendor earnings"><p className="text-2xl font-semibold text-slate-900">{money(ledger?.totals?.vendorPayable)}</p><p className="mt-1 text-xs text-slate-500"><T>{"Payable at vendor-price snapshots"}</T></p></Card>
+          <Card title="Company margin"><p className="text-2xl font-semibold text-slate-900">{money(ledger?.totals?.companyMargin)}</p><p className="mt-1 text-xs text-slate-500"><T>{"Net margin from selected sales"}</T></p></Card>
         </div>
       )}
 
       <Card title="Sales ledger" description={selectedVendor ? `${selectedVendor.name} · ${startDate} to ${endDate}` : 'Select a vendor to view ledger entries.'}>
-        {loadingData ? <p role="status" className="py-8 text-center text-sm text-slate-500">Loading ledger...</p> : (
+        {loadingData ? <p role="status" className="py-8 text-center text-sm text-slate-500"><T>{"Loading ledger..."}</T></p> : (
           <div className="overflow-x-auto">
             <table className="ui-table min-w-[720px]">
-              <thead><tr><th scope="col">Date</th><th scope="col">Order</th><th scope="col">Product</th><th scope="col">Units</th><th scope="col">Vendor payable</th><th scope="col">Company margin</th></tr></thead>
+              <thead><tr><th scope="col"><T>{"Date"}</T></th><th scope="col"><T>{"Order"}</T></th><th scope="col"><T>{"Product"}</T></th><th scope="col"><T>{"Units"}</T></th><th scope="col"><T>{"Vendor payable"}</T></th><th scope="col"><T>{"Company margin"}</T></th></tr></thead>
               <tbody>
                 {(ledger?.entries || []).map((entry) => (
                   <tr key={entry._id}>
@@ -228,10 +229,10 @@ export default function VendorLedgerPage() {
           </Button>
         ) : null}
       >
-        {loadingData ? <p role="status" className="py-8 text-center text-sm text-slate-500">Loading statements...</p> : (
+        {loadingData ? <p role="status" className="py-8 text-center text-sm text-slate-500"><T>{"Loading statements..."}</T></p> : (
           <div className="overflow-x-auto">
             <table className="ui-table min-w-[940px]">
-              <thead><tr><th scope="col">Statement</th><th scope="col">Period</th><th scope="col">Units (sales / returns)</th><th scope="col">Net payable</th><th scope="col">Status</th><th scope="col">Documents &amp; actions</th></tr></thead>
+              <thead><tr><th scope="col"><T>{"Statement"}</T></th><th scope="col"><T>{"Period"}</T></th><th scope="col"><T>{"Units (sales / returns)"}</T></th><th scope="col"><T>{"Net payable"}</T></th><th scope="col"><T>{"Status"}</T></th><th scope="col"><T>{"Documents & actions"}</T></th></tr></thead>
               <tbody>
                 {statements.map((statement) => (
                   <tr key={statement._id}>
@@ -242,8 +243,8 @@ export default function VendorLedgerPage() {
                     <td><Badge tone={badgeTone(statement.status)}>{statement.status}</Badge></td>
                     <td>
                       <div className="flex flex-wrap gap-2">
-                        <Link className="ui-button button-secondary button-sm" href={`/vendors/ledger/${vendorId}/${statement._id}/print`}><Printer size={14} /> Statement</Link>
-                        {statement.status === 'Paid' && <Link className="ui-button button-secondary button-sm" href={`/vendors/ledger/${vendorId}/${statement._id}/receipt`}><Printer size={14} /> Receipt</Link>}
+                        <Link className="ui-button button-secondary button-sm" href={`/vendors/ledger/${vendorId}/${statement._id}/print`}><Printer size={14} /> <T>{"Statement"}</T></Link>
+                        {statement.status === 'Paid' && <Link className="ui-button button-secondary button-sm" href={`/vendors/ledger/${vendorId}/${statement._id}/receipt`}><Printer size={14} /> <T>{"Receipt"}</T></Link>}
                         {canPayout && statement.status === 'Draft' && <Button size="sm" variant="secondary" disabled={busyId === statement._id} onClick={() => changeStatus(statement, { status: 'Approved' })}>Approve</Button>}
                         {canPayout && statement.status === 'Approved' && <Button size="sm" disabled={busyId === statement._id} onClick={() => setPaymentId(paymentId === statement._id ? '' : statement._id)}>Record payment</Button>}
                       </div>
@@ -264,7 +265,7 @@ export default function VendorLedgerPage() {
                     </td>
                   </tr>
                 ))}
-                {!statements.length && <tr><td colSpan="6" className="table-empty">No statements found for this vendor.</td></tr>}
+                {!statements.length && <tr><td colSpan="6" className="table-empty"><T>{"No statements found for this vendor."}</T></td></tr>}
               </tbody>
             </table>
           </div>

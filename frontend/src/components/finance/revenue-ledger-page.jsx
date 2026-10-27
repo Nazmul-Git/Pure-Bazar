@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import { Button, Card, Input, Table } from '@/components/ui';
 import { getRevenueLedger } from '@/services/finance';
 import { firstDayOfMonth, formatFinanceMoney, localDateInput } from './finance-utils';
+import { T } from '@/i18n/language-provider';
 
 const columns = [
   { key: 'category', label: 'Category' },
@@ -44,8 +45,8 @@ export default function RevenueLedgerPage() {
     return () => { active = false; };
   }, [canRead, period, reload, token]);
 
-  if (!initialized) return <p role="status" className="py-10 text-center text-sm text-slate-500">Loading revenue ledger...</p>;
-  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">You do not have permission to view the revenue ledger.</p>;
+  if (!initialized) return <p role="status" className="py-10 text-center text-sm text-slate-500"><T>{"Loading revenue ledger..."}</T></p>;
+  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><T>{"You do not have permission to view the revenue ledger."}</T></p>;
 
   const rows = ledger.categories.map((row) => ({ ...row, id: row.categoryId || row.category }));
   const totals = ledger.totals;
@@ -54,9 +55,9 @@ export default function RevenueLedgerPage() {
     <section className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Finance</p>
-          <h1 className="text-2xl font-semibold text-slate-900">Revenue Ledger</h1>
-          <p className="mt-1 text-sm text-slate-600">Sales, discounts, returns and company income by product category.</p>
+          <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"Finance"}</T></p>
+          <h1 className="text-2xl font-semibold text-slate-900"><T>{"Revenue Ledger"}</T></h1>
+          <p className="mt-1 text-sm text-slate-600"><T>{"Sales, discounts, returns and company income by product category."}</T></p>
         </div>
         <Button variant="secondary" onClick={() => setReload((value) => value + 1)} disabled={loading}>
           <RefreshCw size={16} /> Refresh
@@ -74,7 +75,7 @@ export default function RevenueLedgerPage() {
       </Card>
 
       <Card title="Revenue by category">
-        {loading ? <p role="status" className="py-8 text-center text-sm text-slate-500">Loading revenue data...</p> : (
+        {loading ? <p role="status" className="py-8 text-center text-sm text-slate-500"><T>{"Loading revenue data..."}</T></p> : (
           <Table
             columns={columns}
             rows={rows}
@@ -84,11 +85,11 @@ export default function RevenueLedgerPage() {
         )}
         {totals && !loading && (
           <div className="mt-4 grid gap-3 border-t border-slate-200 pt-4 sm:grid-cols-2 lg:grid-cols-5">
-            <div><span className="text-xs text-slate-500">Sales</span><p className="font-semibold">{formatFinanceMoney(totals.sales)}</p></div>
-            <div><span className="text-xs text-slate-500">Discounts</span><p className="font-semibold">{formatFinanceMoney(totals.discounts)}</p></div>
-            <div><span className="text-xs text-slate-500">Returns</span><p className="font-semibold">{formatFinanceMoney(totals.returnsAdjustment)}</p></div>
-            <div><span className="text-xs text-slate-500">VAT (separate)</span><p className="font-semibold">{formatFinanceMoney(totals.vat)}</p></div>
-            <div><span className="text-xs text-slate-500">Company income</span><p className="font-semibold text-blue-700">{formatFinanceMoney(totals.income)}</p></div>
+            <div><span className="text-xs text-slate-500"><T>{"Sales"}</T></span><p className="font-semibold">{formatFinanceMoney(totals.sales)}</p></div>
+            <div><span className="text-xs text-slate-500"><T>{"Discounts"}</T></span><p className="font-semibold">{formatFinanceMoney(totals.discounts)}</p></div>
+            <div><span className="text-xs text-slate-500"><T>{"Returns"}</T></span><p className="font-semibold">{formatFinanceMoney(totals.returnsAdjustment)}</p></div>
+            <div><span className="text-xs text-slate-500"><T>{"VAT (separate)"}</T></span><p className="font-semibold">{formatFinanceMoney(totals.vat)}</p></div>
+            <div><span className="text-xs text-slate-500"><T>{"Company income"}</T></span><p className="font-semibold text-blue-700">{formatFinanceMoney(totals.income)}</p></div>
           </div>
         )}
       </Card>

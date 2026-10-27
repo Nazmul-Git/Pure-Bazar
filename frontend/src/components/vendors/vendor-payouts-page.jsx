@@ -13,6 +13,7 @@ import {
   localDateInput,
   makePaymentPayload,
 } from './vendor-payout-utils';
+import { T } from '@/i18n/language-provider';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
 const badgeTone = (status) => ({ Draft: 'warning', Approved: 'info' }[status] || 'neutral');
@@ -109,19 +110,19 @@ export default function VendorPayoutsPage() {
     });
   }
 
-  if (!initialized) return <p role="status" className="py-10 text-center text-sm text-slate-500">Loading vendor settlements...</p>;
-  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">You do not have permission to view vendor settlements.</p>;
+  if (!initialized) return <p role="status" className="py-10 text-center text-sm text-slate-500"><T>{"Loading vendor settlements..."}</T></p>;
+  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><T>{"You do not have permission to view vendor settlements."}</T></p>;
 
   return (
     <section className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Vendors</p>
-          <h1 className="text-2xl font-semibold text-slate-900">Vendor Settlement &amp; Payout</h1>
-          <p className="mt-1 text-sm text-slate-600">Review statements, approve settlements, and record vendor payments.</p>
+          <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"Vendors"}</T></p>
+          <h1 className="text-2xl font-semibold text-slate-900"><T>{"Vendor Settlement & Payout"}</T></h1>
+          <p className="mt-1 text-sm text-slate-600"><T>{"Review statements, approve settlements, and record vendor payments."}</T></p>
         </div>
         <div className="flex gap-2">
-          <Link href="/vendors/payouts/history" className="ui-button button-secondary"><History size={16} /> Payout history</Link>
+          <Link href="/vendors/payouts/history" className="ui-button button-secondary"><History size={16} /> <T>{"Payout history"}</T></Link>
           <Button variant="secondary" onClick={() => setReload((value) => value + 1)} disabled={loading}>
             <RefreshCw size={16} /> Refresh
           </Button>
@@ -132,27 +133,27 @@ export default function VendorPayoutsPage() {
       {notice && <p role="status" className="rounded border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">{notice}</p>}
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card title="Open statements"><p className="text-2xl font-semibold text-slate-900">{rows.length}</p><p className="mt-1 text-xs text-slate-500">Draft and approved statements</p></Card>
-        <Card title="Awaiting approval"><p className="text-2xl font-semibold text-slate-900">{rows.filter((row) => row.status === 'Draft').length}</p><p className="mt-1 text-xs text-slate-500">Draft statements</p></Card>
-        <Card title="Approved to pay"><p className="text-2xl font-semibold text-slate-900">{formatMoney(approvedPayable)}</p><p className="mt-1 text-xs text-slate-500">Total approved payable</p></Card>
+        <Card title="Open statements"><p className="text-2xl font-semibold text-slate-900">{rows.length}</p><p className="mt-1 text-xs text-slate-500"><T>{"Draft and approved statements"}</T></p></Card>
+        <Card title="Awaiting approval"><p className="text-2xl font-semibold text-slate-900">{rows.filter((row) => row.status === 'Draft').length}</p><p className="mt-1 text-xs text-slate-500"><T>{"Draft statements"}</T></p></Card>
+        <Card title="Approved to pay"><p className="text-2xl font-semibold text-slate-900">{formatMoney(approvedPayable)}</p><p className="mt-1 text-xs text-slate-500"><T>{"Total approved payable"}</T></p></Card>
       </div>
 
       <Card title="Settlement queue" description="Only Draft and Approved statements appear here. Paid statements are available in payout history.">
         <div className="mb-4 grid gap-3 sm:grid-cols-2">
           <Select label="Vendor" name="vendorFilter" value={vendorFilter} onChange={(event) => setVendorFilter(event.target.value)}>
-            <option value="">All vendors</option>
+            <option value=""><T>{"All vendors"}</T></option>
             {vendors.map((vendor) => <option key={vendor.id} value={vendor.id}>{vendor.name} · {vendor.shopName}</option>)}
           </Select>
           <Select label="Status" name="statusFilter" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
-            <option value="">All open statuses</option>
-            <option value="Draft">Draft</option>
-            <option value="Approved">Approved</option>
+            <option value=""><T>{"All open statuses"}</T></option>
+            <option value="Draft"><T>{"Draft"}</T></option>
+            <option value="Approved"><T>{"Approved"}</T></option>
           </Select>
         </div>
-        {loading ? <p role="status" className="py-8 text-center text-sm text-slate-500">Loading settlement queue...</p> : (
+        {loading ? <p role="status" className="py-8 text-center text-sm text-slate-500"><T>{"Loading settlement queue..."}</T></p> : (
           <div className="overflow-x-auto">
             <table className="ui-table min-w-[1050px]">
-              <thead><tr><th scope="col">Vendor</th><th scope="col">Statement &amp; period</th><th scope="col">Units (sales / returns)</th><th scope="col">Net payable</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead>
+              <thead><tr><th scope="col"><T>{"Vendor"}</T></th><th scope="col"><T>{"Statement & period"}</T></th><th scope="col"><T>{"Units (sales / returns)"}</T></th><th scope="col"><T>{"Net payable"}</T></th><th scope="col"><T>{"Status"}</T></th><th scope="col"><T>{"Actions"}</T></th></tr></thead>
               <tbody>
                 {filteredRows.map((statement) => (
                   <tr key={statement._id}>
@@ -172,7 +173,7 @@ export default function VendorPayoutsPage() {
                           Record payment
                         </Button>
                       )}
-                      {!canWrite && <span className="text-sm text-slate-500">Read only</span>}
+                      {!canWrite && <span className="text-sm text-slate-500"><T>{"Read only"}</T></span>}
                       {paymentId === statement._id && (
                         <form className="mt-3 grid min-w-[570px] gap-2 rounded border border-slate-200 bg-slate-50 p-3 sm:grid-cols-2" onSubmit={(event) => submitPayment(event, statement)}>
                           <Select label="Payment method" name="paymentMethod" value={payment.paymentMethod} onChange={(event) => setPayment((current) => ({ ...current, paymentMethod: event.target.value }))}>

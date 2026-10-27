@@ -1,8 +1,9 @@
-import './globals.css';
+﻿import './globals.css';
 import './theme.css';
 import { ThemeProvider, themeInitScript } from '@/components/common/theme-provider';
 import StoreProvider from '@/store/provider';
 import AppToaster from '@/components/common/toaster';
+import { LanguageProvider } from '@/i18n/language-provider';
 import AppShell from '@/components/common/app-shell';
 
 export const metadata = {
@@ -18,10 +19,10 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <ThemeProvider>
-          <StoreProvider>
+          <StoreProvider><LanguageProvider>
             <AppShell>{children}</AppShell>
             <AppToaster />
-          </StoreProvider>
+          </LanguageProvider></StoreProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Button, Input, Modal, Select, Table } from '@/components/ui';
 import { getAuditLogs, getUsers } from '@/services/admin';
+import { T } from '@/i18n/language-provider';
 
 function describeActor(actor) {
   if (!actor || typeof actor !== 'object') return 'Unknown user';
@@ -88,14 +89,14 @@ function getChangeRows(log) {
 function ChangeComparison({ log }) {
   const rows = getChangeRows(log);
   if (rows.length === 0) {
-    return <p className="m-0 text-sm text-slate-500">No field changes were recorded for this event.</p>;
+    return <p className="m-0 text-sm text-slate-500"><T>{"No field changes were recorded for this event."}</T></p>;
   }
   return (
     <div className="table-wrap">
       <div className="table-scroll">
         <table className="ui-table">
           <thead>
-            <tr><th>Key</th><th>Previous Value</th><th>New Value</th></tr>
+            <tr><th><T>{"Key"}</T></th><th><T>{"Previous Value"}</T></th><th><T>{"New Value"}</T></th></tr>
           </thead>
           <tbody>
             {rows.map((row) => (
@@ -177,14 +178,14 @@ export default function AuditTrailPage() {
   return (
     <section className="space-y-5">
       <div>
-        <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Reports</p>
-        <h1 className="text-2xl font-semibold text-slate-900">Audit Trail</h1>
-        <p className="mt-1 text-sm text-slate-600">Review administrative changes and filter recent activity.</p>
+        <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"Reports"}</T></p>
+        <h1 className="text-2xl font-semibold text-slate-900"><T>{"Audit Trail"}</T></h1>
+        <p className="mt-1 text-sm text-slate-600"><T>{"Review administrative changes and filter recent activity."}</T></p>
       </div>
 
       <form onSubmit={submit} className="grid gap-4 rounded-md border border-slate-200 bg-white p-4 sm:grid-cols-2 xl:grid-cols-5">
         <Select label="User" value={filters.who} onChange={(event) => updateFilter('who', event.target.value)}>
-          <option value="">All users</option>
+          <option value=""><T>{"All users"}</T></option>
           {users.map((user) => <option key={user.id} value={user.id}>{user.name} ({user.email})</option>)}
         </Select>
         <Input label="Action or area" value={filters.what} maxLength="80" placeholder="e.g. UPDATE or Settings" onChange={(event) => updateFilter('what', event.target.value)} />
@@ -198,15 +199,15 @@ export default function AuditTrailPage() {
 
       {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
       {loading
-        ? <p role="status" className="py-10 text-center text-slate-500">Loading audit trail...</p>
+        ? <p role="status" className="py-10 text-center text-slate-500"><T>{"Loading audit trail..."}</T></p>
         : <Table columns={columns} rows={logs} rowKey="_id" pageSize={15} emptyMessage="No audit events match these filters." />}
-      <p className="text-xs text-slate-500">The API returns up to 100 events per request.</p>
+      <p className="text-xs text-slate-500"><T>{"The API returns up to 100 events per request."}</T></p>
       <Modal open={Boolean(selectedLog)} onClose={() => setSelectedLog(null)} title="Audit log details" className="max-w-4xl">
         {selectedLog && (
           <div className="space-y-4">
             <div className="grid gap-3 text-sm sm:grid-cols-2">
-              <p className="m-0"><span className="text-slate-500">Action:</span> {selectedLog.action || '—'}</p>
-              <p className="m-0"><span className="text-slate-500">Area:</span> {selectedLog.entity || '—'}</p>
+              <p className="m-0"><span className="text-slate-500"><T>{"Action:"}</T></span> {selectedLog.action || '—'}</p>
+              <p className="m-0"><span className="text-slate-500"><T>{"Area:"}</T></span> {selectedLog.entity || '—'}</p>
             </div>
             <ChangeComparison log={selectedLog} />
           </div>

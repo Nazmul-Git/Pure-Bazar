@@ -379,3 +379,7 @@
 - [x] Floating toast notifications
 	- Files: frontend/src/components/common/toaster.jsx (Sonner Toaster in app/layout.jsx, top-right, 3.5s auto-dismiss), hooks/use-toast-messages.js; Stock Counts, POS, Products and Settings now fire toast.success/toast.error and the inline banners were removed.
 	- Decisions: Sonner added as dependency; Settings load-failure banner kept because the form is not rendered then. Validation: frontend build passes (no frontend UI test runner exists); not browser-tested.
+
+- [x] Bilingual English/Bengali language switcher
+	- Files: frontend/src/i18n/ (language-provider.jsx, translate.js, bn*.js dictionaries), components/common/language-switcher.jsx (header, next to the bell), tests/i18n.test.mjs; sidebar/header/app-shell and ui primitives (Table, Modal, Button, Input, Select, Card, Badge) translate via a lookup; static page text wrapped in <T>.
+	- Decisions: English text is the dictionary key, unknown/dynamic text falls back to English; choice saved in localStorage (purebazar-language) and applied after hydration. Validation: 'npm test' in frontend passes (6 tests incl. a check that every <T> literal has a Bengali entry); frontend build passes; not browser-tested.

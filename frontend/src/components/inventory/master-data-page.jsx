@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { Button, Table } from '@/components/ui';
+import { T } from '@/i18n/language-provider';
 
 export default function MasterDataPage({
   title, itemName, description, resource, itemProp, permission, columns, getItems, createItem, updateItem, deleteItem, FormModal,
@@ -87,7 +88,7 @@ export default function MasterDataPage({
     <section className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Inventory setup</p>
+          <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"Inventory setup"}</T></p>
           <h1 className="text-2xl font-semibold text-slate-900">{title}</h1>
           <p className="mt-1 text-sm text-slate-600">{description}</p>
         </div>

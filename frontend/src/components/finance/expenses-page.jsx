@@ -16,6 +16,7 @@ import {
   formatFinanceMoney,
   localDateInput,
 } from './finance-utils';
+import { T } from '@/i18n/language-provider';
 
 const paymentMethods = ['Cash', 'Bank', 'bKash', 'Nagad', 'Card'];
 const newForm = () => ({
@@ -138,15 +139,15 @@ export default function ExpensesPage() {
       : canWrite && <Button size="sm" variant="secondary" onClick={() => startEdit(row)}>Edit</Button> },
   ];
 
-  if (!initialized) return <p role="status" className="py-10 text-center text-sm text-slate-500">Loading expenses...</p>;
-  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">You do not have permission to view expenses.</p>;
+  if (!initialized) return <p role="status" className="py-10 text-center text-sm text-slate-500"><T>{"Loading expenses..."}</T></p>;
+  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><T>{"You do not have permission to view expenses."}</T></p>;
 
   return (
     <section className="space-y-5">
       <div>
-        <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Finance</p>
-        <h1 className="text-2xl font-semibold text-slate-900">Expenses</h1>
-        <p className="mt-1 text-sm text-slate-600">Track operating expenses by category, location and payment method.</p>
+        <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"Finance"}</T></p>
+        <h1 className="text-2xl font-semibold text-slate-900"><T>{"Expenses"}</T></h1>
+        <p className="mt-1 text-sm text-slate-600"><T>{"Track operating expenses by category, location and payment method."}</T></p>
       </div>
       {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
       {notice && <p role="status" className="rounded border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">{notice}</p>}
@@ -155,24 +156,24 @@ export default function ExpensesPage() {
         <Card title={editingId ? 'Edit expense' : 'Record an expense'} description="Expenses in a paid payroll month and payroll-generated entries cannot be edited.">
           <form className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" onSubmit={submitExpense}>
             <Select label="Category" name="categoryId" required value={form.categoryId} onChange={(event) => setForm((value) => ({ ...value, categoryId: event.target.value }))}>
-              <option value="">Select a category</option>
+              <option value=""><T>{"Select a category"}</T></option>
               {categories.map((category) => <option key={category._id} value={category._id}>{category.name}</option>)}
             </Select>
             <Input label="Amount (BDT)" name="amount" type="number" min="0.01" step="0.01" required value={form.amount} onChange={(event) => setForm((value) => ({ ...value, amount: event.target.value }))} />
             <Input label="Expense date" name="expenseDate" type="date" required value={form.expenseDate} onChange={(event) => setForm((value) => ({ ...value, expenseDate: event.target.value }))} />
             <Select label="Location" name="locationId" required value={form.locationId} onChange={(event) => setForm((value) => ({ ...value, locationId: event.target.value }))}>
-              <option value="">Select a location</option>
+              <option value=""><T>{"Select a location"}</T></option>
               {locations.map((location) => <option key={location.id} value={location.id}>{location.name} · {location.type}</option>)}
             </Select>
             <Select label="Payment method" name="paymentMethod" required value={form.paymentMethod} onChange={(event) => setForm((value) => ({ ...value, paymentMethod: event.target.value }))}>
               {paymentMethods.map((method) => <option key={method} value={method}>{method}</option>)}
             </Select>
             <label className="ui-field">
-              <span className="field-label">Receipt attachment (PDF, PNG or JPEG; max 5 MB)</span>
+              <span className="field-label"><T>{"Receipt attachment (PDF, PNG or JPEG; max 5 MB)"}</T></span>
               <input className="ui-input" type="file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" onChange={(event) => setAttachment(event.target.files?.[0] || null)} />
             </label>
             <label className="ui-field sm:col-span-2 lg:col-span-3" htmlFor="expense-description">
-              <span className="field-label">Description</span>
+              <span className="field-label"><T>{"Description"}</T></span>
               <textarea id="expense-description" className="ui-input min-h-20" required maxLength={500} value={form.description} onChange={(event) => setForm((value) => ({ ...value, description: event.target.value }))} />
             </label>
             <div className="flex gap-2 sm:col-span-2 lg:col-span-3">
@@ -192,19 +193,19 @@ export default function ExpensesPage() {
           <Input label="From" name="startDate" type="date" value={filters.startDate} onChange={(event) => setFilters((value) => ({ ...value, startDate: event.target.value }))} />
           <Input label="To" name="endDate" type="date" value={filters.endDate} onChange={(event) => setFilters((value) => ({ ...value, endDate: event.target.value }))} />
           <Select label="Category" name="categoryFilter" value={filters.categoryId} onChange={(event) => setFilters((value) => ({ ...value, categoryId: event.target.value }))}>
-            <option value="">All categories</option>
+            <option value=""><T>{"All categories"}</T></option>
             {categories.map((category) => <option key={category._id} value={category._id}>{category.name}</option>)}
           </Select>
           <Select label="Location" name="locationFilter" value={filters.locationId} onChange={(event) => setFilters((value) => ({ ...value, locationId: event.target.value }))}>
-            <option value="">All locations</option>
+            <option value=""><T>{"All locations"}</T></option>
             {locations.map((location) => <option key={location.id} value={location.id}>{location.name}</option>)}
           </Select>
           <Select label="Payment method" name="paymentFilter" value={filters.paymentMethod} onChange={(event) => setFilters((value) => ({ ...value, paymentMethod: event.target.value }))}>
-            <option value="">All methods</option>
+            <option value=""><T>{"All methods"}</T></option>
             {paymentMethods.map((method) => <option key={method} value={method}>{method}</option>)}
           </Select>
         </div>
-        {loading ? <p role="status" className="py-8 text-center text-sm text-slate-500">Loading expenses...</p> : (
+        {loading ? <p role="status" className="py-8 text-center text-sm text-slate-500"><T>{"Loading expenses..."}</T></p> : (
           <>
             <div className="mb-3 text-sm text-slate-600">{expenses.length} expenses · <strong>{formatFinanceMoney(expenses.reduce((sum, row) => sum + Math.round((Number(row.amount) + Number.EPSILON) * 100), 0) / 100)}</strong> total</div>
             <Table columns={columns} rows={expenses} rowKey="_id" emptyMessage="No expenses match these filters." />

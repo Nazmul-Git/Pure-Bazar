@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { T } from '@/i18n/language-provider';
 
 const label = (vendor) => `${vendor.name} — ${vendor.shopName} (${vendor.mobile || vendor.memberId})`;
 
@@ -50,7 +51,7 @@ export default function VendorCombobox({ vendors, value, onChange }) {
 
   return (
     <div ref={root} className="relative">
-      <label htmlFor="vendorSearch" className="mb-1 block text-sm font-medium text-slate-700">Vendor</label>
+      <label htmlFor="vendorSearch" className="mb-1 block text-sm font-medium text-slate-700"><T>{"Vendor"}</T></label>
       <input
         id="vendorSearch"
         type="text"
@@ -73,7 +74,7 @@ export default function VendorCombobox({ vendors, value, onChange }) {
       />
       {open && (
         <ul id="vendor-options" role="listbox" className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded border border-slate-200 bg-white shadow-lg">
-          {results.length === 0 && <li className="px-3 py-2 text-sm text-slate-500">No matching vendors.</li>}
+          {results.length === 0 && <li className="px-3 py-2 text-sm text-slate-500"><T>{"No matching vendors."}</T></li>}
           {results.map((vendor, index) => (
             <li
               key={vendor.id}

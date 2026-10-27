@@ -10,6 +10,7 @@ import { combineQuantity, formatStock, isMultiUnit, splitQuantity } from '@/serv
 import {
   createStockCount, getLocations, getStockCounts, getWarehouseStock, postStockCount,
 } from '@/services/stock';
+import { T } from '@/i18n/language-provider';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
 const recordId = (record) => String(record.id || record._id);
@@ -165,22 +166,22 @@ export default function StockCountsPage() {
     },
   ];
 
-  if (!initialized || loading) return <p role="status" className="py-10 text-center text-sm text-slate-500">Loading stock counts...</p>;
-  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">You do not have permission to view stock counts.</p>;
+  if (!initialized || loading) return <p role="status" className="py-10 text-center text-sm text-slate-500"><T>{"Loading stock counts..."}</T></p>;
+  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><T>{"You do not have permission to view stock counts."}</T></p>;
 
   return (
     <section className="space-y-5">
       <header>
-        <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Inventory</p>
-        <h1 className="text-2xl font-semibold text-slate-900">Stock Count</h1>
-        <p className="mt-1 text-sm text-slate-600">Scan or select products, record physical quantities, then post the count.</p>
+        <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"Inventory"}</T></p>
+        <h1 className="text-2xl font-semibold text-slate-900"><T>{"Stock Count"}</T></h1>
+        <p className="mt-1 text-sm text-slate-600"><T>{"Scan or select products, record physical quantities, then post the count."}</T></p>
       </header>
       {canWrite && (
         <Card title="Start stock count" description="The system quantity is captured when the count is submitted.">
           <form className="space-y-4" onSubmit={submit}>
             <div className="grid gap-4 md:grid-cols-2">
               <Select label="Warehouse or outlet" name="warehouseId" value={warehouseId} disabled={Boolean(user?.locationId)} onChange={(event) => setWarehouseId(event.target.value)}>
-                <option value="">Choose a location</option>
+                <option value=""><T>{"Choose a location"}</T></option>
                 {locations.map((location) => <option key={location.id} value={location.id}>{location.name}</option>)}
               </Select>
               <Input label="Count reason" name="reason" value={reason} onChange={(event) => setReason(event.target.value)} maxLength={500} required placeholder="e.g. Monthly inventory count" />
@@ -196,7 +197,7 @@ export default function StockCountsPage() {
                 </div>}
               </div>
             </div>
-            {!can(permissions, 'products:read') && <p className="text-sm text-amber-700">Product read permission is required to select or scan count lines.</p>}
+            {!can(permissions, 'products:read') && <p className="text-sm text-amber-700"><T>{"Product read permission is required to select or scan count lines."}</T></p>}
             {countLines.length > 0 && <div className="space-y-2">
               {countLines.map((line) => {
                 const product = productsById.get(line.productId);

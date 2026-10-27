@@ -10,6 +10,7 @@ import VendorCombobox from '@/components/inventory/vendor-combobox';
 import {
   createGoodsReceive, getLocations, getNextChallanNumber, getReceiveVendors, getWarehouseStock, searchReceiveProducts,
 } from '@/services/stock';
+import { T } from '@/i18n/language-provider';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
 
@@ -169,9 +170,9 @@ export default function GoodsReceiveForm() {
     }
   }
 
-  if (!initialized || loading) return <p role="status" className="py-10 text-center text-sm text-slate-500">Loading GRN form...</p>;
-  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">You do not have permission to view goods receives.</p>;
-  if (!canWrite) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">You do not have permission to create goods receives.</p>;
+  if (!initialized || loading) return <p role="status" className="py-10 text-center text-sm text-slate-500"><T>{"Loading GRN form..."}</T></p>;
+  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><T>{"You do not have permission to view goods receives."}</T></p>;
+  if (!canWrite) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><T>{"You do not have permission to create goods receives."}</T></p>;
 
   return (
     <form className="space-y-5" onSubmit={submit}>
@@ -180,8 +181,8 @@ export default function GoodsReceiveForm() {
           <Link href="/inventory/goods-receives" className="mb-2 inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800">
             <ArrowLeft size={16} /> Goods Receive
           </Link>
-          <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Inventory</p>
-          <h1 className="text-2xl font-semibold text-slate-900">New Goods Receive</h1>
+          <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"Inventory"}</T></p>
+          <h1 className="text-2xl font-semibold text-slate-900"><T>{"New Goods Receive"}</T></h1>
           <p className="mt-1 text-sm text-slate-600">Receive goods into {location?.name}.</p>
         </div>
         <Button type="submit" disabled={saving || !location}>
@@ -206,8 +207,8 @@ export default function GoodsReceiveForm() {
               setSearch('');
             }}
           >
-            <option value="COMPANY">Company purchase</option>
-            <option value="VENDOR">Vendor purchase</option>
+            <option value="COMPANY"><T>{"Company purchase"}</T></option>
+            <option value="VENDOR"><T>{"Vendor purchase"}</T></option>
           </Select>
           {ownerType === 'VENDOR' && (
             <>
@@ -235,7 +236,7 @@ export default function GoodsReceiveForm() {
           )}
         </div>
         {ownerType === 'VENDOR' && !activeVendors.length && (
-          <p className="mt-3 text-sm text-slate-500">No active vendors are available.</p>
+          <p className="mt-3 text-sm text-slate-500"><T>{"No active vendors are available."}</T></p>
         )}
       </Card>
 
@@ -272,7 +273,7 @@ export default function GoodsReceiveForm() {
                   <Plus size={15} className="ml-2 inline" />
                 </span>
               </button>
-            )) : <p className="px-3 py-3 text-sm text-slate-500">No matching products.</p>}
+            )) : <p className="px-3 py-3 text-sm text-slate-500"><T>{"No matching products."}</T></p>}
           </div>
         )}
 
@@ -280,8 +281,8 @@ export default function GoodsReceiveForm() {
           <table className="ui-table min-w-[760px]">
             <thead>
               <tr>
-                <th scope="col">Product</th><th scope="col">Current stock</th><th scope="col">Received</th>
-                <th scope="col">Accepted</th><th scope="col">Rejected</th><th scope="col"><span className="sr-only">Remove</span></th>
+                <th scope="col"><T>{"Product"}</T></th><th scope="col"><T>{"Current stock"}</T></th><th scope="col"><T>{"Received"}</T></th>
+                <th scope="col"><T>{"Accepted"}</T></th><th scope="col"><T>{"Rejected"}</T></th><th scope="col"><span className="sr-only"><T>{"Remove"}</T></span></th>
               </tr>
             </thead>
             <tbody>

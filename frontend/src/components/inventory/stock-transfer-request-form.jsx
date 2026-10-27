@@ -5,6 +5,7 @@ import { Send } from 'lucide-react';
 import { Button, Card, Input, Select } from '@/components/ui';
 import useBarcodeScanner from '@/hooks/use-barcode-scanner';
 import { searchReceiveProducts } from '@/services/stock';
+import { T } from '@/i18n/language-provider';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
 
@@ -135,20 +136,20 @@ export default function StockTransferRequestForm({
       <form className="space-y-4" onSubmit={submit}>
         <div className="grid gap-4 md:grid-cols-2">
           <Select label="Source warehouse" name="sourceId" value={sourceId} disabled={!canChooseSource} onChange={changeSource}>
-            <option value="">Choose a warehouse</option>
+            <option value=""><T>{"Choose a warehouse"}</T></option>
             {sourceLocations.map((location) => <option key={location.id} value={location.id}>{location.name}</option>)}
           </Select>
           <Select label="Destination outlet" name="outletId" value={outletId} onChange={(event) => setOutletId(event.target.value)}>
-            <option value="">Choose an outlet</option>
+            <option value=""><T>{"Choose an outlet"}</T></option>
             {outletLocations.map((location) => <option key={location.id} value={location.id}>{location.name}</option>)}
           </Select>
         </div>
-        {!can(permissions, 'products:read') && <p className="text-sm text-amber-700">Product read permission is required to add transfer lines.</p>}
+        {!can(permissions, 'products:read') && <p className="text-sm text-amber-700"><T>{"Product read permission is required to add transfer lines."}</T></p>}
         <div className="grid gap-4 md:grid-cols-2">
           <Input label="Scan barcode and press Enter" name="barcodeScanner" value={scanner.value} onChange={scanner.onChange} onKeyDown={scanner.onKeyDown} placeholder="Focus here, then scan a product barcode" disabled={!sourceId || !can(permissions, 'products:read')} />
           <div className="relative">
             <Input label="Find product" name="productSearch" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search name or barcode" disabled={!sourceId || !can(permissions, 'products:read')} />
-            {searching && <p role="status" className="mt-1 text-xs text-slate-500">Searching products...</p>}
+            {searching && <p role="status" className="mt-1 text-xs text-slate-500"><T>{"Searching products..."}</T></p>}
             {searchError && <p role="alert" className="mt-1 text-xs text-red-700">{searchError}</p>}
             {matches.length > 0 && <div className="absolute z-10 mt-1 max-h-52 w-full overflow-y-auto rounded border border-slate-200 bg-white shadow-lg">
               {matches.map((product) => <button key={product.id} type="button" className="block w-full border-b border-slate-100 px-3 py-2 text-left hover:bg-slate-50" onClick={() => addRequestProduct(product)}>
@@ -156,7 +157,7 @@ export default function StockTransferRequestForm({
                 <small className="text-slate-500">{product.barcode} · Central Warehouse stock: {product.stockQuantity}</small>
               </button>)}
             </div>}
-            {search.trim() && !searching && !searchError && matches.length === 0 && <p className="mt-1 text-xs text-slate-500">No in-stock Central Warehouse products found for this search.</p>}
+            {search.trim() && !searching && !searchError && matches.length === 0 && <p className="mt-1 text-xs text-slate-500"><T>{"No in-stock Central Warehouse products found for this search."}</T></p>}
           </div>
         </div>
         {requestLines.length > 0 && (
@@ -169,7 +170,7 @@ export default function StockTransferRequestForm({
                   {Number(line.requestedQuantity) > line.stockQuantity
                     ? <p className="mt-1 text-xs text-red-700">Cannot request more than {line.stockQuantity} currently available in the Central Warehouse.</p>
                     : !Number.isInteger(Number(line.requestedQuantity)) || Number(line.requestedQuantity) < 1
-                      ? <p className="mt-1 text-xs text-red-700">Enter a positive whole-number quantity.</p>
+                      ? <p className="mt-1 text-xs text-red-700"><T>{"Enter a positive whole-number quantity."}</T></p>
                       : null}
                 </div>
                 <Button type="button" variant="ghost" size="sm" onClick={() => setRequestLines((current) => current.filter((item) => item.productId !== line.productId))}>Remove</Button>

@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import { ArrowLeft, CheckCircle2, RefreshCw } from 'lucide-react';
 import { Button, Card, Input, Select } from '@/components/ui';
 import { getCurrentVendorTerms, registerVendor } from '@/services/vendor';
+import { T } from '@/i18n/language-provider';
 
 const emptyForm = {
   memberId: '',
@@ -86,19 +87,19 @@ export default function VendorRegisterForm() {
   }
 
   if (!initialized) {
-    return <p role="status" className="py-10 text-center text-sm text-slate-500">Loading vendor registration...</p>;
+    return <p role="status" className="py-10 text-center text-sm text-slate-500"><T>{"Loading vendor registration..."}</T></p>;
   }
   if (!token || !can(permissions, 'vendors:write')) {
-    return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">You do not have permission to register vendors.</p>;
+    return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><T>{"You do not have permission to register vendors."}</T></p>;
   }
 
   return (
     <section className="mx-auto max-w-4xl space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Vendors</p>
-          <h1 className="text-2xl font-semibold text-slate-900">Register Vendor (Form A)</h1>
-          <p className="mt-1 text-sm text-slate-600">Record the vendor details and capture acceptance of the active terms.</p>
+          <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"Vendors"}</T></p>
+          <h1 className="text-2xl font-semibold text-slate-900"><T>{"Register Vendor (Form A)"}</T></h1>
+          <p className="mt-1 text-sm text-slate-600"><T>{"Record the vendor details and capture acceptance of the active terms."}</T></p>
         </div>
         {can(permissions, 'vendors:read') && (
           <Link href="/vendors/directory" className="inline-flex items-center gap-2 text-sm font-medium text-blue-700 hover:text-blue-900">
@@ -123,7 +124,7 @@ export default function VendorRegisterForm() {
             <Input label="Shop name" name="shopName" value={form.shopName} onChange={(event) => setField('shopName', event.target.value)} maxLength={150} required />
             <Input label="Product category" name="productCategory" value={form.productCategory} onChange={(event) => setField('productCategory', event.target.value)} maxLength={100} required placeholder="e.g. Grocery, produce" />
             <Select label="Payout method" name="payoutMethod" value={form.payoutMethod} onChange={(event) => setField('payoutMethod', event.target.value)} required>
-              <option value="">Choose payout method</option>
+              <option value=""><T>{"Choose payout method"}</T></option>
               {['Cash', 'Bank', 'bKash', 'Nagad'].map((method) => <option key={method} value={method}>{method}</option>)}
             </Select>
           </div>
@@ -141,7 +142,7 @@ export default function VendorRegisterForm() {
           <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <h2 className="text-sm font-semibold text-slate-800">Vendor terms</h2>
+                <h2 className="text-sm font-semibold text-slate-800"><T>{"Vendor terms"}</T></h2>
                 {terms && <p className="mt-1 text-xs text-slate-500">Version {terms.version} · effective {new Date(terms.effectiveFrom).toLocaleDateString()}</p>}
               </div>
               {termsError && (
@@ -151,7 +152,7 @@ export default function VendorRegisterForm() {
               )}
             </div>
             {loadingTerms ? (
-              <p role="status" className="mt-3 text-sm text-slate-500">Loading current terms...</p>
+              <p role="status" className="mt-3 text-sm text-slate-500"><T>{"Loading current terms..."}</T></p>
             ) : termsError ? (
               <p role="alert" className="mt-3 text-sm text-red-700">{termsError}</p>
             ) : terms ? (
@@ -163,7 +164,7 @@ export default function VendorRegisterForm() {
                 </label>
               </>
             ) : (
-              <p role="status" className="mt-3 text-sm text-amber-800">No effective vendor terms are configured. Ask an administrator to publish terms before registering vendors.</p>
+              <p role="status" className="mt-3 text-sm text-amber-800"><T>{"No effective vendor terms are configured. Ask an administrator to publish terms before registering vendors."}</T></p>
             )}
           </div>
           <div className="flex justify-end">

@@ -25,6 +25,7 @@ import {
   validateLimits,
   validateOutlets,
 } from '@/components/settings/settings-editors';
+import { T } from '@/i18n/language-provider';
 
 export default function SettingsForm() {
   const token = useSelector((state) => state.auth.token);
@@ -115,13 +116,13 @@ export default function SettingsForm() {
     }
   }
 
-  if (loading) return <p role="status" className="py-10 text-center text-slate-500">Loading settings...</p>;
+  if (loading) return <p role="status" className="py-10 text-center text-slate-500"><T>{"Loading settings..."}</T></p>;
   if (!loaded) {
     return (
       <section className="space-y-4">
         <div>
-          <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Workspace configuration</p>
-          <h1 className="text-2xl font-semibold text-slate-900">Settings</h1>
+          <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"Workspace configuration"}</T></p>
+          <h1 className="text-2xl font-semibold text-slate-900"><T>{"Settings"}</T></h1>
         </div>
         <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error || 'Settings could not be loaded.'}</p>
         <Button type="button" variant="secondary" onClick={() => setReloadCount((count) => count + 1)}>Retry</Button>
@@ -133,9 +134,9 @@ export default function SettingsForm() {
     <form onSubmit={submit} className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Workspace configuration</p>
-          <h1 className="text-2xl font-semibold text-slate-900">Settings</h1>
-          <p className="mt-1 text-sm text-slate-600">Manage checkout, tax, stock, vendor, and outlet settings.</p>
+          <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"Workspace configuration"}</T></p>
+          <h1 className="text-2xl font-semibold text-slate-900"><T>{"Settings"}</T></h1>
+          <p className="mt-1 text-sm text-slate-600"><T>{"Manage checkout, tax, stock, vendor, and outlet settings."}</T></p>
         </div>
         <Button type="submit" disabled={saving}>{saving ? 'Saving...' : 'Save settings'}</Button>
       </div>
@@ -146,10 +147,10 @@ export default function SettingsForm() {
           <Input label="Shareholder discount (%)" type="number" min="0" max="100" step="0.01" value={settings.shareholderDiscountPercent} onChange={(event) => setField('shareholderDiscountPercent', Number(event.target.value))} />
           <Input label="Default VAT rate (%)" type="number" min="0" max="100" step="0.01" value={settings.defaultVatRate} onChange={(event) => setField('defaultVatRate', Number(event.target.value))} />
           <Select label="VAT price mode" value={settings.vatPriceMode} onChange={(event) => setField('vatPriceMode', event.target.value)}>
-            <option value="INCLUDED">Included in price</option><option value="EXCLUDED">Added to price</option>
+            <option value="INCLUDED"><T>{"Included in price"}</T></option><option value="EXCLUDED"><T>{"Added to price"}</T></option>
           </Select>
           <Select label="VAT calculation order" value={settings.vatCalculationOrder} onChange={(event) => setField('vatCalculationOrder', event.target.value)}>
-            <option value="DISCOUNT_THEN_VAT">Discount, then VAT</option><option value="VAT_THEN_DISCOUNT">VAT, then discount</option>
+            <option value="DISCOUNT_THEN_VAT"><T>{"Discount, then VAT"}</T></option><option value="VAT_THEN_DISCOUNT"><T>{"VAT, then discount"}</T></option>
           </Select>
         </div>
         <ToggleField label="Enable VAT" checked={settings.vatEnabled} onChange={(event) => setField('vatEnabled', event.target.checked)} />
@@ -202,8 +203,8 @@ export default function SettingsForm() {
         </div>
         <div className="space-y-3">
           <div>
-            <h3 className="text-sm font-semibold text-slate-800">Vendor terms versions</h3>
-            <p className="mt-1 text-xs text-slate-500">Existing versions are locked; new versions are appended.</p>
+            <h3 className="text-sm font-semibold text-slate-800"><T>{"Vendor terms versions"}</T></h3>
+            <p className="mt-1 text-xs text-slate-500"><T>{"Existing versions are locked; new versions are appended."}</T></p>
           </div>
           {settings.vendorTerms.map((term) => (
             <div key={term.version} className="rounded border border-slate-200 bg-slate-50 p-3 text-sm">
@@ -222,7 +223,7 @@ export default function SettingsForm() {
 
       <SettingsSection title="Integrations and outlets" description="Probashi credentials are intentionally not managed here.">
         <Select label="Probashi status" value={settings.probashiStatus} onChange={(event) => setField('probashiStatus', event.target.value)}>
-          <option value="NotConfigured">Not configured</option><option value="Active">Active</option><option value="Inactive">Inactive</option>
+          <option value="NotConfigured"><T>{"Not configured"}</T></option><option value="Active"><T>{"Active"}</T></option><option value="Inactive"><T>{"Inactive"}</T></option>
         </Select>
         <OutletsEditor outlets={settings.outlets} onChange={(value) => setField('outlets', value)} />
       </SettingsSection>

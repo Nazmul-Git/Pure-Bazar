@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Button, Input, Modal } from '@/components/ui';
+import { T } from '@/i18n/language-provider';
 
 const emptyForm = { name: '', vatRate: '', commissionPercent: '' };
 
@@ -44,7 +45,7 @@ export default function QuickAddCategoryModal({ open, onClose, onSubmit, categor
         <Input label="Category name" name="name" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} required maxLength={100} autoFocus />
         <Input label="VAT rate (%)" name="vatRate" type="number" min="0" max="100" step="0.01" value={form.vatRate} onChange={(event) => setForm({ ...form, vatRate: event.target.value })} />
         <Input label="Commission rate (%)" name="commissionPercent" type="number" min="0" max="100" step="0.01" value={form.commissionPercent} onChange={(event) => setForm({ ...form, commissionPercent: event.target.value })} />
-        <p className="text-xs text-slate-500">Category commission remains disabled.</p>
+        <p className="text-xs text-slate-500"><T>{"Category commission remains disabled."}</T></p>
         {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
         <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
           <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>

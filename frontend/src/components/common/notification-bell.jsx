@@ -1,15 +1,17 @@
-'use client';
+﻿'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import { Bell } from 'lucide-react';
 import { getNotifications } from '@/services/notifications';
+import { useLanguage } from '@/i18n/language-provider';
 
 const POLL_MS = 30000;
 
 export default function NotificationBell() {
   const router = useRouter();
+  const { t } = useLanguage();
   const token = useSelector((state) => state.auth.token);
   const [data, setData] = useState({ total: 0, groups: [] });
   const [open, setOpen] = useState(false);
@@ -51,7 +53,7 @@ export default function NotificationBell() {
     <div className="notif-wrap" ref={wrapRef}>
       <button
         className="icon-button notif-trigger"
-        aria-label={`Notifications${data.total ? `, ${data.total} pending` : ''}`}
+        aria-label={`${t('Notifications')}${data.total ? `, ${data.total} pending` : ''}`}
         aria-expanded={open}
         onClick={() => { setOpen((v) => !v); load(); }}
       >
@@ -60,12 +62,12 @@ export default function NotificationBell() {
       </button>
       {open && (
         <div className="notif-menu" role="menu">
-          <div className="notif-title">Pending actions</div>
-          {data.groups.length === 0 && <p className="notif-empty">You are all caught up.</p>}
+          <div className="notif-title">{t('Pending actions')}</div>
+          {data.groups.length === 0 && <p className="notif-empty">{t('You are all caught up.')}</p>}
           {data.groups.map((group) => (
             <div key={group.key} className="notif-group">
               <button className={`notif-group-head notif-${group.severity}`} onClick={() => go(group.href)}>
-                <span>{group.label}</span><strong>{group.count}</strong>
+                <span>{t(group.label)}</span><strong>{group.count}</strong>
               </button>
               {group.items.slice(0, 3).map((item) => (
                 <button key={item.id} className="notif-item" role="menuitem" onClick={() => go(item.href)}>{item.title}</button>

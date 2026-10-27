@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -7,6 +7,7 @@ import { ChevronDown, X } from "lucide-react";
 import { getPageKey, navigationItems } from "./navigation";
 import useAuth from "@/store/use-auth";
 import ThemeToggle from "./theme-toggle";
+import { useLanguage } from "@/i18n/language-provider";
 
 const matches = (pathname, href) =>
   pathname === href || pathname.startsWith(`${href}/`);
@@ -25,6 +26,7 @@ function getActiveHref(pathname) {
 export default function Sidebar({ open, onClose }) {
   const pathname = usePathname();
   const { canAccess } = useAuth();
+  const { t } = useLanguage();
   const canSee = (item) => canAccess(item.permissions, getPageKey(item.href));
   const activeHref = getActiveHref(pathname);
   const activeGroup = navigationItems.find((item) =>
@@ -45,13 +47,13 @@ export default function Sidebar({ open, onClose }) {
       {open && (
         <button
           className="sidebar-backdrop"
-          aria-label="Close navigation"
+          aria-label={t("Close navigation")}
           onClick={onClose}
         />
       )}
       <aside
         className={`sidebar${open ? " sidebar-open" : ""}`}
-        aria-label="Main navigation"
+        aria-label={t("Main navigation")}
       >
         <div className="sidebar-brand">
           <Link href="/dashboard" className="brand-link" onClick={onClose}>
@@ -64,7 +66,7 @@ export default function Sidebar({ open, onClose }) {
           </Link>
           <button
             className="icon-button sidebar-close"
-            aria-label="Close navigation"
+            aria-label={t("Close navigation")}
             onClick={onClose}
           >
             <X size={19} />
@@ -85,7 +87,7 @@ export default function Sidebar({ open, onClose }) {
                   onClick={onClose}
                 >
                   <Icon size={18} strokeWidth={1.8} aria-hidden="true" />
-                  <span>{label}</span>
+                  <span>{t(label)}</span>
                 </Link>
               );
             }
@@ -104,7 +106,7 @@ export default function Sidebar({ open, onClose }) {
                   onClick={() => toggleGroup(label)}
                 >
                   <Icon size={18} strokeWidth={1.8} aria-hidden="true" />
-                  <span>{label}</span>
+                  <span>{t(label)}</span>
                   <ChevronDown
                     size={16}
                     className={`nav-chevron${expanded ? " nav-chevron-open" : ""}`}
@@ -137,7 +139,7 @@ export default function Sidebar({ open, onClose }) {
                               strokeWidth={1.8}
                               aria-hidden="true"
                             />
-                            <span>{childLabel}</span>
+                            <span>{t(childLabel)}</span>
                           </Link>
                         );
                       },

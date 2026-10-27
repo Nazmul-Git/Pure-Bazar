@@ -10,6 +10,7 @@ import {
   transitionSalarySheet, updateSalaryLine,
 } from '@/services/payroll';
 import { employeeId, formatPayrollMoney, monthNow } from './payroll-utils.mjs';
+import { T } from '@/i18n/language-provider';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
 const paymentMethods = ['Cash', 'Bank', 'bKash', 'Nagad', 'Card'];
@@ -173,21 +174,21 @@ export default function SalarySheetsPage() {
       render: (_, line) => (
         <div className="flex flex-wrap gap-2">
           {sheet?.status === 'Draft' && canWrite && <Button size="sm" variant="secondary" disabled={busy} onClick={() => saveLine(employeeById.get(employeeId(line.employeeId)), line)}>Save</Button>}
-          <Link className="ui-button button-secondary button-sm" href={`/payroll/payslips?sheetId=${sheet?._id}&employeeId=${employeeId(line.employeeId)}`}>Payslip</Link>
+          <Link className="ui-button button-secondary button-sm" href={`/payroll/payslips?sheetId=${sheet?._id}&employeeId=${employeeId(line.employeeId)}`}><T>{"Payslip"}</T></Link>
         </div>
       ),
     },
   ];
 
-  if (!initialized) return <p role="status" className="py-10 text-center text-sm text-slate-500">Loading salary sheets...</p>;
-  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">You do not have permission to view salary sheets.</p>;
+  if (!initialized) return <p role="status" className="py-10 text-center text-sm text-slate-500"><T>{"Loading salary sheets..."}</T></p>;
+  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><T>{"You do not have permission to view salary sheets."}</T></p>;
 
   return (
     <section className="space-y-5">
       <div>
-        <p className="mb-1 text-xs font-semibold uppercase text-slate-500">HR / Payroll</p>
-        <h1 className="text-2xl font-semibold text-slate-900">Salary Sheet</h1>
-        <p className="mt-1 text-sm text-slate-600">Prepare monthly payroll, review deductions, and record salary payments.</p>
+        <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"HR / Payroll"}</T></p>
+        <h1 className="text-2xl font-semibold text-slate-900"><T>{"Salary Sheet"}</T></h1>
+        <p className="mt-1 text-sm text-slate-600"><T>{"Prepare monthly payroll, review deductions, and record salary payments."}</T></p>
       </div>
       {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
       {notice && <p role="status" className="rounded border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">{notice}</p>}
@@ -201,7 +202,7 @@ export default function SalarySheetsPage() {
 
       <div className="grid gap-5 xl:grid-cols-[18rem_1fr]">
         <Card title="Salary sheets" description="Select a month to review its payroll.">
-          {loading ? <p role="status" className="py-6 text-center text-sm text-slate-500">Loading sheets...</p> : (
+          {loading ? <p role="status" className="py-6 text-center text-sm text-slate-500"><T>{"Loading sheets..."}</T></p> : (
             <div className="space-y-2">
               {sheets.map((item) => (
                 <button key={item._id} type="button" className={`w-full rounded-lg border p-3 text-left ${selectedId === item._id ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:bg-slate-50'}`} onClick={() => setSelectedId(item._id)}>
@@ -209,7 +210,7 @@ export default function SalarySheetsPage() {
                   <span className="mt-2 block text-sm text-slate-600">{formatPayrollMoney(item.totalAmount)}</span>
                 </button>
               ))}
-              {!sheets.length && <p className="py-5 text-center text-sm text-slate-500">No salary sheets created.</p>}
+              {!sheets.length && <p className="py-5 text-center text-sm text-slate-500"><T>{"No salary sheets created."}</T></p>}
             </div>
           )}
         </Card>
@@ -225,7 +226,7 @@ export default function SalarySheetsPage() {
                 </Select>
                 {locations.length > 0 && (
                   <Select label="Expense location (optional)" name="payLocation" value={locationId} onChange={(event) => setLocationId(event.target.value)}>
-                    <option value="">No location</option>
+                    <option value=""><T>{"No location"}</T></option>
                     {locations.map((location) => <option key={location.id} value={location.id}>{location.name} · {location.type}</option>)}
                   </Select>
                 )}

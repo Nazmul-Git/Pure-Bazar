@@ -2,6 +2,7 @@
 
 import { Plus, Trash2 } from 'lucide-react';
 import { Button, Input } from '@/components/ui';
+import { T } from '@/i18n/language-provider';
 
 export const defaultRoleNames = ['Cashier', 'Inventory Manager', 'Accountant'];
 
@@ -56,8 +57,8 @@ export function DiscountLimitsEditor({ rows, onChange }) {
   return (
     <div className="space-y-2">
       <div>
-        <h3 className="text-sm font-semibold text-slate-800">Discount limits by role</h3>
-        <p className="mt-1 text-xs text-slate-500">Maximum discount percentage each role may give at checkout. Leave blank for no discount.</p>
+        <h3 className="text-sm font-semibold text-slate-800"><T>{"Discount limits by role"}</T></h3>
+        <p className="mt-1 text-xs text-slate-500"><T>{"Maximum discount percentage each role may give at checkout. Leave blank for no discount."}</T></p>
       </div>
       <div className="overflow-hidden rounded-lg border border-slate-200">
         {rows.map((row, index) => (
@@ -94,13 +95,13 @@ export function ReceiptLayoutEditor({ value, onChange }) {
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-sm font-semibold text-slate-800">Receipt layout</h3>
-        <p className="mt-1 text-xs text-slate-500">Controls how printed and digital receipts look.</p>
+        <h3 className="text-sm font-semibold text-slate-800"><T>{"Receipt layout"}</T></h3>
+        <p className="mt-1 text-xs text-slate-500"><T>{"Controls how printed and digital receipts look."}</T></p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <Input label="Store name on receipt" value={layout.storeName} onChange={(event) => set('storeName', event.target.value)} />
         <label className="ui-field">
-          <span className="field-label">Paper width</span>
+          <span className="field-label"><T>{"Paper width"}</T></span>
           <select value={layout.paperWidth} onChange={(event) => set('paperWidth', event.target.value)} className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-[#82C341] focus:outline-none focus:ring-2 focus:ring-[#82C341]/30">
             <option value="58mm">58 mm thermal</option>
             <option value="80mm">80 mm thermal</option>
@@ -128,14 +129,14 @@ export function OutletsEditor({ outlets, onChange }) {
     <div className="space-y-3">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h3 className="text-sm font-semibold text-slate-800">Outlets</h3>
-          <p className="mt-1 text-xs text-slate-500">Add, edit, or remove outlet records. Code must be unique.</p>
+          <h3 className="text-sm font-semibold text-slate-800"><T>{"Outlets"}</T></h3>
+          <p className="mt-1 text-xs text-slate-500"><T>{"Add, edit, or remove outlet records. Code must be unique."}</T></p>
         </div>
         <Button type="button" variant="secondary" size="sm" onClick={() => onChange([...outlets, { name: '', location: '', code: '' }])}>
           <Plus size={14} className="mr-1 inline" />Add outlet
         </Button>
       </div>
-      {outlets.length === 0 && <p className="rounded-lg border border-dashed border-slate-300 px-3 py-4 text-center text-sm text-slate-500">No outlets configured yet.</p>}
+      {outlets.length === 0 && <p className="rounded-lg border border-dashed border-slate-300 px-3 py-4 text-center text-sm text-slate-500"><T>{"No outlets configured yet."}</T></p>}
       {outlets.map((outlet, index) => (
         <div key={index} className="grid items-end gap-3 rounded-lg border border-slate-200 bg-slate-50/60 p-3 sm:grid-cols-[1fr_1fr_8rem_auto]">
           <Input label="Name" value={outlet.name || ''} onChange={(event) => update(index, { name: event.target.value })} />

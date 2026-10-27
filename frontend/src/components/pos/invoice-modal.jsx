@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Printer, X } from 'lucide-react';
 import { getCode39Runs } from '@/services/code39.cjs';
+import { T } from '@/i18n/language-provider';
 import './xprinter-print.css';
 
 const money = (value) => (Math.round((Number(value) + Number.EPSILON) * 100) / 100).toFixed(2);
@@ -33,13 +34,13 @@ function Receipt({ receipt }) {
     <div className="receipt-sheet">
       <div className="receipt-center">
         <div className="receipt-logo">PB</div>
-        <strong className="receipt-title">PureBazar</strong>
+        <strong className="receipt-title"><T>{"PureBazar"}</T></strong>
         <div>{new Date(receipt.soldAt || Date.now()).toLocaleString()}</div>
         <div>Invoice: {receipt.orderNumber}</div>
       </div>
       <hr />
       <table className="receipt-table">
-        <thead><tr><th>Item</th><th className="r">Qty</th><th className="r">Price</th><th className="r">Total</th></tr></thead>
+        <thead><tr><th><T>{"Item"}</T></th><th className="r"><T>{"Qty"}</T></th><th className="r"><T>{"Price"}</T></th><th className="r"><T>{"Total"}</T></th></tr></thead>
         <tbody>
           {receipt.lines.map((line, index) => (
             <tr key={`${line.barcode}-${index}`}>
@@ -52,11 +53,11 @@ function Receipt({ receipt }) {
         </tbody>
       </table>
       <hr />
-      <div className="receipt-row"><span>Subtotal</span><span>{money(receipt.subtotal)}</span></div>
-      {Number(receipt.otherDiscountAmount) > 0 && <div className="receipt-row"><span>Discount</span><span>-{money(receipt.otherDiscountAmount)}</span></div>}
-      {Number(receipt.shareholderDiscountAmount) > 0 && <div className="receipt-row"><span>Member discount</span><span>-{money(receipt.shareholderDiscountAmount)}</span></div>}
-      {Number(receipt.vatAmount) > 0 && <div className="receipt-row"><span>VAT</span><span>{money(receipt.vatAmount)}</span></div>}
-      <div className="receipt-row receipt-grand"><span>TOTAL (BDT)</span><span>{money(receipt.grandTotal)}</span></div>
+      <div className="receipt-row"><span><T>{"Subtotal"}</T></span><span>{money(receipt.subtotal)}</span></div>
+      {Number(receipt.otherDiscountAmount) > 0 && <div className="receipt-row"><span><T>{"Discount"}</T></span><span>-{money(receipt.otherDiscountAmount)}</span></div>}
+      {Number(receipt.shareholderDiscountAmount) > 0 && <div className="receipt-row"><span><T>{"Member discount"}</T></span><span>-{money(receipt.shareholderDiscountAmount)}</span></div>}
+      {Number(receipt.vatAmount) > 0 && <div className="receipt-row"><span><T>{"VAT"}</T></span><span>{money(receipt.vatAmount)}</span></div>}
+      <div className="receipt-row receipt-grand"><span><T>{"TOTAL (BDT)"}</T></span><span>{money(receipt.grandTotal)}</span></div>
       {payments.map((payment) => (
         <div key={payment.method} className="receipt-row"><span>{payment.method}</span><span>{money(payment.amount)}</span></div>
       ))}
@@ -103,7 +104,7 @@ export default function InvoiceModal({ receipt, onClose }) {
           </div>
         </div>
         <div className="print-actions flex flex-wrap justify-end gap-2 border-t border-slate-200 px-4 py-3">
-          <button type="button" onClick={printReceipt} className="inline-flex items-center gap-1 rounded-lg bg-slate-900 px-3 py-2 text-sm text-white"><Printer size={15} /> Print Receipt</button>
+          <button type="button" onClick={printReceipt} className="inline-flex items-center gap-1 rounded-lg bg-slate-900 px-3 py-2 text-sm text-white"><Printer size={15} /> <T>{"Print Receipt"}</T></button>
         </div>
       </div>
     </div>

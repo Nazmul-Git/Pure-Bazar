@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { Search, ShoppingBag } from 'lucide-react';
 import { Badge, Button, Card, Input, Select, Table } from '@/components/ui';
 import { getShareholderPurchases, searchShareholders } from '@/services/shareholder';
+import { T } from '@/i18n/language-provider';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
 const formatDate = (value) => new Intl.DateTimeFormat('en-BD', {
@@ -139,18 +140,18 @@ export default function ShareholderDirectoryPage() {
   ];
 
   if (!initialized) {
-    return <p role="status" className="py-10 text-center text-sm text-slate-500">Loading shareholder directory...</p>;
+    return <p role="status" className="py-10 text-center text-sm text-slate-500"><T>{"Loading shareholder directory..."}</T></p>;
   }
   if (!token || !canRead) {
-    return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">You do not have permission to view shareholders.</p>;
+    return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><T>{"You do not have permission to view shareholders."}</T></p>;
   }
 
   return (
     <section className="space-y-5">
       <div>
-        <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Shareholders</p>
-        <h1 className="text-2xl font-semibold text-slate-900">Shareholder Directory</h1>
-        <p className="mt-1 text-sm text-slate-600">Find a member by mobile number or member ID and review their purchase history.</p>
+        <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"Shareholders"}</T></p>
+        <h1 className="text-2xl font-semibold text-slate-900"><T>{"Shareholder Directory"}</T></h1>
+        <p className="mt-1 text-sm text-slate-600"><T>{"Find a member by mobile number or member ID and review their purchase history."}</T></p>
       </div>
 
       {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
@@ -162,8 +163,8 @@ export default function ShareholderDirectoryPage() {
               setSearchType(event.target.value);
               setHasSearched(false);
             }}>
-              <option value="mobile">Mobile number</option>
-              <option value="memberId">Member ID</option>
+              <option value="mobile"><T>{"Mobile number"}</T></option>
+              <option value="memberId"><T>{"Member ID"}</T></option>
             </Select>
           </div>
           <div className="flex-1">
@@ -193,7 +194,7 @@ export default function ShareholderDirectoryPage() {
       )}
       {!searching && hasSearched && !error && shareholders.length === 0 && (
         <Card title="Search results">
-          <p className="text-sm text-slate-500">No shareholders found. Check the identifier and try again.</p>
+          <p className="text-sm text-slate-500"><T>{"No shareholders found. Check the identifier and try again."}</T></p>
         </Card>
       )}
 
@@ -203,7 +204,7 @@ export default function ShareholderDirectoryPage() {
           description={`Member ID ${selectedShareholder.memberId} · ${selectedShareholder.mobile}`}
         >
           {loadingPurchases ? (
-            <p role="status" className="py-6 text-center text-sm text-slate-500">Loading purchase history...</p>
+            <p role="status" className="py-6 text-center text-sm text-slate-500"><T>{"Loading purchase history..."}</T></p>
           ) : (
             <Table
               columns={purchaseColumns}

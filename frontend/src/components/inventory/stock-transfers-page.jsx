@@ -8,6 +8,7 @@ import StockTransferRequestForm from '@/components/inventory/stock-transfer-requ
 import {
   createStockTransfer, dispatchStockTransfer, getLocations, getStockTransfers, receiveStockTransfer,
 } from '@/services/stock';
+import { T } from '@/i18n/language-provider';
 
 const statuses = ['Requested', 'Dispatched', 'Received', 'Discrepancy'];
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
@@ -160,15 +161,15 @@ export default function StockTransfersPage() {
     },
   ];
 
-  if (!initialized || loading) return <p role="status" className="py-10 text-center text-sm text-slate-500">Loading outlet transfers...</p>;
-  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">You do not have permission to view outlet transfers.</p>;
+  if (!initialized || loading) return <p role="status" className="py-10 text-center text-sm text-slate-500"><T>{"Loading outlet transfers..."}</T></p>;
+  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><T>{"You do not have permission to view outlet transfers."}</T></p>;
 
   return (
     <section className="space-y-5">
       <div>
-        <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Inventory</p>
-        <h1 className="text-2xl font-semibold text-slate-900">Outlet Transfers</h1>
-        <p className="mt-1 text-sm text-slate-600">Request stock, dispatch from the central warehouse, and confirm outlet deliveries.</p>
+        <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"Inventory"}</T></p>
+        <h1 className="text-2xl font-semibold text-slate-900"><T>{"Outlet Transfers"}</T></h1>
+        <p className="mt-1 text-sm text-slate-600"><T>{"Request stock, dispatch from the central warehouse, and confirm outlet deliveries."}</T></p>
       </div>
       {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
       {notice && <p role="status" className="rounded border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{notice}</p>}
@@ -193,7 +194,7 @@ export default function StockTransfersPage() {
       <Card title="Transfer register" description={`${transfers.length} transfer${transfers.length === 1 ? '' : 's'} in your location scope`}>
         <div className="mb-4 max-w-xs">
           <Select label="Filter by status" name="statusFilter" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
-            <option value="">All statuses</option>
+            <option value=""><T>{"All statuses"}</T></option>
             {statuses.map((status) => <option key={status} value={status}>{status}</option>)}
           </Select>
         </div>

@@ -7,6 +7,7 @@ import { ArrowLeft, Printer, RefreshCw } from 'lucide-react';
 import { Badge, Button, Card, Select } from '@/components/ui';
 import { getVendorPayouts } from '@/services/vendor';
 import { formatDate, formatMoney, idString } from './vendor-payout-utils';
+import { T } from '@/i18n/language-provider';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
 
@@ -56,19 +57,19 @@ export default function VendorPayoutHistoryPage() {
     0,
   ) / 100;
 
-  if (!initialized) return <p role="status" className="py-10 text-center text-sm text-slate-500">Loading payout history...</p>;
-  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">You do not have permission to view payout history.</p>;
+  if (!initialized) return <p role="status" className="py-10 text-center text-sm text-slate-500"><T>{"Loading payout history..."}</T></p>;
+  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><T>{"You do not have permission to view payout history."}</T></p>;
 
   return (
     <section className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Vendors</p>
-          <h1 className="text-2xl font-semibold text-slate-900">Payout History</h1>
-          <p className="mt-1 text-sm text-slate-600">Review completed vendor settlements and payment references.</p>
+          <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"Vendors"}</T></p>
+          <h1 className="text-2xl font-semibold text-slate-900"><T>{"Payout History"}</T></h1>
+          <p className="mt-1 text-sm text-slate-600"><T>{"Review completed vendor settlements and payment references."}</T></p>
         </div>
         <div className="flex gap-2">
-          <Link href="/vendors/payouts" className="ui-button button-secondary"><ArrowLeft size={16} /> Settlement queue</Link>
+          <Link href="/vendors/payouts" className="ui-button button-secondary"><ArrowLeft size={16} /> <T>{"Settlement queue"}</T></Link>
           <Button variant="secondary" onClick={() => setReload((value) => value + 1)} disabled={loading}>
             <RefreshCw size={16} /> Refresh
           </Button>
@@ -77,21 +78,21 @@ export default function VendorPayoutHistoryPage() {
       {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <Card title="Paid statements"><p className="text-2xl font-semibold text-slate-900">{visiblePayouts.length}</p><p className="mt-1 text-xs text-slate-500">Completed vendor payouts</p></Card>
-        <Card title="Total paid"><p className="text-2xl font-semibold text-slate-900">{formatMoney(totalPaid)}</p><p className="mt-1 text-xs text-slate-500">For the selected vendor</p></Card>
+        <Card title="Paid statements"><p className="text-2xl font-semibold text-slate-900">{visiblePayouts.length}</p><p className="mt-1 text-xs text-slate-500"><T>{"Completed vendor payouts"}</T></p></Card>
+        <Card title="Total paid"><p className="text-2xl font-semibold text-slate-900">{formatMoney(totalPaid)}</p><p className="mt-1 text-xs text-slate-500"><T>{"For the selected vendor"}</T></p></Card>
       </div>
 
       <Card title="Completed payouts" description="Payment details are read-only after a statement is marked Paid.">
         <div className="mb-4 max-w-md">
           <Select label="Vendor" name="vendorFilter" value={vendorFilter} onChange={(event) => setVendorFilter(event.target.value)}>
-            <option value="">All vendors</option>
+            <option value=""><T>{"All vendors"}</T></option>
             {vendors.map((vendor) => <option key={vendor.id} value={vendor.id}>{vendor.name} · {vendor.shopName}</option>)}
           </Select>
         </div>
-        {loading ? <p role="status" className="py-8 text-center text-sm text-slate-500">Loading payout records...</p> : (
+        {loading ? <p role="status" className="py-8 text-center text-sm text-slate-500"><T>{"Loading payout records..."}</T></p> : (
           <div className="overflow-x-auto">
             <table className="ui-table min-w-[1150px]">
-              <thead><tr><th scope="col">Vendor</th><th scope="col">Statement &amp; period</th><th scope="col">Amount paid</th><th scope="col">Payment details</th><th scope="col">Received by</th><th scope="col">Receipt</th></tr></thead>
+              <thead><tr><th scope="col"><T>{"Vendor"}</T></th><th scope="col"><T>{"Statement & period"}</T></th><th scope="col"><T>{"Amount paid"}</T></th><th scope="col"><T>{"Payment details"}</T></th><th scope="col"><T>{"Received by"}</T></th><th scope="col"><T>{"Receipt"}</T></th></tr></thead>
               <tbody>
                 {visiblePayouts.map((payout) => {
                   const vendorId = idString(payout.vendorId);
@@ -104,7 +105,7 @@ export default function VendorPayoutHistoryPage() {
                       <td><strong className="block">{payout.paymentMethod}</strong><small className="text-slate-500">Ref: {payout.paymentReference}</small></td>
                       <td>{payout.receiverName || '—'}</td>
                       <td>
-                        {vendor && <Link className="ui-button button-secondary button-sm" href={`/vendors/ledger/${vendorId}/${payout._id}/receipt`}><Printer size={14} /> Receipt</Link>}
+                        {vendor && <Link className="ui-button button-secondary button-sm" href={`/vendors/ledger/${vendorId}/${payout._id}/receipt`}><Printer size={14} /> <T>{"Receipt"}</T></Link>}
                         <Badge tone="success" className="ml-2">Paid</Badge>
                       </td>
                     </tr>

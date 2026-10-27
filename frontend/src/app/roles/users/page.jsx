@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import { Pencil, Plus, Trash2, Users } from 'lucide-react';
 import { Badge, Button, Input, Modal, Select } from '@/components/ui';
 import { createUser, deleteUser, getRoles, getUsers, updateUser } from '@/services/admin';
+import { T } from '@/i18n/language-provider';
 
 const emptyForm = { name: '', email: '', password: '', roleId: '', isActive: true };
 
@@ -88,9 +89,9 @@ export default function RoleUsersPage() {
     <section className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Access control</p>
-          <h1 className="text-2xl font-semibold text-slate-900">Users</h1>
-          <p className="mt-1 text-sm text-slate-600">Manage accounts and assign system roles.</p>
+          <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"Access control"}</T></p>
+          <h1 className="text-2xl font-semibold text-slate-900"><T>{"Users"}</T></h1>
+          <p className="mt-1 text-sm text-slate-600"><T>{"Manage accounts and assign system roles."}</T></p>
         </div>
         <Button onClick={startCreate} disabled={!roles.length}>
           <Plus size={17} /> Add user
@@ -98,8 +99,8 @@ export default function RoleUsersPage() {
       </div>
 
       <nav aria-label="Role administration" className="flex gap-5 border-b border-slate-200">
-        <Link href="/roles/manage" className="pb-3 text-sm font-medium text-slate-500 hover:text-slate-900">Roles</Link>
-        <Link href="/roles/users" aria-current="page" className="border-b-2 border-blue-600 pb-3 text-sm font-semibold text-blue-700">Users</Link>
+        <Link href="/roles/manage" className="pb-3 text-sm font-medium text-slate-500 hover:text-slate-900"><T>{"Roles"}</T></Link>
+        <Link href="/roles/users" aria-current="page" className="border-b-2 border-blue-600 pb-3 text-sm font-semibold text-blue-700"><T>{"Users"}</T></Link>
       </nav>
 
       {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
@@ -107,17 +108,17 @@ export default function RoleUsersPage() {
       <div className="overflow-hidden rounded-md border border-slate-200 bg-white">
         <div className="flex items-center gap-3 border-b border-slate-200 px-4 py-3">
           <Users size={18} className="text-slate-500" />
-          <h2 className="text-sm font-semibold text-slate-800">Team accounts</h2>
+          <h2 className="text-sm font-semibold text-slate-800"><T>{"Team accounts"}</T></h2>
           <span className="ml-auto text-xs text-slate-500">{users.length} users</span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[680px] text-left text-sm">
             <thead className="bg-slate-50 text-xs uppercase text-slate-500">
-              <tr><th className="px-4 py-3 font-semibold">Name</th><th className="px-4 py-3 font-semibold">Email</th><th className="px-4 py-3 font-semibold">Role</th><th className="px-4 py-3 font-semibold">Status</th><th className="px-4 py-3 text-right font-semibold">Actions</th></tr>
+              <tr><th className="px-4 py-3 font-semibold"><T>{"Name"}</T></th><th className="px-4 py-3 font-semibold"><T>{"Email"}</T></th><th className="px-4 py-3 font-semibold"><T>{"Role"}</T></th><th className="px-4 py-3 font-semibold"><T>{"Status"}</T></th><th className="px-4 py-3 text-right font-semibold"><T>{"Actions"}</T></th></tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {loading ? <tr><td colSpan="5" className="px-4 py-10 text-center text-slate-500">Loading users...</td></tr>
-                : users.length === 0 ? <tr><td colSpan="5" className="px-4 py-10 text-center text-slate-500">No users found.</td></tr>
+              {loading ? <tr><td colSpan="5" className="px-4 py-10 text-center text-slate-500"><T>{"Loading users..."}</T></td></tr>
+                : users.length === 0 ? <tr><td colSpan="5" className="px-4 py-10 text-center text-slate-500"><T>{"No users found."}</T></td></tr>
                   : users.map((user) => (
                     <tr key={user.id}>
                       <td className="px-4 py-3 font-medium text-slate-900">{user.name}</td>

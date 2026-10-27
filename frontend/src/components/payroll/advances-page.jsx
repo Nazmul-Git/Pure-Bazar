@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { Badge, Button, Card, Input, Select, Table } from '@/components/ui';
 import { createAdvance, getAdvances, getEmployees, transitionAdvance } from '@/services/payroll';
 import { employeeId, formatPayrollDate, formatPayrollMoney } from './payroll-utils.mjs';
+import { T } from '@/i18n/language-provider';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
 const statusTone = { Draft: 'warning', Approved: 'success', Paid: 'success', Rejected: 'neutral' };
@@ -120,15 +121,15 @@ export default function AdvancesPage() {
     }] : []),
   ];
 
-  if (!initialized) return <p role="status" className="py-10 text-center text-sm text-slate-500">Loading salary advances...</p>;
-  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">You do not have permission to view salary advances.</p>;
+  if (!initialized) return <p role="status" className="py-10 text-center text-sm text-slate-500"><T>{"Loading salary advances..."}</T></p>;
+  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><T>{"You do not have permission to view salary advances."}</T></p>;
 
   return (
     <section className="space-y-5">
       <div>
-        <p className="mb-1 text-xs font-semibold uppercase text-slate-500">HR / Payroll</p>
-        <h1 className="text-2xl font-semibold text-slate-900">Salary Advances</h1>
-        <p className="mt-1 text-sm text-slate-600">Record requests, track approval and payment, and see deductions assigned to a salary sheet.</p>
+        <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"HR / Payroll"}</T></p>
+        <h1 className="text-2xl font-semibold text-slate-900"><T>{"Salary Advances"}</T></h1>
+        <p className="mt-1 text-sm text-slate-600"><T>{"Record requests, track approval and payment, and see deductions assigned to a salary sheet."}</T></p>
       </div>
       {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
       {notice && <p role="status" className="rounded border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">{notice}</p>}
@@ -137,13 +138,13 @@ export default function AdvancesPage() {
         <Card title="Record an advance" description="New requests begin in Draft. Paid advances may be deducted on a future salary sheet.">
           <form className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" onSubmit={submitAdvance}>
             <Select label="Active employee" name="employeeId" required value={form.employeeId} onChange={(event) => setForm({ ...form, employeeId: event.target.value })}>
-              <option value="">Select employee</option>
+              <option value=""><T>{"Select employee"}</T></option>
               {employees.filter((employee) => employee.status === 'ACTIVE').map((employee) => <option key={employee._id} value={employee._id}>{employee.employeeCode} · {employee.name}</option>)}
             </Select>
             <Input label="Amount (BDT)" name="amount" type="number" min="0.01" step="0.01" required value={form.amount} onChange={(event) => setForm({ ...form, amount: event.target.value })} />
             <Input label="Reason" name="reason" required maxLength={500} value={form.reason} onChange={(event) => setForm({ ...form, reason: event.target.value })} />
             <div className="flex items-end"><Button type="submit" disabled={saving || !employees.some((employee) => employee.status === 'ACTIVE')}>{saving ? 'Saving...' : 'Create request'}</Button></div>
-            {!canReadEmployees && <p className="text-sm text-amber-700 sm:col-span-2 lg:col-span-3">Employee directory access is required to create an advance request.</p>}
+            {!canReadEmployees && <p className="text-sm text-amber-700 sm:col-span-2 lg:col-span-3"><T>{"Employee directory access is required to create an advance request."}</T></p>}
           </form>
         </Card>
       )}
@@ -151,15 +152,15 @@ export default function AdvancesPage() {
       <Card title="Advance register" description={`${advances.length} advance${advances.length === 1 ? '' : 's'} found`}>
         <div className="mb-4 grid gap-3 sm:grid-cols-2">
           <Select label="Employee" name="advanceEmployee" value={employeeFilter} onChange={(event) => setEmployeeFilter(event.target.value)}>
-            <option value="">All employees</option>
+            <option value=""><T>{"All employees"}</T></option>
             {employees.map((employee) => <option key={employee._id} value={employee._id}>{employee.employeeCode} · {employee.name}</option>)}
           </Select>
           <Select label="Status" name="advanceStatus" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
-            <option value="">All statuses</option>
+            <option value=""><T>{"All statuses"}</T></option>
             {['Draft', 'Approved', 'Paid', 'Rejected'].map((status) => <option key={status} value={status}>{status}</option>)}
           </Select>
         </div>
-        {loading ? <p role="status" className="py-8 text-center text-sm text-slate-500">Loading advances...</p>
+        {loading ? <p role="status" className="py-8 text-center text-sm text-slate-500"><T>{"Loading advances..."}</T></p>
           : <Table columns={columns} rows={advances} rowKey="_id" emptyMessage="No advances match these filters." />}
       </Card>
     </section>

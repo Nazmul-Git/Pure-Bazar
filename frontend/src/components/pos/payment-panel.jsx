@@ -3,6 +3,7 @@
 import { WalletCards } from 'lucide-react';
 import Button from '@/components/ui/button';
 import Input from '@/components/ui/input';
+import { T } from '@/i18n/language-provider';
 
 const options = [
   ['CASH', 'Cash'],
@@ -29,7 +30,7 @@ export default function PaymentPanel({
 
   return (
     <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-      <h2 className="font-semibold text-slate-900">Payment</h2>
+      <h2 className="font-semibold text-slate-900"><T>{"Payment"}</T></h2>
       <div className="mt-3 grid grid-cols-2 gap-2">
         {options.map(([method, label]) => (
           <label key={method} className="flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 p-3 text-sm">
@@ -48,7 +49,7 @@ export default function PaymentPanel({
         </div>
       ) : (
         <div className="mt-3 space-y-3">
-          {!selected.length && <p role="alert" className="text-sm text-red-700">Select at least one payment method.</p>}
+          {!selected.length && <p role="alert" className="text-sm text-red-700"><T>{"Select at least one payment method."}</T></p>}
           {selected.map((method) => (
             <div key={method} className="grid grid-cols-[1fr_auto] items-end gap-2">
               <Input

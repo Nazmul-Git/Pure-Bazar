@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import { ArrowUpRight, Check, Plus } from 'lucide-react';
 import { Badge, Button, Card, Input, Table } from '@/components/ui';
 import { approveGoodsReceive, getGoodsReceives, getReceiveVendors } from '@/services/stock';
+import { T } from '@/i18n/language-provider';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
 const formatDate = (value) => new Intl.DateTimeFormat('en-BD', { dateStyle: 'medium' }).format(new Date(value));
@@ -106,18 +107,18 @@ export default function GoodsReceivesPage() {
     },
   ];
 
-  if (!initialized || loading) return <p role="status" className="py-10 text-center text-sm text-slate-500">Loading goods receives...</p>;
-  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">You do not have permission to view goods receives.</p>;
+  if (!initialized || loading) return <p role="status" className="py-10 text-center text-sm text-slate-500"><T>{"Loading goods receives..."}</T></p>;
+  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><T>{"You do not have permission to view goods receives."}</T></p>;
 
   return (
     <section className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Inventory</p>
-          <h1 className="text-2xl font-semibold text-slate-900">Goods Receive</h1>
-          <p className="mt-1 text-sm text-slate-600">Create, review, approve, and print vendor goods receipts.</p>
+          <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"Inventory"}</T></p>
+          <h1 className="text-2xl font-semibold text-slate-900"><T>{"Goods Receive"}</T></h1>
+          <p className="mt-1 text-sm text-slate-600"><T>{"Create, review, approve, and print vendor goods receipts."}</T></p>
         </div>
-        {canWrite && <Link href="/inventory/goods-receives/new" className="ui-button button-primary button-md"><Plus size={17} /> New GRN</Link>}
+        {canWrite && <Link href="/inventory/goods-receives/new" className="ui-button button-primary button-md"><Plus size={17} /> <T>{"New GRN"}</T></Link>}
       </div>
       {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
       <Card title="Goods Receive Notes" description={`${receives.length} total GRN${receives.length === 1 ? '' : 's'}`}>

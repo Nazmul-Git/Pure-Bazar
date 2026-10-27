@@ -7,6 +7,7 @@ import Input from '@/components/ui/input';
 import Select from '@/components/ui/select';
 import Modal from '@/components/ui/modal';
 import { posErrorMessage, verifyPosMember } from '@/services/pos';
+import { T } from '@/i18n/language-provider';
 
 export default function ShareholderModal({ open, onClose, onVerified }) {
   const [searchType, setSearchType] = useState('mobile');
@@ -42,10 +43,10 @@ export default function ShareholderModal({ open, onClose, onVerified }) {
   return (
     <Modal open={open} onClose={close} title="Verify shareholder">
       <form onSubmit={submit} className="space-y-4">
-        <p className="text-sm text-slate-600">Verify the member with Probashi before attaching them to this bill.</p>
+        <p className="text-sm text-slate-600"><T>{"Verify the member with Probashi before attaching them to this bill."}</T></p>
         <Select label="Find member by" value={searchType} onChange={(event) => setSearchType(event.target.value)}>
-          <option value="mobile">Mobile number</option>
-          <option value="memberId">Member ID</option>
+          <option value="mobile"><T>{"Mobile number"}</T></option>
+          <option value="memberId"><T>{"Member ID"}</T></option>
         </Select>
         <Input
           label={searchType === 'mobile' ? 'Mobile number' : 'Member ID'}

@@ -1,14 +1,19 @@
+﻿'use client';
+
+import { useLanguage } from '@/i18n/language-provider';
+
 export default function Select({ label, error, id, options = [], className = '', children, ...props }) {
+  const { t } = useLanguage();
   const selectId = id ?? props.name;
   return (
     <label className={`ui-field ${className}`.trim()} htmlFor={selectId}>
-      {label && <span className="field-label">{label}</span>}
+      {label && <span className="field-label">{t(label)}</span>}
       <select id={selectId} className={`ui-select${error ? ' field-invalid' : ''}`} aria-invalid={Boolean(error)} {...props}>
         {children ?? options.map((option) => (
-          <option key={option.value} value={option.value}>{option.label}</option>
+          <option key={option.value} value={option.value}>{t(option.label)}</option>
         ))}
       </select>
-      {error && <span className="field-error">{error}</span>}
+      {error && <span className="field-error">{t(error)}</span>}
     </label>
   );
 }

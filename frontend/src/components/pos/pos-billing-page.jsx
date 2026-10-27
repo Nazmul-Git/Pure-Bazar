@@ -20,6 +20,7 @@ import {
 import InvoiceModal from './invoice-modal';
 import ErrorToast from './error-toast';
 import useToastMessages from '@/hooks/use-toast-messages';
+import { T } from '@/i18n/language-provider';
 
 const { createPreviewPayload, paymentTotalMatches } = billingUtils;
 const WALLET_DISCOUNT_RATE = 0.05;
@@ -272,20 +273,20 @@ export default function PosBillingPage() {
     && !formError && !checkoutLoading && selectedMethods.length > 0
     && paymentsMatch && approvalReady && !hasStockProblem(items);
 
-  if (!initialized) return <p role="status" className="py-10 text-center">Loading your POS session...</p>;
-  if (!token || !canRead) return <p role="alert" className="rounded bg-red-50 p-4 text-red-800">You do not have permission to view the POS.</p>;
-  if (!canWrite) return <p role="alert" className="rounded bg-red-50 p-4 text-red-800">You do not have permission to complete POS sales.</p>;
+  if (!initialized) return <p role="status" className="py-10 text-center"><T>{"Loading your POS session..."}</T></p>;
+  if (!token || !canRead) return <p role="alert" className="rounded bg-red-50 p-4 text-red-800"><T>{"You do not have permission to view the POS."}</T></p>;
+  if (!canWrite) return <p role="alert" className="rounded bg-red-50 p-4 text-red-800"><T>{"You do not have permission to complete POS sales."}</T></p>;
 
   return (
     <section className="mx-auto max-w-7xl space-y-5">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Sales</p>
-          <h1 className="text-2xl font-semibold text-slate-900">Point of Sale</h1>
-          <p className="mt-1 text-sm text-slate-600">Scan items, apply permitted discounts, and complete a bill.</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500"><T>{"Sales"}</T></p>
+          <h1 className="text-2xl font-semibold text-slate-900"><T>{"Point of Sale"}</T></h1>
+          <p className="mt-1 text-sm text-slate-600"><T>{"Scan items, apply permitted discounts, and complete a bill."}</T></p>
         </div>
         <div className="flex gap-2">
-          <button type="button" onClick={holdSale} disabled={!items.length || checkoutLoading} className="rounded-lg bg-amber-500 px-3 py-2 text-sm font-medium text-white disabled:opacity-50">Hold Sale</button>
+          <button type="button" onClick={holdSale} disabled={!items.length || checkoutLoading} className="rounded-lg bg-amber-500 px-3 py-2 text-sm font-medium text-white disabled:opacity-50"><T>{"Hold Sale"}</T></button>
           <HeldBillsButton count={held.length} onClick={() => setHeldOpen(true)} />
         </div>
       </header>

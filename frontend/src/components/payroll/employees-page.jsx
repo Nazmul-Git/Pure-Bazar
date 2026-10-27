@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { Badge, Button, Card, Input, Select, Table } from '@/components/ui';
 import { getEmployees, saveEmployee } from '@/services/payroll';
 import { formatPayrollDate, formatPayrollMoney } from './payroll-utils.mjs';
+import { T } from '@/i18n/language-provider';
 
 const blankEmployee = () => ({
   employeeCode: '', name: '', phone: '', email: '', designation: '', department: '',
@@ -105,15 +106,15 @@ export default function EmployeesPage() {
     }] : []),
   ];
 
-  if (!initialized) return <p role="status" className="py-10 text-center text-sm text-slate-500">Loading employees...</p>;
-  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">You do not have permission to view employees.</p>;
+  if (!initialized) return <p role="status" className="py-10 text-center text-sm text-slate-500"><T>{"Loading employees..."}</T></p>;
+  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><T>{"You do not have permission to view employees."}</T></p>;
 
   return (
     <section className="space-y-5">
       <div>
-        <p className="mb-1 text-xs font-semibold uppercase text-slate-500">HR / Payroll</p>
-        <h1 className="text-2xl font-semibold text-slate-900">Employees</h1>
-        <p className="mt-1 text-sm text-slate-600">Maintain employee details and current payroll status.</p>
+        <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"HR / Payroll"}</T></p>
+        <h1 className="text-2xl font-semibold text-slate-900"><T>{"Employees"}</T></h1>
+        <p className="mt-1 text-sm text-slate-600"><T>{"Maintain employee details and current payroll status."}</T></p>
       </div>
       {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
       {notice && <p role="status" className="rounded border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">{notice}</p>}
@@ -130,7 +131,7 @@ export default function EmployeesPage() {
             <Input label="Department" name="department" maxLength={100} value={form.department} onChange={(event) => setForm({ ...form, department: event.target.value })} />
             <Input label="Hire date" name="hireDate" type="date" value={form.hireDate} onChange={(event) => setForm({ ...form, hireDate: event.target.value })} />
             <Select label="Status" name="status" value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value })}>
-              <option value="ACTIVE">Active</option><option value="INACTIVE">Inactive</option>
+              <option value="ACTIVE"><T>{"Active"}</T></option><option value="INACTIVE"><T>{"Inactive"}</T></option>
             </Select>
             <div className="flex items-end gap-2">
               <Button type="submit" disabled={saving}>{saving ? 'Saving...' : editingId ? 'Save changes' : 'Add employee'}</Button>
@@ -143,10 +144,10 @@ export default function EmployeesPage() {
       <Card title="Employee directory" description={`${employees.length} employee${employees.length === 1 ? '' : 's'} shown`}>
         <div className="mb-4 max-w-xs">
           <Select label="Filter by status" name="employeeFilter" value={status} onChange={(event) => setStatus(event.target.value)}>
-            <option value="">All employees</option><option value="ACTIVE">Active</option><option value="INACTIVE">Inactive</option>
+            <option value=""><T>{"All employees"}</T></option><option value="ACTIVE"><T>{"Active"}</T></option><option value="INACTIVE"><T>{"Inactive"}</T></option>
           </Select>
         </div>
-        {loading ? <p role="status" className="py-8 text-center text-sm text-slate-500">Loading employees...</p>
+        {loading ? <p role="status" className="py-8 text-center text-sm text-slate-500"><T>{"Loading employees..."}</T></p>
           : <Table columns={columns} rows={employees} rowKey="_id" emptyMessage="No employees match this filter." />}
       </Card>
     </section>

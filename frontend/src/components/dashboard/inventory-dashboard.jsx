@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { AlertTriangle, ClipboardList, PackageX, Truck } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { MetricCard, ProgressBar, timeFormat } from './dashboard-shared';
+import { T } from '@/i18n/language-provider';
 
 export default function InventoryDashboard({ dashboard }) {
   const {
@@ -13,16 +14,16 @@ export default function InventoryDashboard({ dashboard }) {
     <>
       <div className="dash-metrics">
         <MetricCard label="Stock out" value={dashboard.stockOutCount} description="Products with no stock" icon={PackageX}
-          badge={dashboard.stockOutCount > 0 ? <span className="dash-badge critical">Needs attention</span> : null} />
+          badge={dashboard.stockOutCount > 0 ? <span className="dash-badge critical"><T>{"Needs attention"}</T></span> : null} />
         <MetricCard label="Low stock" value={dashboard.lowStockCount} description={`At or below ${dashboard.lowStockThreshold} units`} icon={AlertTriangle}
-          badge={dashboard.lowStockCount > 0 ? <span className="dash-badge low">Restock soon</span> : null} />
+          badge={dashboard.lowStockCount > 0 ? <span className="dash-badge low"><T>{"Restock soon"}</T></span> : null} />
         <MetricCard label="Pending GRN" value={dashboard.pendingGrnCount} description="Goods received awaiting approval" icon={Truck} />
         <MetricCard label="Pending adjustments" value={dashboard.pendingAdjustmentCount} description="Awaiting approval" icon={ClipboardList} />
       </div>
 
       <div className="dash-grid even">
         <Card title="Reorder recommendations" description="Suggested quantity restores twice the low-stock level."
-          actions={<Link className="dash-action" href="/inventory/goods-receives/new">New GRN</Link>}>
+          actions={<Link className="dash-action" href="/inventory/goods-receives/new"><T>{"New GRN"}</T></Link>}>
           {reorderRecommendations.length ? (
             <ul className="dashboard-list">
               {reorderRecommendations.map((item) => (
@@ -36,7 +37,7 @@ export default function InventoryDashboard({ dashboard }) {
               ))}
             </ul>
           ) : (
-            <p className="dashboard-empty">Nothing needs reordering.</p>
+            <p className="dashboard-empty"><T>{"Nothing needs reordering."}</T></p>
           )}
         </Card>
 
@@ -51,14 +52,14 @@ export default function InventoryDashboard({ dashboard }) {
               ))}
             </ul>
           ) : (
-            <p className="dashboard-empty">No sales recorded in the last 30 days.</p>
+            <p className="dashboard-empty"><T>{"No sales recorded in the last 30 days."}</T></p>
           )}
         </Card>
       </div>
 
       <div className="dash-grid even">
         <Card title="Pending goods received" description="Draft GRNs awaiting approval."
-          actions={<Link className="dash-action" href="/inventory/goods-receives">View all</Link>}>
+          actions={<Link className="dash-action" href="/inventory/goods-receives"><T>{"View all"}</T></Link>}>
           {pendingGrns.length ? (
             <ul className="dashboard-list">
               {pendingGrns.map((grn) => (
@@ -69,7 +70,7 @@ export default function InventoryDashboard({ dashboard }) {
               ))}
             </ul>
           ) : (
-            <p className="dashboard-empty">No pending goods received.</p>
+            <p className="dashboard-empty"><T>{"No pending goods received."}</T></p>
           )}
         </Card>
 
@@ -84,7 +85,7 @@ export default function InventoryDashboard({ dashboard }) {
               ))}
             </ul>
           ) : (
-            <p className="dashboard-empty">No stock adjustments yet.</p>
+            <p className="dashboard-empty"><T>{"No stock adjustments yet."}</T></p>
           )}
         </Card>
       </div>

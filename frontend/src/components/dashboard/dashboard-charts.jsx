@@ -5,6 +5,7 @@ import {
   Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Legend, Pie, PieChart,
   ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from 'recharts';
+import { T } from '@/i18n/language-provider';
 
 export const GREEN = '#82C341';
 export const ORANGE = '#F58220';
@@ -82,7 +83,7 @@ export function PaymentDonut({ byMethod }) {
   const data = Object.entries(byMethod || {})
     .map(([method, amount]) => ({ name: METHOD_NAMES[method] || method, value: Number(amount) || 0, fill: METHOD_COLORS[method] || '#94A3B8' }))
     .filter((item) => item.value > 0);
-  if (!data.length) return <p className="dashboard-empty">No sales recorded today yet.</p>;
+  if (!data.length) return <p className="dashboard-empty"><T>{"No sales recorded today yet."}</T></p>;
   return (
     <div className="dash-chart-box dash-chart-box-pie" role="img" aria-label="Today's sales by payment method">
       <ResponsiveContainer width="100%" height="100%">

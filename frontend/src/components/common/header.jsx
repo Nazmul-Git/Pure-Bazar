@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
@@ -6,12 +6,15 @@ import { ChevronDown, LogOut, Menu, Settings, UserRound } from 'lucide-react';
 import useAuth from '@/store/use-auth';
 import Button from '@/components/ui/button';
 import NotificationBell from './notification-bell';
+import LanguageSwitcher from './language-switcher';
+import { useLanguage } from '@/i18n/language-provider';
 
 export default function Header({ section, onMenuClick }) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const wrapRef = useRef(null);
   const [logoutError, setLogoutError] = useState('');
   const { user, logout, status, canAccess } = useAuth();
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (!userMenuOpen) return undefined;
@@ -34,15 +37,16 @@ export default function Header({ section, onMenuClick }) {
   return (
     <header className="app-header">
       <div className="header-leading">
-        <button className="icon-button mobile-menu" aria-label="Open navigation" onClick={onMenuClick}>
+        <button className="icon-button mobile-menu" aria-label={t('Open navigation')} onClick={onMenuClick}>
           <Menu size={21} />
         </button>
         <div className="header-context">
           <span className="header-eyebrow">PUREBAZAR</span>
-          <span className="header-section">{section}</span>
+          <span className="header-section">{t(section)}</span>
         </div>
       </div>
       <div className="header-actions">
+      <LanguageSwitcher />
       {canAccess(['stock:read']) || canAccess(['stock:transfer:read']) ? <NotificationBell /> : null}
       <div className="user-menu-wrap" ref={wrapRef}>
         <button
@@ -62,9 +66,9 @@ export default function Header({ section, onMenuClick }) {
               <div className="user-menu-who"><strong>{user?.name || user?.email}</strong><span className="user-role-badge">{user?.role || 'Staff'}</span></div>
             </div>
             {logoutError && <p className="user-menu-error" role="alert">{logoutError}</p>}
-            {canAccess(['settings:read']) && <Link href="/settings" role="menuitem" className="user-menu-item" onClick={() => setUserMenuOpen(false)}><Settings size={16} />Settings</Link>}
+            {canAccess(['settings:read']) && <Link href="/settings" role="menuitem" className="user-menu-item" onClick={() => setUserMenuOpen(false)}><Settings size={16} />{t('Settings')}</Link>}
             <Button className="user-menu-logout" variant="ghost" size="sm" role="menuitem" disabled={status === 'loading'} onClick={handleLogout}>
-              <LogOut size={16} />{status === 'loading' ? 'Signing out...' : 'Sign out'}
+              <LogOut size={16} />{t(status === 'loading' ? 'Signing out...' : 'Sign out')}
             </Button>
           </div>
         )}

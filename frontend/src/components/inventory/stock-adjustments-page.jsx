@@ -8,6 +8,7 @@ import {
   approveStockAdjustment, createStockAdjustment, getLocations, getStockAdjustments, rejectStockAdjustment,
   searchReceiveProducts,
 } from '@/services/stock';
+import { T } from '@/i18n/language-provider';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
 const recordId = (record) => String(record.id || record._id);
@@ -215,15 +216,15 @@ export default function StockAdjustmentsPage() {
     }
   }
 
-  if (!initialized || loading) return <p role="status" className="py-10 text-center text-sm text-slate-500">Loading stock adjustments...</p>;
-  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">You do not have permission to view stock adjustments.</p>;
+  if (!initialized || loading) return <p role="status" className="py-10 text-center text-sm text-slate-500"><T>{"Loading stock adjustments..."}</T></p>;
+  if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><T>{"You do not have permission to view stock adjustments."}</T></p>;
 
   return (
     <section className="space-y-5">
       <header>
-        <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Inventory</p>
-        <h1 className="text-2xl font-semibold text-slate-900">Stock Adjustment</h1>
-        <p className="mt-1 text-sm text-slate-600">Record corrections, damage, or other approved stock changes.</p>
+        <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"Inventory"}</T></p>
+        <h1 className="text-2xl font-semibold text-slate-900"><T>{"Stock Adjustment"}</T></h1>
+        <p className="mt-1 text-sm text-slate-600"><T>{"Record corrections, damage, or other approved stock changes."}</T></p>
       </header>
       {error && <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
       {notice && <p role="status" className="rounded border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{notice}</p>}
@@ -238,28 +239,28 @@ export default function StockAdjustmentsPage() {
                 setSearch('');
                 setMatches([]);
               }}>
-                <option value="">Choose a location</option>
+                <option value=""><T>{"Choose a location"}</T></option>
                 {locations.map((location) => <option key={location.id} value={location.id}>{location.name}</option>)}
               </Select>
               <Select label="Adjustment mode" name="mode" value={mode} onChange={(event) => setMode(event.target.value)}>
-                <option value="REMOVE">Remove stock</option>
-                <option value="ADD">Add stock</option>
+                <option value="REMOVE"><T>{"Remove stock"}</T></option>
+                <option value="ADD"><T>{"Add stock"}</T></option>
               </Select>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <Select label="Reason" name="reason" value={reason} onChange={(event) => setReason(event.target.value)} required>
-                <option value="">Choose a reason</option>
+                <option value=""><T>{"Choose a reason"}</T></option>
                 {reasons.map((item) => <option key={item} value={item}>{item}</option>)}
               </Select>
               {reason === 'Other' && <Input label="Reason note" name="reasonNote" value={reasonNote} onChange={(event) => setReasonNote(event.target.value)} maxLength={500} required placeholder="Add a short note" />}
             </div>
             {reasonMismatch && <p role="alert" className="rounded border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">{reason} is not allowed in {mode === 'REMOVE' ? 'Remove stock' : 'Add stock'} mode.</p>}
-            {!can(permissions, 'products:read') && <p className="text-sm text-amber-700">Product read permission is required to select adjustment lines.</p>}
+            {!can(permissions, 'products:read') && <p className="text-sm text-amber-700"><T>{"Product read permission is required to select adjustment lines."}</T></p>}
             <div className="grid gap-4 md:grid-cols-2">
               <Input label="Scan barcode and press Enter" name="barcodeScanner" value={scanner.value} onChange={scanner.onChange} onKeyDown={scanner.onKeyDown} placeholder="Focus here, then scan a product barcode" disabled={!warehouseId || !can(permissions, 'products:read')} />
               <div className="relative">
                 <Input label="Find product" name="productSearch" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search name or barcode" disabled={!warehouseId || !can(permissions, 'products:read')} />
-                {searching && <p role="status" className="mt-1 text-xs text-slate-500">Searching products...</p>}
+                {searching && <p role="status" className="mt-1 text-xs text-slate-500"><T>{"Searching products..."}</T></p>}
                 {searchError && <p role="alert" className="mt-1 text-xs text-red-700">{searchError}</p>}
                 {matches.length > 0 && <div className="absolute z-10 mt-1 max-h-52 w-full overflow-y-auto rounded border border-slate-200 bg-white shadow-lg">
                   {matches.map((product) => <button key={product.id} type="button" className="block w-full border-b border-slate-100 px-3 py-2 text-left hover:bg-slate-50" onClick={() => addProduct(product)}>
@@ -267,7 +268,7 @@ export default function StockAdjustmentsPage() {
                     <small className="text-slate-500">{product.barcode} · Current stock: {product.stockQuantity}</small>
                   </button>)}
                 </div>}
-                {search.trim() && !searching && !searchError && matches.length === 0 && <p className="mt-1 text-xs text-slate-500">No products found for this search.</p>}
+                {search.trim() && !searching && !searchError && matches.length === 0 && <p className="mt-1 text-xs text-slate-500"><T>{"No products found for this search."}</T></p>}
               </div>
             </div>
             {lines.map((line) => (

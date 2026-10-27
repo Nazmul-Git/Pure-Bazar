@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { BadgeDollarSign, Banknote, Receipt, ShoppingCart } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { MetricCard, ProgressBar, formatMoney, timeFormat } from './dashboard-shared';
+import { T } from '@/i18n/language-provider';
 
 const SPLIT_LABELS = [['cash', 'Cash'], ['bkash', 'bKash'], ['card', 'Card'], ['other', 'Other']];
 
@@ -34,7 +35,7 @@ export default function CashierDashboard({ dashboard }) {
               </div>
             </>
           ) : (
-            <p className="dashboard-empty">No daily sales target has been set. Ask an admin to set one in Settings.</p>
+            <p className="dashboard-empty"><T>{"No daily sales target has been set. Ask an admin to set one in Settings."}</T></p>
           )}
         </Card>
 
@@ -51,14 +52,14 @@ export default function CashierDashboard({ dashboard }) {
         <Card title="Shift cash summary" description="Your current open shift.">
           {shift ? (
             <ul className="dashboard-list">
-              <li><span><strong>Opened</strong></span><b>{timeFormat.format(new Date(shift.openedAt))}</b></li>
-              <li><span><strong>Opening cash</strong></span><b>{formatMoney(shift.openingCash)}</b></li>
-              <li><span><strong>Cash sales</strong></span><b>{formatMoney(shift.cashSales)}</b></li>
-              <li><span><strong>Expected cash in drawer</strong></span><b>{formatMoney(shift.expectedCash)}</b></li>
-              <li><span><strong>Bills this shift</strong></span><b>{shift.billCount}</b></li>
+              <li><span><strong><T>{"Opened"}</T></strong></span><b>{timeFormat.format(new Date(shift.openedAt))}</b></li>
+              <li><span><strong><T>{"Opening cash"}</T></strong></span><b>{formatMoney(shift.openingCash)}</b></li>
+              <li><span><strong><T>{"Cash sales"}</T></strong></span><b>{formatMoney(shift.cashSales)}</b></li>
+              <li><span><strong><T>{"Expected cash in drawer"}</T></strong></span><b>{formatMoney(shift.expectedCash)}</b></li>
+              <li><span><strong><T>{"Bills this shift"}</T></strong></span><b>{shift.billCount}</b></li>
             </ul>
           ) : (
-            <p className="dashboard-empty">No open shift. Open a shift from POS Billing to start.</p>
+            <p className="dashboard-empty"><T>{"No open shift. Open a shift from POS Billing to start."}</T></p>
           )}
         </Card>
 
@@ -76,7 +77,7 @@ export default function CashierDashboard({ dashboard }) {
               ))}
             </ul>
           ) : (
-            <p className="dashboard-empty">You have not completed any bills today.</p>
+            <p className="dashboard-empty"><T>{"You have not completed any bills today."}</T></p>
           )}
         </Card>
       </div>
