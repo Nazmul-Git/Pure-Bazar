@@ -20,13 +20,14 @@ function combineQuantity(boxes, pieces, unitsPerPackage) {
   return Math.round((b * Number(unitsPerPackage) + p)) / Number(unitsPerPackage);
 }
 
-function formatStock(quantity, unitsPerPackage) {
+function formatStock(quantity, unitsPerPackage, packageUnitName) {
   const value = Number(quantity) || 0;
   if (!isMultiUnit(unitsPerPackage)) return String(Math.round(value * 1e6) / 1e6);
+  const name = packageUnitName || 'Box';
   const { boxes, pieces } = splitQuantity(value, unitsPerPackage);
-  if (!pieces) return `${boxes} Box(es)`;
+  if (!pieces) return `${boxes} ${packageUnitName ? name : 'Box(es)'}`;
   if (!boxes) return `${pieces} Pcs`;
-  return `${boxes} Box(es) and ${pieces} Pcs`;
+  return `${boxes} ${packageUnitName ? name : 'Box(es)'} and ${pieces} Pcs`;
 }
 
 module.exports = { isMultiUnit, splitQuantity, combineQuantity, formatStock };

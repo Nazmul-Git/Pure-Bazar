@@ -397,3 +397,6 @@
 - [x] Centralize system-wide pending actions across Vendors, Finance, HR, POS, and Inventory modules
 	- Files: backend/services/notificationService.js (new groups: vendor payout requests = Draft VendorStatement -> /vendors/payouts, approved payouts awaiting payment -> /finance/batch-payout, wallet reconciliation Pending/Mismatch -> /finance/wallet-reconciliation, Draft salary sheets -> /payroll/salary-sheets, Draft salary advances -> /payroll/advances), tests/notifications.integration.test.js. Bell badge/dropdown needed no change (renders any group and links to it).
 	- Decisions: groups gated by vendor-payouts:read, finance:read, payroll:read, salary-advances:read. Returns are not included: the blueprint/models have no return approval mode or pending-return state. Validation: notifications tests pass (3).
+- [x] Dynamic base unit labels (dual-unit Pack + Pcs)
+	- Files: backend/utils/productDisplay.js (packageUnitName), stockController, posCatalogService, frontend cart-panel, pos-billing-page, stock-counts-page, warehouse page, stock-units.cjs (+test).
+	- Decisions: pack label comes from the product's Unit name (Dozen/Box/Bag), falls back to Box; pieces math still uses unitsPerPackage.

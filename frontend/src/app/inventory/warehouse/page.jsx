@@ -58,7 +58,7 @@ export default function WarehousePage() {
       label: 'Owner',
       render: (ownerType) => <Badge tone={ownerType === 'VENDOR' ? 'info' : 'neutral'}>{ownerType === 'VENDOR' ? 'Vendor' : 'Company'}</Badge>,
     },
-    { key: 'quantity', label: 'Current stock', render: (quantity, item) => <strong className="text-slate-900">{formatStock(quantity, item.unitsPerPackage)}</strong> },
+    { key: 'quantity', label: 'Current stock', render: (quantity, item) => <strong className="text-slate-900">{formatStock(quantity, item.unitsPerPackage, item.packageUnitName)}</strong> },
   ];
 
   if (!initialized || loading) return <p role="status" className="py-10 text-center text-sm text-slate-500"><T>{"Loading Central Warehouse stock..."}</T></p>;

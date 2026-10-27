@@ -29,6 +29,7 @@ function toItem(product, stock, labels = new Map()) {
     vendorPrice: product.vendorPrice,
         subUnitPrice: effectiveSubUnitPrice(product) ?? undefined,
         unitsPerPackage: product.unitsPerPackage,
+        packageUnitName: product.packageUnitName,
         stock: stock.get(String(product._id)) || 0,
   };
 }

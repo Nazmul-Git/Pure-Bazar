@@ -7,6 +7,8 @@ describe('stock units', () => {
     assert.equal(formatStock(3.952381, 21), '3 Box(es) and 20 Pcs');
     assert.equal(formatStock(3.8, 5), '3 Box(es) and 4 Pcs');
     assert.equal(formatStock(4, 12), '4 Box(es)');
+    assert.equal(formatStock(2.5, 12, 'Dozen'), '2 Dozen and 6 Pcs');
+    assert.equal(formatStock(1, 12, 'Dozen'), '1 Dozen');
     assert.equal(formatStock(0.25, 4), '1 Pcs');
   });
   it('leaves single-unit products as plain numbers', () => {

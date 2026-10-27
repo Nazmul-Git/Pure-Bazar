@@ -140,6 +140,7 @@ export default function PosBillingPage() {
         barcode: product.barcode,
         mrp: Number(product.mrp),
         unitsPerPackage: product.unitsPerPackage,
+        packageUnitName: product.packageUnitName,
         subUnitPrice: product.subUnitPrice,
         unit: 'PACKAGE',
         stock,

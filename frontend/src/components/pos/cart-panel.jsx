@@ -74,7 +74,7 @@ export default function CartPanel({ items, onQuantity, onUnit, onRemove, onDisco
                     value={item.unit || 'PACKAGE'}
                     onChange={(event) => onUnit(item.productId, event.target.value)}
                   >
-                    <option value="PACKAGE"><T>{"Box"}</T></option>
+                    <option value="PACKAGE">{item.packageUnitName || 'Box'}</option>
                     <option value="PIECE"><T>{"Pcs"}</T></option>
                   </Select>
                 )}
