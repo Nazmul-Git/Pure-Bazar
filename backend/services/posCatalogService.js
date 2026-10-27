@@ -16,7 +16,7 @@ async function stockByProduct(outletId, productIds) {
     },
     { $group: { _id: '$productId', quantity: { $sum: '$quantity' } } },
   ]);
-  return new Map(rows.map((row) => [row._id.toString(), Math.max(0, row.quantity)]));
+  return new Map(rows.map((row) => [row._id.toString(), Math.max(0, Math.round(row.quantity * 1e9) / 1e9)]));
 }
 
 function toItem(product, stock, labels = new Map()) {

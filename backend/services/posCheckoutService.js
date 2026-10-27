@@ -131,7 +131,8 @@ async function commitBill(req, res, next, offline) {
       ]).session(session);
       const available = new Map(stock.map((item) => [item._id.toString(), item.quantity]));
       for (const [productId, quantity] of quantities) {
-        if ((available.get(productId) || 0) < quantity) {
+        // Tolerance absorbs floating point drift from fractional box deductions.
+        if ((available.get(productId) || 0) + 1e-9 < quantity) {
           throw statusError(`Insufficient outlet stock for product ${productId}`, 409);
         }
       }
@@ -146,6 +147,7 @@ async function commitBill(req, res, next, offline) {
             productName: product.name,
             barcode: product.barcode,
             quantity: line.quantity,
+            unit: item.unit === 'PIECE' ? 'PIECE' : 'PACKAGE',
             mrp: pricing.unitPrice,
             subtotal: line.subtotal,
             itemDiscountAmount: line.itemDiscountAmount,

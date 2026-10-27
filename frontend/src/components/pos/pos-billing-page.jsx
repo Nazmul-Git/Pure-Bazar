@@ -14,7 +14,9 @@ import {
 } from './held-sales';
 import HoldSaleModal from './hold-sale-modal';
 import billingUtils from '@/services/pos-billing-utils.cjs';
-import { STOCK_LIMIT_MESSAGE, clampQuantity, hasStockProblem } from '@/services/pos-cart-utils.cjs';
+import {
+  STOCK_LIMIT_MESSAGE, availableStock, canSellPieces, clampQuantity, hasStockProblem,
+} from '@/services/pos-cart-utils.cjs';
 import InvoiceModal from './invoice-modal';
 import ErrorToast from './error-toast';
 
@@ -113,26 +115,30 @@ export default function PosBillingPage() {
 
   const addItem = useCallback((product) => {
     setSuccessMessage('');
-    const stock = Math.floor(Number(product.stock) || 0);
+    const stock = Number(product.stock) || 0;
     const existing = itemsRef.current.find((item) => item.productId === String(product.productId));
-    if (stock < 1 || (existing && Number(existing.quantity) >= stock)) {
+    const limit = existing ? availableStock({ ...existing, stock }) : Math.floor(stock);
+    if (limit < 1 || (existing && Number(existing.quantity) >= limit)) {
       showToast(STOCK_LIMIT_MESSAGE);
-      if (stock < 1 && !existing) return;
+      if (limit < 1 && !existing) return;
     }
     setItems((current) => {
       const found = current.find((item) => item.productId === String(product.productId));
       if (found) {
-        if (Number(found.quantity) >= stock) return current;
+        if (Number(found.quantity) >= availableStock({ ...found, stock })) return current;
         return current.map((item) => item.productId === found.productId
           ? { ...item, stock, quantity: Number(item.quantity) + 1 }
           : item);
       }
-      if (stock < 1) return current;
+      if (limit < 1) return current;
       return [...current, {
         productId: String(product.productId),
         name: product.displayName || product.name,
         barcode: product.barcode,
         mrp: Number(product.mrp),
+        unitsPerPackage: product.unitsPerPackage,
+        subUnitPrice: product.subUnitPrice,
+        unit: 'PACKAGE',
         stock,
         quantity: 1,
         discount: null,
@@ -143,9 +149,15 @@ export default function PosBillingPage() {
   function updateQuantity(productId, value) {
     const target = items.find((item) => item.productId === productId);
     if (!target) return;
-    const { quantity, limited } = clampQuantity(value, target.stock);
+    const { quantity, limited } = clampQuantity(value, availableStock(target));
     if (limited) showToast(STOCK_LIMIT_MESSAGE);
     setItems((current) => current.map((item) => item.productId === productId ? { ...item, quantity: Math.max(quantity, 1) } : item));
+  }
+
+  function updateUnit(productId, unit) {
+    setItems((current) => current.map((item) => item.productId === productId && canSellPieces(item)
+      ? { ...item, unit, quantity: 1 }
+      : item));
   }
 
   function updateItemDiscount(productId, patch) {
@@ -286,6 +298,7 @@ export default function PosBillingPage() {
           <CartPanel
             items={items}
             onQuantity={updateQuantity}
+            onUnit={updateUnit}
             onRemove={(id) => setItems((current) => current.filter((item) => item.productId !== id))}
             onDiscount={updateItemDiscount}
           />

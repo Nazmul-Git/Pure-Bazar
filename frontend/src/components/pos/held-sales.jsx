@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { PauseCircle, X } from 'lucide-react';
 import Button from '@/components/ui/button';
+import { lineTotal } from '@/services/pos-cart-utils.cjs';
 
 const STORAGE_KEY = 'purebazar.pos.heldSales';
 const round2 = (n) => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
@@ -35,7 +36,7 @@ export function useHeldSales() {
 }
 
 export function estimateTotal(items) {
-  return round2(items.reduce((sum, i) => sum + Number(i.mrp) * Number(i.quantity || 0), 0));
+  return round2(items.reduce((sum, i) => sum + lineTotal(i), 0));
 }
 
 export function HeldBillsButton({ count, onClick }) {

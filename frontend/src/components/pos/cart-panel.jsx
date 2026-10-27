@@ -3,10 +3,13 @@
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import Input from '@/components/ui/input';
 import Select from '@/components/ui/select';
+import {
+  availableStock, canSellPieces, isPiece, lineTotal, unitPrice,
+} from '@/services/pos-cart-utils.cjs';
 
 const money = (value) => (Number(value) || 0).toFixed(2);
 
-export default function CartPanel({ items, onQuantity, onRemove, onDiscount }) {
+export default function CartPanel({ items, onQuantity, onUnit, onRemove, onDiscount }) {
   return (
     <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
       <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
@@ -22,7 +25,7 @@ export default function CartPanel({ items, onQuantity, onRemove, onDiscount }) {
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <h3 className="truncate font-medium text-slate-900">{item.name}</h3>
-                  <p className="text-xs text-slate-500">{item.barcode} · ৳{money(item.mrp)} each · {item.stock} in stock</p>
+                  <p className="text-xs text-slate-500">{item.barcode} · ৳{money(unitPrice(item))} per {isPiece(item) ? 'pc' : 'box'} · {availableStock(item)} {isPiece(item) ? 'pcs' : 'boxes'} in stock</p>
                 </div>
                 <button
                   type="button"
@@ -33,7 +36,7 @@ export default function CartPanel({ items, onQuantity, onRemove, onDiscount }) {
                   <Trash2 size={17} />
                 </button>
               </div>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-[auto_1fr_1fr_1.5fr_auto] sm:items-end">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-[auto_auto_1fr_1fr_1.5fr_auto] sm:items-end">
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
@@ -48,7 +51,7 @@ export default function CartPanel({ items, onQuantity, onRemove, onDiscount }) {
                     label="Qty"
                     type="number"
                     min="1"
-                    max={item.stock}
+                    max={availableStock(item)}
                     step="1"
                     value={item.quantity}
                     onChange={(event) => onQuantity(item.productId, event.target.value)}
@@ -59,11 +62,21 @@ export default function CartPanel({ items, onQuantity, onRemove, onDiscount }) {
                     className="rounded border border-slate-300 p-2 disabled:opacity-40"
                     aria-label={`Increase ${item.name} quantity`}
                     onClick={() => onQuantity(item.productId, Number(item.quantity) + 1)}
-                    disabled={Number(item.quantity) >= Number(item.stock)}
+                    disabled={Number(item.quantity) >= availableStock(item)}
                   >
                     <Plus size={14} />
                   </button>
                 </div>
+                {canSellPieces(item) && (
+                  <Select
+                    label="Unit"
+                    value={item.unit || 'PACKAGE'}
+                    onChange={(event) => onUnit(item.productId, event.target.value)}
+                  >
+                    <option value="PACKAGE">Box</option>
+                    <option value="PIECE">Pcs</option>
+                  </Select>
+                )}
                 <Select
                   label="Discount type"
                   value={item.discount?.type || 'PERCENT'}
@@ -87,7 +100,7 @@ export default function CartPanel({ items, onQuantity, onRemove, onDiscount }) {
                   placeholder="Required when discount is applied"
                   maxLength={300}
                 />
-                <strong className="text-right text-slate-900">৳{money(item.mrp * item.quantity)}</strong>
+                <strong className="text-right text-slate-900">৳{money(lineTotal(item))}</strong>
               </div>
             </li>
           ))}

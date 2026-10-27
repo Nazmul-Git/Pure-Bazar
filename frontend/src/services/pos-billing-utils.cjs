@@ -18,9 +18,13 @@ function requestItems(items) {
       throw new Error(`Enter a valid quantity for ${item.name}.`);
     }
     const discount = discountPayload(item.discount, `Discount for ${item.name}`);
+    if (item.unit === 'PIECE' && !Number.isInteger(quantity)) {
+      throw new Error(`Piece quantity for ${item.name} must be a whole number.`);
+    }
     return {
       productId: item.productId,
       quantity,
+      ...(item.unit === 'PIECE' ? { unit: 'PIECE' } : {}),
       ...(discount ? { discount } : {}),
     };
   });

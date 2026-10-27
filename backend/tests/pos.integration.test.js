@@ -366,4 +366,45 @@ describe('POS checkout API', () => {
     expect(duplicate.body).toMatchObject({ synced: true, duplicate: true });
     expect(db.orders).toHaveLength(1);
   });
+
+  describe('piece selling from box stock', () => {
+    const toffen = {
+      _id: productId, name: 'Toffen Tablet', barcode: '8900000000210',
+      ownerType: 'COMPANY', vendorPrice: 1260, mrp: 2100, unitsPerPackage: 210, vatApplicable: false,
+    };
+    const pieces = (quantity) => [{ productId: productId.toString(), quantity, unit: 'PIECE' }];
+
+    beforeEach(() => {
+      models.Product.find.mockReturnValue(query([toffen]));
+      db.movements = [{ productId, warehouseId: outletId, quantity: 5, type: 'GRN' }];
+    });
+
+    it('bills pieces at the per-piece price and deducts a fraction of a box', async () => {
+      const response = await checkout({
+        items: pieces(3), payments: [{ method: 'CASH', amount: 30 }],
+      });
+      expect(response.status).toBe(201);
+      expect(db.orders[0].lines[0]).toMatchObject({
+        quantity: 3, unit: 'PIECE', mrp: 10, subtotal: 30,
+      });
+      expect(db.movements.at(-1).quantity).toBeCloseTo(-3 / 210, 10);
+    });
+
+    it('rejects fractional pieces and sales beyond the box stock', async () => {
+      const fractional = await checkout({ items: pieces(1.5), payments: [{ method: 'CASH', amount: 15 }] });
+      expect(fractional.status).toBe(400);
+      const tooMany = await checkout({ items: pieces(5 * 210 + 1), payments: [{ method: 'CASH', amount: 10510 }] });
+      expect(tooMany.status).toBe(409);
+      expect(db.orders).toHaveLength(0);
+    });
+
+    it('still sells whole boxes at the box price', async () => {
+      const response = await checkout({
+        items: [{ productId: productId.toString(), quantity: 1 }], payments: [{ method: 'CASH', amount: 2100 }],
+      });
+      expect(response.status).toBe(201);
+      expect(db.orders[0].lines[0]).toMatchObject({ unit: 'PACKAGE', mrp: 2100 });
+      expect(db.movements.at(-1).quantity).toBe(-1);
+    });
+  });
 });

@@ -359,3 +359,8 @@
 - [x] Unit in product display name
 	- Files: backend/utils/productDisplay.js; productsController, posCatalogService, goodsReceiveController (add unitLabel + displayName); products page, POS scanner/cart, GRN and transfer forms use displayName.
 	- Decisions: stored product name unchanged; display is 'Name [UnitAbbreviation]'. Backend tests pass except pre-existing locations test (isActive field).
+
+- [x] POS piece selling
+	- Files: pos-cart-utils.cjs, pos-billing-utils.cjs, cart-panel.jsx, pos-billing-page.jsx, held-sales.jsx, Order.js (line unit), posCheckoutService.js, posCatalogService.js, tests.
+	- Decisions: field is unitsPerPackage (not piecesPerPackage); cart line has Box/Pcs selector; piece price = subUnitPrice (override or rounded-up MRP/units); stock deducts quantity/unitsPerPackage boxes with 1e-9 tolerance; pieces must be whole numbers.
+	- Validation: new POS piece tests pass; only pre-existing locations.integration test fails.
