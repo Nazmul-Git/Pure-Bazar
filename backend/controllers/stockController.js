@@ -9,7 +9,7 @@ async function getWarehouseStock(req, res, next) {
       { $sort: { _id: 1 } },
     ]);
     const products = await Product.find({ _id: { $in: grouped.map(({ _id }) => _id) } })
-      .select('_id name barcode ownerType vendorId').lean();
+      .select('_id name barcode ownerType vendorId unitsPerPackage').lean();
     const productMap = new Map(products.map((product) => [product._id.toString(), product]));
     const stock = grouped.map(({ _id, quantity }) => {
       const product = productMap.get(_id.toString());
@@ -19,7 +19,8 @@ async function getWarehouseStock(req, res, next) {
         barcode: product?.barcode,
         ownerType: product?.ownerType,
         vendorId: product?.vendorId?.toString() || null,
-        quantity,
+        unitsPerPackage: product?.unitsPerPackage || 1,
+        quantity: Math.round(quantity * 1e6) / 1e6,
       };
     });
     return res.json({ success: true, warehouseId: req.query.warehouseId, stock });

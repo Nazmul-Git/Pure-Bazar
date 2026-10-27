@@ -364,3 +364,7 @@
 	- Files: pos-cart-utils.cjs, pos-billing-utils.cjs, cart-panel.jsx, pos-billing-page.jsx, held-sales.jsx, Order.js (line unit), posCheckoutService.js, posCatalogService.js, tests.
 	- Decisions: field is unitsPerPackage (not piecesPerPackage); cart line has Box/Pcs selector; piece price = subUnitPrice (override or rounded-up MRP/units); stock deducts quantity/unitsPerPackage boxes with 1e-9 tolerance; pieces must be whole numbers.
 	- Validation: new POS piece tests pass; only pre-existing locations.integration test fails.
+
+- [x] Display stock counts in human-readable box and piece units
+	- Files: frontend/src/services/stock-units.cjs (+test); stockController.js (returns unitsPerPackage, rounds quantity); stock-counts-page.jsx; warehouse/page.jsx.
+	- Decisions: stored quantity stays in boxes (fraction); UI shows 'N Box(es) and M Pcs' and Stock Count takes Boxes + Pieces inputs converted to boxes on save. Only pre-existing locations test fails.
