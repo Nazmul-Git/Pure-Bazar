@@ -70,6 +70,11 @@ export default function ProductFormModal({
   const hasPieces = Number.isInteger(unitsPerPackage) && unitsPerPackage > 1 && hasPrices;
   const trueBaseCost = hasPieces ? basePieceCost(roundedMrp, unitsPerPackage) : null;
   const autoPiecePrice = hasPieces ? roundedMoney(trueBaseCost) : null;
+  // Helper text depends only on MRP, quantity and pieces, so it updates on every keystroke.
+  const helperPieces = Number(totalPieces(form.unitValue === '' ? 1 : form.unitValue, form.piecesPerPackage));
+  const helperMrp = form.mrp !== '' && Number.isFinite(mrp) ? roundedMoney(mrp) : null;
+  const helperCost = helperMrp !== null && Number.isInteger(helperPieces) && helperPieces > 1
+    ? roundedMoney(basePieceCost(helperMrp, helperPieces)) : null;
   const overrideValue = form.subUnitPriceOverride === '' ? null : roundedMoney(Number(form.subUnitPriceOverride));
   const invalidOverride = hasPieces && overrideValue !== null
     && (!Number.isFinite(overrideValue) || overrideValue < trueBaseCost - 1e-9);
@@ -251,9 +256,9 @@ export default function ProductFormModal({
             <Input label="Pieces per Package (প্রতি প্যাকেজে পিস সংখ্যা)" name="piecesPerPackage" type="number" min="1" step="any" value={form.piecesPerPackage} onChange={(event) => update('piecesPerPackage', event.target.value)} />
             <Input label="Retail Piece Price (Optional)" placeholder="খুচরা পিস মূল্য (ঐচ্ছিক)" name="subUnitPriceOverride" type="number" min="0" step="0.01" value={form.subUnitPriceOverride} onChange={(event) => update('subUnitPriceOverride', event.target.value)} disabled={!hasPieces} />
           </div>
-          {hasPieces && (
+          {helperCost !== null && (
             <div role="status" className="space-y-1 text-xs text-slate-600">
-              <p>Base piece cost: BDT {autoPiecePrice.toFixed(2)} (Calculated from {unitsPerPackage} total pieces)</p>
+              <p>Base piece cost: BDT {helperCost.toFixed(2)} (Calculated from {helperPieces} total pieces)</p>
               {invalidOverride && <p className="text-red-700">Custom piece price must be at least {autoPiecePrice.toFixed(2)}.</p>}
             </div>
           )}

@@ -414,3 +414,7 @@
 - [x] Make POS cart unit dropdown dynamic based on product base unit
 	- Files: backend/services/posCatalogService.js, backend/tests/pos-catalog-unit.test.js.
 	- Decisions: root cause was toItem overriding packageUnitName with an undefined product field, so the cart always fell back to 'Box'. Removed the override; the Unit name from displayFields is used. Doz/Box/Carton all use unitsPerPackage for the Pcs ratio. Validation: POS tests pass (21).
+
+- [x] Ensure instant real-time UI updates for calculated base piece cost helper text
+	- Files: frontend/src/components/inventory/product-form-modal.jsx, frontend/tests/unit-pieces.test.mjs.
+	- Decisions: helper text is computed during render from MRP, unit quantity and pieces per package only (no longer hidden until vendor price is entered), so every keystroke updates it. Validation: frontend tests pass (MRP 1550, qty 10, 12 -> 10 pieces/pkg gives 15.50 from 100 pieces).

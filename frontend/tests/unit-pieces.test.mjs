@@ -26,6 +26,13 @@ test('Test 2 (Box, custom 50): 5 x 50 = 250 pieces, base cost 4.00', () => {
   assert.equal(r2(basePieceCost(1000, total)), '4.00');
 });
 
+test('Changing pieces per package 12 -> 10 with MRP 1550, qty 10 gives 15.50 from 100 pieces', () => {
+  assert.equal(r2(basePieceCost(1550, totalPieces('10', '12'))), '12.92');
+  const total = totalPieces('10', '10');
+  assert.equal(total, '100');
+  assert.equal(r2(basePieceCost(1550, total)), '15.50');
+});
+
 test('invalid input gives no total', () => {
   assert.equal(totalPieces('', '12'), '');
   assert.equal(totalPieces('0', '12'), '');
