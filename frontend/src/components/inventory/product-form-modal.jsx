@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { totalPieces } from '@/services/unit-pieces.cjs';
+import { basePieceCost, defaultPiecesPerPackage, totalPieces } from '@/services/unit-pieces.cjs';
 import { Plus } from 'lucide-react';
 import { Button, Input, Modal, Select } from '@/components/ui';
 import {
@@ -26,7 +26,7 @@ const emptyForm = {
   unitValue: '',
   vatApplicable: false,
   vatRate: '',
-  unitsPerPackage: '',
+  piecesPerPackage: '',
   subUnitPriceOverride: '',
 };
 
@@ -66,13 +66,13 @@ export default function ProductFormModal({
   const warningAmount = hasPrices ? roundedMoney(roundedMrp * discountPercent / 100) : 0;
   const marginWarning = margin !== null && margin >= 0 && margin < warningAmount;
   const invalidMrp = hasPrices && mrp < vendorPrice;
-  const unitsPerPackage = Number(form.unitsPerPackage);
+  const unitsPerPackage = Number(totalPieces(form.unitValue === '' ? 1 : form.unitValue, form.piecesPerPackage));
   const hasPieces = Number.isInteger(unitsPerPackage) && unitsPerPackage > 1 && hasPrices;
-  const autoPiecePrice = hasPieces
-    ? Math.ceil(Math.round(roundedMrp * 100) / unitsPerPackage - 1e-9) / 100
-    : null;
+  const trueBaseCost = hasPieces ? basePieceCost(roundedMrp, unitsPerPackage) : null;
+  const autoPiecePrice = hasPieces ? roundedMoney(trueBaseCost) : null;
   const overrideValue = form.subUnitPriceOverride === '' ? null : roundedMoney(Number(form.subUnitPriceOverride));
-  const invalidOverride = hasPieces && overrideValue !== null && overrideValue < autoPiecePrice;
+  const invalidOverride = hasPieces && overrideValue !== null
+    && (!Number.isFinite(overrideValue) || overrideValue < trueBaseCost - 1e-9);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -181,11 +181,10 @@ export default function ProductFormModal({
   function update(field, value) {
     setForm((current) => {
       const next = { ...current, [field]: value };
-      if (field === 'unitsPerPackage') {
+      if (field === 'piecesPerPackage') {
         piecesEdited.current = value !== '';
-      } else if ((field === 'unitId' || field === 'unitValue') && !piecesEdited.current) {
-        const unit = units.find((item) => item.id === next.unitId);
-        next.unitsPerPackage = totalPieces(unit, next.unitValue);
+      } else if (field === 'unitId' && !piecesEdited.current) {
+        next.piecesPerPackage = defaultPiecesPerPackage(units.find((item) => item.id === next.unitId));
       }
       return next;
     });
@@ -249,15 +248,14 @@ export default function ProductFormModal({
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <Input label="Unit quantity * Unit per package" name="unitsPerPackage" type="number" min="1" step="1" value={form.unitsPerPackage} onChange={(event) => update('unitsPerPackage', event.target.value)} />
+            <Input label="Pieces per Package (প্রতি প্যাকেজে পিস সংখ্যা)" name="piecesPerPackage" type="number" min="1" step="any" value={form.piecesPerPackage} onChange={(event) => update('piecesPerPackage', event.target.value)} />
             <Input label="Retail Piece Price (Optional)" placeholder="খুচরা পিস মূল্য (ঐচ্ছিক)" name="subUnitPriceOverride" type="number" min="0" step="0.01" value={form.subUnitPriceOverride} onChange={(event) => update('subUnitPriceOverride', event.target.value)} disabled={!hasPieces} />
           </div>
           {hasPieces && (
-            <p role="status" className={`text-xs ${invalidOverride ? 'text-red-700' : 'text-slate-600'}`}>
-              {invalidOverride
-                ? `Custom piece price must be at least ${money(autoPiecePrice)}.`
-                : `Piece price: ${money(overrideValue ?? autoPiecePrice)}${overrideValue === null ? ' (rounded up automatically)' : ' (custom)'}`}
-            </p>
+            <div role="status" className="space-y-1 text-xs text-slate-600">
+              <p>Base piece cost: BDT {autoPiecePrice.toFixed(2)} (Calculated from {unitsPerPackage} total pieces)</p>
+              {invalidOverride && <p className="text-red-700">Custom piece price must be at least {autoPiecePrice.toFixed(2)}.</p>}
+            </div>
           )}
 
           <div className="grid gap-4 sm:grid-cols-2">

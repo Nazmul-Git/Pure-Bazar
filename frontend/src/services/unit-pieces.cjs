@@ -1,20 +1,27 @@
-const FIXED_RATIOS = {
-  doz: 12, dozen: 12, dzn: 12, pair: 2, prs: 2, gross: 144,
-};
+const DOZEN_KEYS = ['doz', 'dozen', 'dzn'];
 
-function unitRatio(unit) {
-  if (!unit) return null;
+// Convenience default only; the user can always change it.
+function defaultPiecesPerPackage(unit) {
+  if (!unit) return '';
   const keys = [unit.name, unit.abbreviation].map((v) => String(v || '').trim().toLowerCase().replace(/\.$/, ''));
-  const hit = keys.find((key) => FIXED_RATIOS[key]);
-  return hit ? FIXED_RATIOS[hit] : null;
+  return keys.some((key) => DOZEN_KEYS.includes(key)) ? '12' : '';
 }
 
-function totalPieces(unit, quantity) {
-  const ratio = unitRatio(unit);
-  const value = Number(quantity);
-  if (!ratio || quantity === '' || !Number.isFinite(value) || value <= 0) return '';
-  const pieces = Math.round(value * ratio * 1e6) / 1e6;
+// Total system pieces = unit quantity * pieces per package. Returns '' when not a valid whole number.
+function totalPieces(quantity, piecesPerPackage) {
+  const qty = Number(quantity);
+  const per = Number(piecesPerPackage);
+  if (quantity === '' || piecesPerPackage === '' || !Number.isFinite(qty) || !Number.isFinite(per) || qty <= 0 || per <= 0) return '';
+  const pieces = Math.round(qty * per * 1e6) / 1e6;
   return Number.isInteger(pieces) && pieces > 1 ? String(pieces) : '';
 }
 
-module.exports = { unitRatio, totalPieces };
+// Exact (unrounded) cost of one piece.
+function basePieceCost(mrp, total) {
+  const price = Number(mrp);
+  const pieces = Number(total);
+  if (!Number.isFinite(price) || !Number.isFinite(pieces) || pieces <= 0) return null;
+  return price / pieces;
+}
+
+module.exports = { defaultPiecesPerPackage, totalPieces, basePieceCost };

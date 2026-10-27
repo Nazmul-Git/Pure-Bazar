@@ -405,3 +405,8 @@
 	- Files: frontend/src/services/unit-pieces.cjs, product-form-modal.jsx, frontend/tests/unit-pieces.test.mjs.
 	- Decisions: fixed-ratio units (Doz/Dozen=12, Pair=2, Gross=144) default pieces = quantity x ratio; manual edit of pieces stops auto-fill; Box/Carton have no fixed ratio so stay manual. Piece/retail prices derive from pieces instantly.
 	- Validation: frontend tests pass (Doz x 10 = 120).
+
+- [x] Configurable pieces per package
+	- Files: frontend/src/services/unit-pieces.cjs, product-form-modal.jsx, frontend/tests/unit-pieces.test.mjs.
+	- Decisions: new 'Pieces per Package' field (Doz pre-fills 12, others open); total pieces = quantity x pieces per package is sent as unitsPerPackage; base piece cost = MRP / total pieces; override validated against the unrounded cost.
+	- Validation: frontend unit tests pass (10 Doz @1600 -> 120 pcs, 13.33; 5 Box x50 @1000 -> 250 pcs, 4.00).
