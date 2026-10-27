@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { totalPieces } from '@/services/unit-pieces.cjs';
 import { Plus } from 'lucide-react';
 import { Button, Input, Modal, Select } from '@/components/ui';
 import {
@@ -48,6 +49,7 @@ export default function ProductFormModal({
   const [catalogLoading, setCatalogLoading] = useState(false);
   const [catalogErrors, setCatalogErrors] = useState([]);
   const [quickAdd, setQuickAdd] = useState('');
+  const piecesEdited = useRef(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   useToastMessages({ error });
@@ -76,6 +78,7 @@ export default function ProductFormModal({
     if (!open) return undefined;
     let active = true;
     setForm(emptyForm);
+    piecesEdited.current = false;
     setError('');
     setCatalogErrors([]);
     setCatalogLoading(true);
@@ -176,7 +179,16 @@ export default function ProductFormModal({
   }
 
   function update(field, value) {
-    setForm((current) => ({ ...current, [field]: value }));
+    setForm((current) => {
+      const next = { ...current, [field]: value };
+      if (field === 'unitsPerPackage') {
+        piecesEdited.current = value !== '';
+      } else if ((field === 'unitId' || field === 'unitValue') && !piecesEdited.current) {
+        const unit = units.find((item) => item.id === next.unitId);
+        next.unitsPerPackage = totalPieces(unit, next.unitValue);
+      }
+      return next;
+    });
   }
 
   return (
@@ -237,7 +249,7 @@ export default function ProductFormModal({
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <Input label="Pieces per package" name="unitsPerPackage" type="number" min="1" step="1" value={form.unitsPerPackage} onChange={(event) => update('unitsPerPackage', event.target.value)} />
+            <Input label="Unit quantity * Unit per package" name="unitsPerPackage" type="number" min="1" step="1" value={form.unitsPerPackage} onChange={(event) => update('unitsPerPackage', event.target.value)} />
             <Input label="Retail Piece Price (Optional)" placeholder="খুচরা পিস মূল্য (ঐচ্ছিক)" name="subUnitPriceOverride" type="number" min="0" step="0.01" value={form.subUnitPriceOverride} onChange={(event) => update('subUnitPriceOverride', event.target.value)} disabled={!hasPieces} />
           </div>
           {hasPieces && (

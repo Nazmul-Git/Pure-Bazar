@@ -400,3 +400,8 @@
 - [x] Dynamic base unit labels (dual-unit Pack + Pcs)
 	- Files: backend/utils/productDisplay.js (packageUnitName), stockController, posCatalogService, frontend cart-panel, pos-billing-page, stock-counts-page, warehouse page, stock-units.cjs (+test).
 	- Decisions: pack label comes from the product's Unit name (Dozen/Box/Bag), falls back to Box; pieces math still uses unitsPerPackage.
+
+- [x] Product form: auto total pieces
+	- Files: frontend/src/services/unit-pieces.cjs, product-form-modal.jsx, frontend/tests/unit-pieces.test.mjs.
+	- Decisions: fixed-ratio units (Doz/Dozen=12, Pair=2, Gross=144) default pieces = quantity x ratio; manual edit of pieces stops auto-fill; Box/Carton have no fixed ratio so stay manual. Piece/retail prices derive from pieces instantly.
+	- Validation: frontend tests pass (Doz x 10 = 120).
