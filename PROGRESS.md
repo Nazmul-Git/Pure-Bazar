@@ -410,3 +410,7 @@
 	- Files: frontend/src/services/unit-pieces.cjs, product-form-modal.jsx, frontend/tests/unit-pieces.test.mjs.
 	- Decisions: new 'Pieces per Package' field (Doz pre-fills 12, others open); total pieces = quantity x pieces per package is sent as unitsPerPackage; base piece cost = MRP / total pieces; override validated against the unrounded cost.
 	- Validation: frontend unit tests pass (10 Doz @1600 -> 120 pcs, 13.33; 5 Box x50 @1000 -> 250 pcs, 4.00).
+
+- [x] Make POS cart unit dropdown dynamic based on product base unit
+	- Files: backend/services/posCatalogService.js, backend/tests/pos-catalog-unit.test.js.
+	- Decisions: root cause was toItem overriding packageUnitName with an undefined product field, so the cart always fell back to 'Box'. Removed the override; the Unit name from displayFields is used. Doz/Box/Carton all use unitsPerPackage for the Pcs ratio. Validation: POS tests pass (21).

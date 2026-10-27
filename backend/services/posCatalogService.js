@@ -27,10 +27,9 @@ function toItem(product, stock, labels = new Map()) {
     barcode: product.barcode,
     mrp: product.mrp,
     vendorPrice: product.vendorPrice,
-        subUnitPrice: effectiveSubUnitPrice(product) ?? undefined,
-        unitsPerPackage: product.unitsPerPackage,
-        packageUnitName: product.packageUnitName,
-        stock: stock.get(String(product._id)) || 0,
+    subUnitPrice: effectiveSubUnitPrice(product) ?? undefined,
+    unitsPerPackage: product.unitsPerPackage,
+    stock: stock.get(String(product._id)) || 0,
   };
 }
 
