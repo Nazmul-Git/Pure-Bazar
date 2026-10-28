@@ -240,7 +240,7 @@ describe('POS checkout API', () => {
     expect(response.body.message).toMatch(/Shareholder discounts are automatic/);
   });
 
-  it('previews package and piece prices from a product total MRP', async () => {
+  it('completes a full-stock sale using package and piece prices derived from total MRP', async () => {
     models.Product.find.mockReturnValue(query([{
       ...product,
       vendorPrice: 1200,
@@ -249,19 +249,47 @@ describe('POS checkout API', () => {
       unitsPerPackage: 120,
     }]));
 
-    const packageResponse = await preview({
-      items: [{ productId: productId.toString(), quantity: 1, unit: 'PACKAGE' }],
-      payments: [{ method: 'CASH' }],
+    const packageResponse = await checkout({
+      items: [{ productId: productId.toString(), quantity: 10, unit: 'PACKAGE' }],
+      payments: [{ method: 'CASH', amount: 1557 }],
     });
-    const pieceResponse = await preview({
+    expect(packageResponse.status).toBe(201);
+    expect(packageResponse.body.order).toMatchObject({
+      subtotal: 1557,
+      grandTotal: 1557,
+      lines: [{ quantity: 10, mrp: 155.7, subtotal: 1557 }],
+    });
+    expect(db.movements.at(-1)).toMatchObject({ quantity: -10, type: 'SALE' });
+    expect(db.ledgers).toHaveLength(1);
+    expect(models.StockMovement.create).toHaveBeenCalledWith(
+      expect.any(Array),
+      expect.objectContaining({ session, ordered: true }),
+    );
+    expect(models.VendorLedger.create).toHaveBeenCalledWith(
+      expect.any(Array),
+      expect.objectContaining({ session, ordered: true }),
+    );
+
+    models.Product.find.mockReturnValue(query([{
+      ...product,
+      vendorPrice: 1200,
+      mrp: 1557,
+      unitValue: 10,
+      unitsPerPackage: 120,
+    }]));
+    db.movements = [{ productId, warehouseId: outletId, quantity: 10, type: 'GRN' }];
+    const pieceResponse = await checkout({
       items: [{ productId: productId.toString(), quantity: 1, unit: 'PIECE' }],
-      payments: [{ method: 'CASH' }],
+      payments: [{ method: 'CASH', amount: 12.98 }],
     });
 
-    expect(packageResponse.status).toBe(200);
-    expect(packageResponse.body.bill.subtotal).toBe(155.7);
-    expect(pieceResponse.status).toBe(200);
-    expect(pieceResponse.body.bill.subtotal).toBe(12.98);
+    expect(pieceResponse.status).toBe(201);
+    expect(pieceResponse.body.order).toMatchObject({
+      subtotal: 12.98,
+      grandTotal: 12.98,
+      lines: [{ quantity: 1, mrp: 12.98, subtotal: 12.98 }],
+    });
+    expect(db.movements.at(-1).quantity).toBeCloseTo(-1 / 120, 10);
   });
 
   it('checks the final wallet total and returns MRP pricing when balance is insufficient', async () => {

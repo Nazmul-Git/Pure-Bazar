@@ -182,7 +182,7 @@ async function commitBill(req, res, next, offline) {
         userId: req.user._id,
         referenceId: created._id,
         referenceType: 'Order',
-      })), { session });
+      })), { session, ordered: true });
 
       const ledgerRows = result.bill.ledgerLines.filter((line) => line.ownerType === 'VENDOR').map((line) => ({
         vendorId: line.vendorId,
@@ -193,7 +193,7 @@ async function commitBill(req, res, next, offline) {
         vendorPayable: line.vendorPayable,
         companyNet: line.companyNet,
       }));
-      if (ledgerRows.length) await VendorLedger.create(ledgerRows, { session });
+      if (ledgerRows.length) await VendorLedger.create(ledgerRows, { session, ordered: true });
       if (result.wallet) {
         await WalletLog.create([{
           memberId: result.shareholder._id,
@@ -225,7 +225,7 @@ async function commitBill(req, res, next, offline) {
         amount: result.bill.shareholderDiscountAmount,
         reason: 'Verified shareholder wallet discount', appliedBy: req.user._id,
       });
-      if (discountRows.length) await DiscountLog.create(discountRows, { session });
+      if (discountRows.length) await DiscountLog.create(discountRows, { session, ordered: true });
       await AuditLog.create([{
         actorId: req.user._id,
         action: offline ? 'SYNC' : 'FINALIZE',

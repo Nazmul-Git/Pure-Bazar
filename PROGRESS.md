@@ -419,6 +419,11 @@
 	- Files: frontend/src/components/inventory/product-form-modal.jsx, frontend/tests/unit-pieces.test.mjs.
 	- Decisions: helper text is computed during render from MRP, unit quantity and pieces per package only (no longer hidden until vendor price is entered), so every keystroke updates it. Validation: frontend tests pass (MRP 1550, qty 10, 12 -> 10 pieces/pkg gives 15.50 from 100 pieces).
 
+- [x] Fix POS checkout multi-document transactional create error
+	- Files: backend/services/posCheckoutService.js, backend/tests/pos.integration.test.js.
+	- Decisions: pass `ordered: true` when writing variable-length stock movement, vendor ledger, and discount log batches with a MongoDB session; this satisfies Mongoose's `create()` requirement while keeping writes in the transaction.
+	- Validation: POS checkout and piece-pricing tests pass (2 suites, 20 tests); regression asserts ordered transactional stock and vendor-ledger writes.
+
 - [x] Fix POS cart per-package unit price calculation from total MRP
 	- Files: backend/utils/piecePricing.js, backend/services/posCatalogService.js, backend/tests/piece-pricing.test.js, backend/tests/pos-cart-utils.test.js, backend/tests/pos-catalog-unit.test.js, backend/tests/pos.integration.test.js, frontend/src/services/pos-cart-utils.cjs, frontend/src/components/pos/pos-billing-page.jsx, frontend/src/components/pos/cart-panel.jsx.
 	- Decisions: package price is total MRP divided by unit quantity; piece price continues to use total pieces and the optional retail override. Products without a positive unit quantity retain their existing MRP behavior.
