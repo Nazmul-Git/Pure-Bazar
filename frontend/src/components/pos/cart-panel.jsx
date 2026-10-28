@@ -26,7 +26,7 @@ export default function CartPanel({ items, onQuantity, onUnit, onRemove, onDisco
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <h3 className="truncate font-medium text-slate-900">{item.name}</h3>
-                  <p className="text-xs text-slate-500">{item.barcode} · ৳{money(unitPrice(item))} per {isPiece(item) ? 'pc' : 'box'} · {availableStock(item)} {isPiece(item) ? 'pcs' : 'boxes'} in stock</p>
+                  <p className="text-xs text-slate-500">{item.barcode} · ৳{money(unitPrice(item))} per {isPiece(item) ? 'pc' : item.packageUnitName || 'box'} · {availableStock(item)} {isPiece(item) ? 'pcs' : item.packageUnitName || 'boxes'} in stock</p>
                 </div>
                 <button
                   type="button"

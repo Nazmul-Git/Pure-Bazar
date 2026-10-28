@@ -26,7 +26,10 @@ function availableStock(item) {
 }
 
 function unitPrice(item) {
-  return isPiece(item) ? Number(item.subUnitPrice) : Number(item.mrp);
+  if (isPiece(item)) return Number(item.subUnitPrice);
+  const quantity = Number(item.unitValue);
+  const divisor = Number.isFinite(quantity) && quantity > 0 ? quantity : 1;
+  return round2(Number(item.mrp) / divisor);
 }
 
 function lineTotal(item) {

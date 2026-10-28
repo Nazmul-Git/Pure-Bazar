@@ -1,4 +1,6 @@
-const { calculateSubUnitPrice, effectiveSubUnitPrice, linePricing } = require('../utils/piecePricing');
+const {
+  calculateSubUnitPrice, effectiveSubUnitPrice, linePricing, packageUnitPrice,
+} = require('../utils/piecePricing');
 const { calculateBill } = require('../services/billEngine');
 const { Product } = require('../models');
 
@@ -44,5 +46,22 @@ describe('margin-safe piece pricing', () => {
     });
     expect(bill.subtotal).toBe(1000.2);
     expect(bill.grandTotal).toBeGreaterThanOrEqual(1000);
+  });
+
+  it('prices a primary package from total MRP and derives piece price from total pieces', () => {
+    const product = {
+      mrp: 1557, vendorPrice: 1200, unitValue: 10, unitsPerPackage: 120,
+    };
+
+    expect(packageUnitPrice(product)).toBe(155.7);
+    expect(linePricing(product, { unit: 'PACKAGE', quantity: 1 })).toMatchObject({
+      unitPrice: 155.7,
+      unitVendorPrice: 120,
+    });
+    expect(linePricing(product, { unit: 'PIECE', quantity: 1 })).toMatchObject({
+      unitPrice: 12.98,
+      unitVendorPrice: 10,
+    });
+    expect(linePricing({ ...product, subUnitPriceOverride: 14.25 }, { unit: 'PIECE', quantity: 1 }).unitPrice).toBe(14.25);
   });
 });

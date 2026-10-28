@@ -23,11 +23,23 @@ function effectiveSubUnitPrice(product) {
   }
   return calculateSubUnitPrice(product.mrp, product.unitsPerPackage);
 }
-
+
+function packageUnitPrice(product) {
+  const quantity = Number(product.unitValue);
+  const divisor = Number.isFinite(quantity) && quantity > 0 ? quantity : 1;
+  return Math.round((product.mrp / divisor + Number.EPSILON) * 100) / 100;
+}
+
 // Resolves the unit price and stock deduction (in packages) for a cart line.
 function linePricing(product, item) {
   if (item.unit !== 'PIECE') {
-    return { unitPrice: product.mrp, unitVendorPrice: product.vendorPrice, stockQuantity: item.quantity };
+    const quantity = Number(product.unitValue);
+    const divisor = Number.isFinite(quantity) && quantity > 0 ? quantity : 1;
+    return {
+      unitPrice: packageUnitPrice(product),
+      unitVendorPrice: Math.round((product.vendorPrice / divisor + Number.EPSILON) * 100) / 100,
+      stockQuantity: item.quantity,
+    };
   }
   const price = effectiveSubUnitPrice(product);
   if (price === null) return null;
@@ -39,5 +51,5 @@ function linePricing(product, item) {
 }
 
 module.exports = {
-  calculateSubUnitPrice, effectiveSubUnitPrice, roundUpToCent, linePricing,
+  calculateSubUnitPrice, effectiveSubUnitPrice, packageUnitPrice, roundUpToCent, linePricing,
 };

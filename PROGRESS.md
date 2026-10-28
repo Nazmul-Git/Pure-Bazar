@@ -418,3 +418,8 @@
 - [x] Ensure instant real-time UI updates for calculated base piece cost helper text
 	- Files: frontend/src/components/inventory/product-form-modal.jsx, frontend/tests/unit-pieces.test.mjs.
 	- Decisions: helper text is computed during render from MRP, unit quantity and pieces per package only (no longer hidden until vendor price is entered), so every keystroke updates it. Validation: frontend tests pass (MRP 1550, qty 10, 12 -> 10 pieces/pkg gives 15.50 from 100 pieces).
+
+- [x] Fix POS cart per-package unit price calculation from total MRP
+	- Files: backend/utils/piecePricing.js, backend/services/posCatalogService.js, backend/tests/piece-pricing.test.js, backend/tests/pos-cart-utils.test.js, backend/tests/pos-catalog-unit.test.js, backend/tests/pos.integration.test.js, frontend/src/services/pos-cart-utils.cjs, frontend/src/components/pos/pos-billing-page.jsx, frontend/src/components/pos/cart-panel.jsx.
+	- Decisions: package price is total MRP divided by unit quantity; piece price continues to use total pieces and the optional retail override. Products without a positive unit quantity retain their existing MRP behavior.
+	- Validation: targeted backend POS tests pass (4 suites, 28 tests); frontend tests pass (11 tests); frontend production build passes. POS preview verifies MRP 1557 / quantity 10 gives BDT 155.70 per package and BDT 12.98 per piece.

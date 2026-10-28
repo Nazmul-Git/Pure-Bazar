@@ -240,6 +240,30 @@ describe('POS checkout API', () => {
     expect(response.body.message).toMatch(/Shareholder discounts are automatic/);
   });
 
+  it('previews package and piece prices from a product total MRP', async () => {
+    models.Product.find.mockReturnValue(query([{
+      ...product,
+      vendorPrice: 1200,
+      mrp: 1557,
+      unitValue: 10,
+      unitsPerPackage: 120,
+    }]));
+
+    const packageResponse = await preview({
+      items: [{ productId: productId.toString(), quantity: 1, unit: 'PACKAGE' }],
+      payments: [{ method: 'CASH' }],
+    });
+    const pieceResponse = await preview({
+      items: [{ productId: productId.toString(), quantity: 1, unit: 'PIECE' }],
+      payments: [{ method: 'CASH' }],
+    });
+
+    expect(packageResponse.status).toBe(200);
+    expect(packageResponse.body.bill.subtotal).toBe(155.7);
+    expect(pieceResponse.status).toBe(200);
+    expect(pieceResponse.body.bill.subtotal).toBe(12.98);
+  });
+
   it('checks the final wallet total and returns MRP pricing when balance is insufficient', async () => {
     walletService.checkWalletBalance.mockResolvedValue({ sufficient: false });
     const response = await checkout({

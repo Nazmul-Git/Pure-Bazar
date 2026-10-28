@@ -26,6 +26,7 @@ function toItem(product, stock, labels = new Map()) {
     ...displayFields(product, labels),
     barcode: product.barcode,
     mrp: product.mrp,
+    unitValue: product.unitValue,
     vendorPrice: product.vendorPrice,
     subUnitPrice: effectiveSubUnitPrice(product) ?? undefined,
     unitsPerPackage: product.unitsPerPackage,

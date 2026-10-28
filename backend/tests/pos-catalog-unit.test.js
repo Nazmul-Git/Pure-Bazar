@@ -18,7 +18,9 @@ const { searchItems } = require('../services/posCatalogService');
 
 describe('POS catalog base unit', () => {
   it('returns the product base unit name as packageUnitName with its piece ratio', async () => {
-    const eggs = { _id: productId, name: 'Egg', unitId, mrp: 120, vendorPrice: 100, unitsPerPackage: 12 };
+    const eggs = {
+      _id: productId, name: 'Egg', unitId, mrp: 120, unitValue: 10, vendorPrice: 100, unitsPerPackage: 12,
+    };
     models.Product.find.mockReturnValue({ sort: () => ({ limit: () => ({ lean: async () => [eggs] }) }) });
     models.Unit.find.mockReturnValue({ select: () => ({ lean: async () => [{ _id: unitId, name: 'Doz', abbreviation: 'Doz' }] }) });
     models.StockMovement.aggregate.mockResolvedValue([{ _id: productId, quantity: 5 }]);
@@ -30,5 +32,6 @@ describe('POS catalog base unit', () => {
     const item = res.json.mock.calls[0][0].items[0];
     expect(item.packageUnitName).toBe('Doz');
     expect(item.unitsPerPackage).toBe(12);
+    expect(item.unitValue).toBe(10);
   });
 });
