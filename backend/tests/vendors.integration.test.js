@@ -33,12 +33,21 @@ const admin = {
 const form = {
   memberId: 'PB-001',
   name: 'Example Member',
+  applicantNameBn: 'উদাহরণ সদস্য',
+  fatherName: 'Father Name',
+  motherName: 'Mother Name',
+  dateOfBirth: '1990-01-01',
+  nationality: 'Bangladeshi',
+  nidOrPassportNumber: '1234567890',
+  presentAddress: 'Present address',
+  permanentAddress: 'Permanent address',
   mobile: '01700000000',
+  emergencyContact: '01800000000',
+  email: 'vendor@example.com',
   shopName: 'Example Shop',
+  tradeLicenseNumber: 'TL-12345',
   address: 'Dhaka',
   productCategory: 'Groceries',
-  payoutMethod: 'Bank',
-  accountDetails: 'Account 123',
   termsAccepted: true,
   termsVersion: '2',
 };
@@ -150,6 +159,10 @@ describe('vendor registration and directory endpoints', () => {
     expect(probashiWalletService.verifyMember).toHaveBeenCalledWith({ memberId: form.memberId });
     expect(Vendor.create).toHaveBeenCalledWith([expect.objectContaining({
       memberId: form.memberId,
+      nidOrPassportNumber: form.nidOrPassportNumber,
+      tradeLicenseNumber: form.tradeLicenseNumber,
+      presentAddress: form.presentAddress,
+      permanentAddress: form.permanentAddress,
       termsVersion: '2',
       status: 'Active',
     })]);
@@ -162,6 +175,21 @@ describe('vendor registration and directory endpoints', () => {
       action: 'CREATE',
       entity: 'Vendor',
     }));
+  });
+
+  it.each([
+    ['NID or Passport number', { nidOrPassportNumber: '' }],
+    ['trade license number', { tradeLicenseNumber: '' }],
+    ['mobile number', { mobile: '' }],
+    ['present address', { presentAddress: '' }],
+    ['permanent address', { permanentAddress: '' }],
+    ['business address', { address: '' }],
+  ])('requires a valid %s', async (_label, missingField) => {
+    const response = await request(app).post('/api/vendors').set(auth).send({ ...form, ...missingField });
+
+    expect(response.status).toBe(400);
+    expect(Vendor.create).not.toHaveBeenCalled();
+    expect(probashiWalletService.verifyMember).not.toHaveBeenCalled();
   });
 
   it.each([

@@ -58,6 +58,22 @@ describe('Sales and vendor models', () => {
         termsVersion: expect.objectContaining({ kind: 'required' }),
       },
     });
+    const newVendor = new models.Vendor({
+      memberId: 'M-2',
+      name: 'New Vendor',
+      mobile: '01700000000',
+      shopName: 'New Shop',
+      address: 'Dhaka',
+      productCategory: 'Food',
+      nidOrPassportNumber: '1234567890',
+      tradeLicenseNumber: 'TL-123',
+      presentAddress: 'Present address',
+      permanentAddress: 'Permanent address',
+      termsAccepted: true,
+      termsVersion: '1',
+    });
+    expect(newVendor.nationality).toBe('Bangladeshi');
+    await expect(newVendor.validate()).resolves.toBeUndefined();
     await expect(statement.validate()).rejects.toMatchObject({
       errors: { status: expect.objectContaining({ kind: 'enum' }) },
     });

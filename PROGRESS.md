@@ -432,3 +432,7 @@
 - [x] Vendor KYB and Logistics registration
 	- Files: backend/models/VendorRegistration.js, utils/vendorKybValidation.js, middlewares/vendorKybUpload.js, controllers/vendorRegistrationController.js, routes/vendorRoutes.js (POST/GET /api/vendors/registrations), tests/vendor-registration.test.js; frontend components/vendors/vendor-kyb-form.jsx, app/vendors/register/kyb, services/vendor-kyb.cjs, tests/vendor-kyb.test.mjs.
 	- Decisions: two-step form (legal + owner NID, then warehouse logistics); Trade License and Owner NID uploads required (PDF/PNG/JPEG, 5MB, magic-byte checked, stored in uploads/vendor-kyb); payouts are a fixed note 'Flexible payout managed on demand'; status defaults PENDING; submission audited (VENDOR_KYB_SUBMITTED). Separate from the existing Form A vendor model; no approve/reject endpoint yet. Validation: backend 5 tests and frontend 15 tests pass, build passes.
+- [x] 4.1d Update Form A vendor registration UI and schema with detailed KYB and personal fields
+	- Files: Expanded Form A owner identity and business verification fields; persisted fields and endpoint validation in the Vendor model/API; Bengali translation coverage and vendor registration tests.
+	- Decisions: Keep Probashi member verification and current-terms acceptance; require NID/passport, trade license, mobile, and present, permanent, and business addresses; retain payout fields only as optional legacy data.
+	- Validation: Focused backend and frontend tests and frontend production build pass.

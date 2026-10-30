@@ -12,12 +12,21 @@ import useToastMessages from '@/hooks/use-toast-messages';
 const emptyForm = {
   memberId: '',
   name: '',
+  applicantNameBn: '',
+  fatherName: '',
+  motherName: '',
+  dateOfBirth: '',
+  nationality: 'Bangladeshi',
+  nidOrPassportNumber: '',
+  presentAddress: '',
+  permanentAddress: '',
   mobile: '',
+  emergencyContact: '',
+  email: '',
   shopName: '',
+  tradeLicenseNumber: '',
   address: '',
   productCategory: '',
-  payoutMethod: '',
-  accountDetails: '',
 };
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
@@ -116,29 +125,53 @@ export default function VendorRegisterForm() {
         </p>
       )}
 
-      <Card title="Vendor information" description="Member eligibility is verified by the server when this form is submitted.">
+      <Card title="Vendor registration details" description="Member eligibility is verified by the server when this form is submitted.">
         <form className="space-y-5" onSubmit={submit}>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Input label="Probashi Member ID" name="memberId" value={form.memberId} onChange={(event) => setField('memberId', event.target.value)} maxLength={100} required autoComplete="off" />
-            <Input label="Member name" name="name" value={form.name} onChange={(event) => setField('name', event.target.value)} maxLength={150} required autoComplete="name" />
-            <Input label="Mobile number" name="mobile" value={form.mobile} onChange={(event) => setField('mobile', event.target.value)} maxLength={21} pattern="\+?[0-9]{7,20}" title="Enter 7 to 20 digits, optionally starting with +." required autoComplete="tel" />
-            <Input label="Shop name" name="shopName" value={form.shopName} onChange={(event) => setField('shopName', event.target.value)} maxLength={150} required />
-            <Input label="Product category" name="productCategory" value={form.productCategory} onChange={(event) => setField('productCategory', event.target.value)} maxLength={100} required placeholder="e.g. Grocery, produce" />
-            <Select label="Payout method" name="payoutMethod" value={form.payoutMethod} onChange={(event) => setField('payoutMethod', event.target.value)} required>
-              <option value=""><T>{"Choose payout method"}</T></option>
-              {['Cash', 'Bank', 'bKash', 'Nagad'].map((method) => <option key={method} value={method}>{method}</option>)}
-            </Select>
-          </div>
-          <Input label="Business address" name="address" value={form.address} onChange={(event) => setField('address', event.target.value)} maxLength={500} required autoComplete="street-address" />
-          <Input
-            label="Payout account details"
-            name="accountDetails"
-            value={form.accountDetails}
-            onChange={(event) => setField('accountDetails', event.target.value)}
-            maxLength={250}
-            placeholder={form.payoutMethod === 'Cash' ? 'Enter N/A for cash payout' : 'Account or wallet details'}
-            required
-          />
+          <section className="space-y-4">
+            <div>
+              <h2 className="text-base font-semibold text-slate-900"><T>{"Owner Personal Identity"}</T></h2>
+              <p className="mt-1 text-sm text-slate-600"><T>{"Provide the owner's identity and contact information."}</T></p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Input label="Probashi Member ID" name="memberId" value={form.memberId} onChange={(event) => setField('memberId', event.target.value)} maxLength={100} required autoComplete="off" />
+              <Input label="Applicant Name (English)" name="name" value={form.name} onChange={(event) => setField('name', event.target.value)} maxLength={150} required autoComplete="name" />
+              <Input label="Applicant Name (Bengali)" name="applicantNameBn" value={form.applicantNameBn} onChange={(event) => setField('applicantNameBn', event.target.value)} maxLength={150} />
+              <Input label="Father's Name" name="fatherName" value={form.fatherName} onChange={(event) => setField('fatherName', event.target.value)} maxLength={150} />
+              <Input label="Mother's Name" name="motherName" value={form.motherName} onChange={(event) => setField('motherName', event.target.value)} maxLength={150} />
+              <Input label="Date of Birth" name="dateOfBirth" type="date" value={form.dateOfBirth} onChange={(event) => setField('dateOfBirth', event.target.value)} />
+              <Input label="Nationality" name="nationality" value={form.nationality} onChange={(event) => setField('nationality', event.target.value)} maxLength={100} required />
+              <Input label="NID / Passport Number" name="nidOrPassportNumber" value={form.nidOrPassportNumber} onChange={(event) => setField('nidOrPassportNumber', event.target.value)} maxLength={50} required autoComplete="off" />
+              <Input label="Mobile No" name="mobile" value={form.mobile} onChange={(event) => setField('mobile', event.target.value)} maxLength={21} pattern="\+?[0-9]{7,20}" title="Enter 7 to 20 digits, optionally starting with +." required autoComplete="tel" />
+              <Input label="Emergency Contact No" name="emergencyContact" value={form.emergencyContact} onChange={(event) => setField('emergencyContact', event.target.value)} maxLength={21} pattern="\+?[0-9]{7,20}" title="Enter 7 to 20 digits, optionally starting with +." />
+              <Input label="E-mail" name="email" type="email" value={form.email} onChange={(event) => setField('email', event.target.value)} maxLength={254} autoComplete="email" />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="ui-field" htmlFor="presentAddress">
+                <span className="field-label"><T>{"Present Address"}</T></span>
+                <textarea id="presentAddress" name="presentAddress" className="ui-input min-h-24" value={form.presentAddress} onChange={(event) => setField('presentAddress', event.target.value)} maxLength={500} required autoComplete="street-address" />
+              </label>
+              <label className="ui-field" htmlFor="permanentAddress">
+                <span className="field-label"><T>{"Permanent Address"}</T></span>
+                <textarea id="permanentAddress" name="permanentAddress" className="ui-input min-h-24" value={form.permanentAddress} onChange={(event) => setField('permanentAddress', event.target.value)} maxLength={500} required />
+              </label>
+            </div>
+          </section>
+
+          <section className="space-y-4 border-t border-slate-200 pt-5">
+            <div>
+              <h2 className="text-base font-semibold text-slate-900"><T>{"Business & KYB Verification"}</T></h2>
+              <p className="mt-1 text-sm text-slate-600"><T>{"Provide the business identity and verification details."}</T></p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Input label="Shop / Company Name" name="shopName" value={form.shopName} onChange={(event) => setField('shopName', event.target.value)} maxLength={150} required />
+              <Input label="Trade License Number (T.L.N.)" name="tradeLicenseNumber" value={form.tradeLicenseNumber} onChange={(event) => setField('tradeLicenseNumber', event.target.value)} maxLength={100} required />
+              <Input label="Product Category" name="productCategory" value={form.productCategory} onChange={(event) => setField('productCategory', event.target.value)} maxLength={100} required />
+            </div>
+            <label className="ui-field" htmlFor="address">
+              <span className="field-label"><T>{"Business Address"}</T></span>
+              <textarea id="address" name="address" className="ui-input min-h-24" value={form.address} onChange={(event) => setField('address', event.target.value)} maxLength={500} required autoComplete="street-address" />
+            </label>
+          </section>
 
           <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
             <div className="flex items-center justify-between gap-3">

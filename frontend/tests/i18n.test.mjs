@@ -55,3 +55,41 @@ test('every <T> literal in the UI has a Bengali translation', () => {
   }
   assert.deepEqual([...missing], []);
 });
+
+test('Form A labels and section headings have Bengali translations', () => {
+  const formPath = path.join(srcDir, 'components/vendors/vendor-register-form.jsx');
+  const source = fs.readFileSync(formPath, 'utf8');
+  const labels = [...source.matchAll(/(?:label|title|description)="([^"]+)"/g)].map((match) => match[1]);
+  const headings = [
+    'Owner Personal Identity',
+    "Provide the owner's identity and contact information.",
+    'Business & KYB Verification',
+    'Provide the business identity and verification details.',
+  ];
+
+  assert.deepEqual(
+    [...labels, ...headings].filter((text) => translate('bn', text) === text),
+    [],
+  );
+});
+
+test('Form A requires its KYB fields and excludes non-essential personal fields', () => {
+  const formPath = path.join(srcDir, 'components/vendors/vendor-register-form.jsx');
+  const source = fs.readFileSync(formPath, 'utf8');
+
+  for (const field of [
+    'nidOrPassportNumber',
+    'tradeLicenseNumber',
+    'mobile',
+    'presentAddress',
+    'permanentAddress',
+    'address',
+  ]) {
+    const fieldIsRequired = source.split(/\r?\n/).some(
+      (line) => line.includes(`name="${field}"`) && /\brequired\b/.test(line),
+    );
+    assert.ok(fieldIsRequired, `${field} must be required`);
+  }
+  assert.match(source, /nationality: 'Bangladeshi'/);
+  assert.doesNotMatch(source, /Religion|Blood Group|Profession/);
+});
