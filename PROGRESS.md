@@ -288,7 +288,12 @@
 	- Files: backend/config/security.js (CORS allow-list, login/API rate limiters, `$`-key NoSQL guard), backend/scripts/securityRouteCheck.js (`npm run security:routes`), backend/tests/security.test.js; changed server.js, authRoutes.js, authController.js, authMiddleware.js, errorMiddleware.js, rolesController.js, usersController.js, package.json (express-rate-limit, uuid override), .env.example.
 	- Decisions: Login limited to 10 failed attempts / 15 min per IP+email (successes not counted); API limit 600/min per IP; CORS origins from CORS_ORIGINS (localhost:3000 only in dev, none in production); JSON body 1 MB; JWT pinned to HS256; removed login debug logs; failed logins audited as LOGIN_FAILED; role and user changes now audit before/after (incl. role, active state, password-changed flag); multer and bad-JSON errors return safe messages, 500s are generic.
 	- Validation: 34 suites / 201 tests pass; route script checked 113 routes (401 without token, 403 with no-permission role); backend npm audit 0 vulnerabilities. Frontend audit still shows 5 build-tool issues (next/postcss/tailwind) that need major upgrades (Next 16, Tailwind 4); left for a planned upgrade.
-- [ ] 7.2
+- [x] 7.2 End to end
+	- Files: backend/tests/e2e-month.integration.test.js (real app + real models on in-memory MongoDB replica set via mongodb-memory-server; only the Probashi service is stubbed); fixed backend/controllers/goodsReceiveController.js and stockTransferController.js; devDependency mongodb-memory-server.
+	- Flow: vendor, 2 products, 2 GRNs, transfer to outlet (dispatch + receive), shift, cash bill, wallet bill, returned bill, shift close, wallet reconciliation, vendor statement Draft/Approved/Paid, 2 expenses, P&L.
+	- Manual P&L (BDT): vendor margin (300-180)+(200-120)=200; own-stock margin 100-2x40=20; discounts 10 (5% shareholder on the 200 wallet bill); expenses 150+50=200; net = 200+20-10-200 = 10. Returned bill excluded. Vendor net payable (6 sold - 1 returned) x 60 = 300. Shift expected cash 500+400=900, counted 895, difference -5. Report returned exactly these.
+	- Bug found and fixed: stock movements for GRN approve and transfer dispatch/receive were written with a session and several documents without `ordered: true`, so multi-line transfers (and multi-line GRNs) failed with a 500. Earlier mocked tests could not see it.
+	- Validation: new test passes; full suite 241 pass, 2 fail (models.test.js, locations.integration.test.js) which fail identically before my changes (VendorRegistration model and location expectations), left alone.
 - [ ] 7.3
 - [ ] 7.4
 - [x] POS simplification (post-7.1)

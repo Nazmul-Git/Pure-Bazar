@@ -235,7 +235,7 @@ async function dispatchTransfer(req, res, next) {
           referenceId: transfer._id,
           referenceType: 'StockTransfer',
         }));
-      await StockMovement.create(movements, { session });
+      await StockMovement.create(movements, { session, ordered: true });
       await AuditLog.create([{
         actorId: req.user._id,
         action: 'DISPATCH',
@@ -297,7 +297,7 @@ async function receiveTransfer(req, res, next) {
           referenceId: transfer._id,
           referenceType: 'StockTransfer',
         }));
-      if (movements.length) await StockMovement.create(movements, { session });
+      if (movements.length) await StockMovement.create(movements, { session, ordered: true });
       await AuditLog.create([{
         actorId: req.user._id,
         action: 'RECEIVE',

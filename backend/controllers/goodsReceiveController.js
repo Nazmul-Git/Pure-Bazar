@@ -294,7 +294,7 @@ async function approveGoodsReceive(req, res, next) {
           referenceId: receive._id,
           referenceType: 'GoodsReceive',
         }));
-      if (movements.length) await StockMovement.create(movements, { session });
+      if (movements.length) await StockMovement.create(movements, { session, ordered: true });
       await AuditLog.create([{
         actorId: req.user._id, action: 'APPROVE', entity: 'GoodsReceive', entityId: receive._id,
         before, after: receive.toObject(), ipAddress: req.ip,
