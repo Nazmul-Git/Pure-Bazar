@@ -74,6 +74,7 @@ export const navigationItems = [
       { label: 'Vendor Directory', href: '/vendors/directory', icon: Users, permissions: ['vendors:read'] },
       { label: 'Vendor Ledger & Earnings', href: '/vendors/ledger', icon: BookOpen, permissions: ['vendors:read'] },
       { label: 'Register Vendor', href: '/vendors/register', icon: UserPlus, permissions: ['vendors:write'] },
+      { label: 'Vendor KYB Registration', href: '/vendors/register/kyb', icon: UserPlus, permissions: ['vendors:write'] },
       { label: 'Settlement & Payout', href: '/vendors/payouts', icon: CreditCard, permissions: ['vendors:read'] },
       { label: 'Payout History', href: '/vendors/payouts/history', icon: History, permissions: ['vendor-payouts:read'] },
     ],

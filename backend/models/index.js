@@ -16,6 +16,7 @@ module.exports = {
   Return: require('./Return'),
   Vendor: require('./Vendor'),
   VendorLedger: require('./VendorLedger'),
+  VendorRegistration: require('./VendorRegistration'),
   VendorStatement: require('./VendorStatement'),
   Shareholder: require('./Shareholder'),
   WalletLog: require('./WalletLog'),

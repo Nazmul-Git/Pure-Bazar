@@ -11,6 +11,13 @@ export const getVendors = (token, params = {}) => api.get('/vendors', {
 
 export const getCurrentVendorTerms = (token) => api.get('/vendors/terms', authConfig(token));
 export const registerVendor = (token, payload) => api.post('/vendors', payload, authConfig(token));
+export const submitVendorKyb = (token, payload, files) => {
+  const body = new FormData();
+  body.append('data', JSON.stringify(payload));
+  if (files.tradeLicense) body.append('tradeLicense', files.tradeLicense);
+  if (files.ownerNid) body.append('ownerNid', files.ownerNid);
+  return api.post('/vendors/registrations', body, authConfig(token));
+};
 export const updateVendorStatus = (token, id, status) => api.patch(
   `/vendors/${id}/status`,
   { status },

@@ -2,6 +2,8 @@ const express = require('express');
 const { body, param, query } = require('express-validator');
 const vendorsController = require('../controllers/vendorsController');
 const vendorSettlementController = require('../controllers/vendorSettlementController');
+const vendorRegistrationController = require('../controllers/vendorRegistrationController');
+const { vendorKybUpload } = require('../middlewares/vendorKybUpload');
 const authMiddleware = require('../middlewares/authMiddleware');
 const authorizeMiddleware = require('../middlewares/authorizeMiddleware');
 const validateRequest = require('../middlewares/validateRequest');
@@ -23,6 +25,11 @@ const mobile = body('mobile').custom((value) => /^\+?[0-9]{7,20}$/.test(value))
 const field = (name, label, max) => body(name).isString().trim().isLength({ min: 1, max })
   .withMessage(`${label} must be 1 to ${max} characters`);
 
+router.post('/registrations', write, vendorKybUpload, vendorRegistrationController.register);
+router.get('/registrations', read, [
+  query('status').optional().isIn(['PENDING', 'APPROVED', 'REJECTED'])
+    .withMessage('Status must be PENDING, APPROVED, or REJECTED'),
+], validateRequest, vendorRegistrationController.list);
 router.get('/terms', write, vendorsController.getTerms);
 router.get('/', read, [
   query('q').optional().isString().trim().isLength({ max: 100 })
