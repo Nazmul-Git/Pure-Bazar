@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Badge, Button, Card, Input, Select, Table } from '@/components/ui';
 import BarcodeGraphic from '@/components/inventory/barcode-graphic';
-import { buildBarcodeLabels } from '@/services/barcodeEngine';
+import { DEFAULT_LABEL_SIZE, LABEL_SIZES, buildBarcodeLabels } from '@/services/barcodeEngine';
+import { getUnitOptions } from '@/services/barcodeUnits';
 import { getProducts } from '@/services/inventory';
 import { downloadOutput, printESC } from '@/utils/print-esc';
 import { T } from '@/i18n/language-provider';
@@ -17,6 +18,7 @@ export default function BarcodesPage() {
   const [queue, setQueue] = useState([]);
   const [search, setSearch] = useState('');
   const [labelType, setLabelType] = useState('price');
+  const [sizeKey, setSizeKey] = useState(DEFAULT_LABEL_SIZE);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
@@ -42,28 +44,44 @@ export default function BarcodesPage() {
       ? products.filter((product) => `${product.name} ${product.barcode}`.toLowerCase().includes(query))
       : products;
   }, [products, search]);
-  const queuedProducts = useMemo(() => queue.map((item) => ({
-    ...products.find((product) => product.id === item.productId),
-    copies: item.copies,
-  })).filter((product) => product.id), [products, queue]);
-  const generated = useMemo(() => {
-    if (!queuedProducts.length) return null;
+  const queuedProducts = useMemo(() => queue.map((item) => {
+    const product = products.find((entry) => entry.id === item.productId);
+    if (!product) return null;
+    const unit = getUnitOptions(product).find((option) => option.value === item.unit) || getUnitOptions(product)[0];
+    const sellingPrice = item.sellingPrice === '' ? unit.price : Number(item.sellingPrice);
+    return {
+      ...product,
+      copies: item.copies,
+      unitName: unit.name,
+      price: sellingPrice,
+      originalPrice: item.originalPrice === '' ? undefined : Number(item.originalPrice),
+    };
+  }).filter(Boolean), [products, queue]);
+  const generatedState = useMemo(() => {
+    if (!queuedProducts.length) return { generated: null, labelError: '' };
     try {
-      return buildBarcodeLabels(queuedProducts, labelType);
-    } catch {
-      return null;
+      return { generated: buildBarcodeLabels(queuedProducts, labelType, sizeKey), labelError: '' };
+    } catch (buildError) {
+      return { generated: null, labelError: buildError.message };
     }
-  }, [labelType, queuedProducts]);
+  }, [labelType, queuedProducts, sizeKey]);
+  const { generated, labelError } = generatedState;
 
   function addProduct(product) {
+    const defaultUnit = getUnitOptions(product)[0].value;
     setQueue((current) => {
-      const existing = current.find((item) => item.productId === product.id);
+      const existing = current.find((item) => item.productId === product.id && item.unit === defaultUnit
+        && item.sellingPrice === '' && item.originalPrice === '');
       return existing
-        ? current.map((item) => item.productId === product.id ? { ...item, copies: item.copies + 1 } : item)
-        : [...current, { productId: product.id, copies: 1 }];
+        ? current.map((item) => item === existing ? { ...item, copies: item.copies + 1 } : item)
+        : [...current, { key: `${product.id}-${Date.now()}-${current.length}`, productId: product.id, unit: defaultUnit, copies: 1, sellingPrice: '', originalPrice: '' }];
     });
     setNotice('');
     setError('');
+  }
+
+  function updateItem(key, changes) {
+    setQueue((current) => current.map((entry) => entry.key === key ? { ...entry, ...changes } : entry));
   }
 
   function exportOutput(format) {
@@ -124,24 +142,36 @@ export default function BarcodesPage() {
           <Table columns={columns} rows={visibleProducts} rowKey="id" emptyMessage="No products match your search." />
         </Card>
         <Card title="Label batch" description="Add products more than once or adjust the number of copies.">
-          <div className="mb-4 max-w-xs">
+          <div className="mb-4 grid max-w-xl gap-3 sm:grid-cols-2">
             <Select label="Label format" name="labelType" value={labelType} onChange={(event) => setLabelType(event.target.value)}>
               <option value="price"><T>{"Barcode + price label"}</T></option>
               <option value="barcode"><T>{"Barcode-only label"}</T></option>
+            </Select>
+            <Select label="Label size" name="labelSize" value={sizeKey} onChange={(event) => setSizeKey(event.target.value)}>
+              {Object.values(LABEL_SIZES).map((size) => <option key={size.key} value={size.key}>{size.label}</option>)}
             </Select>
           </div>
           {queue.length === 0 ? <p className="rounded border border-dashed border-slate-300 p-5 text-center text-sm text-slate-500"><T>{"Add one or more products to create a batch."}</T></p> : (
             <div className="space-y-2">
               {queue.map((item) => {
                 const product = products.find((entry) => entry.id === item.productId);
-                return <div key={item.productId} className="grid items-end gap-3 rounded-lg border border-slate-200 p-3 sm:grid-cols-[1fr_7rem_auto]">
-                  <div><strong className="block text-sm">{product?.name}</strong><small className="text-slate-500">{product?.barcode}</small></div>
-                  <Input label="Copies" type="number" min="1" max="500" step="1" value={item.copies} onChange={(event) => setQueue((current) => current.map((entry) => entry.productId === item.productId ? { ...entry, copies: event.target.value === '' ? '' : Number(event.target.value) } : entry))} />
-                  <Button type="button" variant="ghost" size="sm" onClick={() => setQueue((current) => current.filter((entry) => entry.productId !== item.productId))}>Remove</Button>
+                const unitOptions = product ? getUnitOptions(product) : [];
+                const unit = unitOptions.find((option) => option.value === item.unit) || unitOptions[0];
+                const numberField = (field) => (event) => updateItem(item.key, { [field]: event.target.value });
+                return <div key={item.key} className="grid items-end gap-3 rounded-lg border border-slate-200 p-3 sm:grid-cols-2">
+                  <div className="sm:col-span-2"><strong className="block text-sm">{product?.name}</strong><small className="text-slate-500">{product?.barcode}</small></div>
+                  <Select label="Unit" name={`unit-${item.key}`} value={item.unit} onChange={(event) => updateItem(item.key, { unit: event.target.value, sellingPrice: '', originalPrice: '' })}>
+                    {unitOptions.map((option) => <option key={option.value} value={option.value}>{option.name} - ৳{Number(option.price).toFixed(2)}</option>)}
+                  </Select>
+                  <Input label="Copies" type="number" min="1" max="500" step="1" value={item.copies} onChange={(event) => updateItem(item.key, { copies: event.target.value === '' ? '' : Number(event.target.value) })} />
+                  <Input label="Original price (strikethrough)" type="number" min="0" step="0.01" value={item.originalPrice} placeholder="Optional" onChange={numberField('originalPrice')} />
+                  <Input label="Selling / discounted price" type="number" min="0" step="0.01" value={item.sellingPrice} placeholder={unit ? `${Number(unit.price).toFixed(2)} (${unit.name} price)` : ''} onChange={numberField('sellingPrice')} />
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setQueue((current) => current.filter((entry) => entry.key !== item.key))}>Remove</Button>
                 </div>;
               })}
             </div>
           )}
+          {labelError && <p role="alert" className="mt-3 text-sm text-red-700">{labelError}</p>}
           <div className="mt-4 flex flex-wrap justify-end gap-2">
             <Button variant="secondary" disabled={!generated} onClick={() => exportOutput('tspl')}>Export TSPL</Button>
             <Button variant="secondary" disabled={!generated} onClick={sendTsplToPrinter}>Print TSPL (Xprinter)</Button>
@@ -152,13 +182,19 @@ export default function BarcodesPage() {
         </Card>
       </div>
       <Card title="Printable preview" description={`${generated?.labels.length || 0} label${generated?.labels.length === 1 ? '' : 's'} in this batch`}>
-        <div id="label-print-preview" className="label-grid">
+        <style>{`@media print { @page { size: auto; margin: 5mm; } }`}</style>
+        <div id="label-print-preview" className={`label-grid label-size-${sizeKey}`} style={{ '--label-w': `${LABEL_SIZES[sizeKey].width}mm`, '--label-h': `${LABEL_SIZES[sizeKey].height}mm` }}>
           {generated?.labels.map((label, index) => (
             <article className="label-card" key={`${label.barcode}-${index}`}>
               <strong className="label-brand"><T>{"PureBazar"}</T></strong>
               <strong className="label-name">{label.name}</strong>
               <BarcodeGraphic value={label.barcode} />
-              {labelType === 'price' && <strong className="label-price">BDT {label.price}</strong>}
+              {labelType === 'price' && (
+                <div className="label-price-row">
+                  {label.originalPrice && <span className="label-original-price" style={{ textDecoration: 'line-through' }}>BDT {label.originalPrice}</span>}
+                  <strong className="label-price">BDT {label.price}</strong>
+                </div>
+              )}
               <Badge tone="neutral">{labelType === 'price' ? 'Price label' : 'Barcode'}</Badge>
             </article>
           ))}

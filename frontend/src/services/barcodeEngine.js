@@ -41,6 +41,14 @@ function safeText(value) {
     .slice(0, 40);
 }
 
+// Truncates only the product name so the unit suffix always survives the 40-char limit.
+function labelName(name, unitName) {
+  const unit = safeText(unitName);
+  if (!unit) return safeText(name);
+  const suffix = ` (${unit})`.slice(0, 20);
+  return `${safeText(name).slice(0, 40 - suffix.length).trimEnd()}${suffix}`;
+}
+
 function formatPrice(value) {
   const price = Number(value);
   if (!Number.isFinite(price) || price < 0) throw new Error('Each price label needs a valid product price.');
@@ -57,25 +65,52 @@ function normalizeLabels(items, labelType) {
     if (!Number.isInteger(copies) || copies < 1 || copies > 500) {
       throw new Error('Label copies must be a whole number from 1 to 500.');
     }
+    const unitName = String(item.unitName || '').trim();
+    const price = labelType === 'price' ? formatPrice(item.price ?? item.mrp) : '';
+    const hasOriginal = labelType === 'price' && item.originalPrice !== undefined && item.originalPrice !== null && item.originalPrice !== '';
+    const originalPrice = hasOriginal ? formatPrice(item.originalPrice) : '';
+    if (hasOriginal && Number(originalPrice) <= Number(price)) {
+      throw new Error(`Original price for "${item.name}" must be higher than the selling price.`);
+    }
     const label = {
-      name: safeText(item.name),
+      name: labelName(item.name, unitName),
       barcode: String(item.barcode),
-      price: labelType === 'price' ? formatPrice(item.mrp) : '',
+      price,
+      originalPrice,
     };
     for (let copy = 0; copy < copies; copy += 1) labels.push(label);
   }
   return labels;
 }
 
-function buildTspl(labels) {
-  return labels.map(({ name, barcode, price }) => [
-    'SIZE 50 mm,30 mm',
+// Dimensions in mm; layout values are printer dots at 203 dpi (8 dots/mm).
+const LABEL_SIZES = {
+  '50x30': { key: '50x30', label: '50mm x 30mm', width: 50, height: 30, x: 20, brandY: 6, nameY: 36, barY: 62, barH: 60, origY: 160, priceY: 180, priceX: 20 },
+  '38x25': { key: '38x25', label: '38mm x 25mm', width: 38, height: 25, x: 8, brandY: 4, nameY: 24, barY: 46, barH: 50, origY: 126, priceY: 150, priceX: 8 },
+  '32x18': { key: '32x18', label: '32mm x 18mm', width: 32, height: 18, x: 6, brandY: 2, nameY: 18, barY: 34, barH: 32, origY: 108, priceY: 108, priceX: 130 },
+};
+const DEFAULT_LABEL_SIZE = '50x30';
+
+function getLabelSize(sizeKey) {
+  const size = LABEL_SIZES[sizeKey || DEFAULT_LABEL_SIZE];
+  if (!size) throw new Error('Unsupported label size.');
+  return size;
+}
+
+function buildTspl(labels, size) {
+  const barX = Math.max(0, Math.round((size.width * 8 - 190) / 2));
+  return labels.map(({ name, barcode, price, originalPrice }) => [
+    `SIZE ${size.width} mm,${size.height} mm`,
     'GAP 2 mm,0 mm',
     'CLS',
-    `TEXT 20,6,"3",0,1,1,"${BRAND_NAME}"`,
-    `TEXT 20,36,"0",0,1,1,"${name}"`,
-    `BARCODE 20,62,"EAN13",60,1,0,2,2,"${barcode}"`,
-    ...(price ? [`TEXT 20,180,"0",0,1,1,"BDT ${price}"`] : []),
+    `TEXT ${size.x},${size.brandY},"${size.key === '50x30' ? '3' : '0'}",0,1,1,"${BRAND_NAME}"`,
+    `TEXT ${size.x},${size.nameY},"0",0,1,1,"${name}"`,
+    `BARCODE ${barX},${size.barY},"EAN13",${size.barH},1,0,2,2,"${barcode}"`,
+    ...(originalPrice ? [
+      `TEXT ${size.x},${size.origY},"0",0,1,1,"BDT ${originalPrice}"`,
+      `BAR ${size.x},${size.origY + 8},${(originalPrice.length + 4) * 8},2`,
+    ] : []),
+    ...(price ? [`TEXT ${originalPrice ? size.priceX : size.x},${size.priceY},"0",0,1,1,"BDT ${price}"`] : []),
     'PRINT 1',
   ].join('\r\n')).join('\r\n');
 }
@@ -84,11 +119,17 @@ function buildEscPos(labels) {
   const output = [0x1b, 0x40];
   const encoder = new TextEncoder();
   const appendText = (text) => output.push(...encoder.encode(text));
-  labels.forEach(({ name, barcode, price }, index) => {
+  labels.forEach(({ name, barcode, price, originalPrice }, index) => {
     output.push(0x1b, 0x61, 0x01, 0x1b, 0x45, 0x01);
     appendText(`${BRAND_NAME}\n`);
     appendText(`${name}\n`);
     output.push(0x1b, 0x45, 0x00);
+    if (originalPrice) {
+      output.push(0x1b, 0x2d, 0x01);
+      appendText(`BDT ${originalPrice}`);
+      output.push(0x1b, 0x2d, 0x00);
+      appendText('\n');
+    }
     if (price) appendText(`BDT ${price}\n`);
     output.push(0x1d, 0x48, 0x02, 0x1d, 0x77, 0x02, 0x1d, 0x68, 0x50);
     output.push(0x1d, 0x6b, 0x43, 0x0c, ...encoder.encode(barcode.slice(0, 12)), 0x0a, 0x0a);
@@ -97,9 +138,10 @@ function buildEscPos(labels) {
   return new Uint8Array(output);
 }
 
-function buildBarcodeLabels(items, labelType = 'price') {
+function buildBarcodeLabels(items, labelType = 'price', sizeKey = DEFAULT_LABEL_SIZE) {
+  const size = getLabelSize(sizeKey);
   const labels = normalizeLabels(items, labelType);
-  return { labels, tspl: buildTspl(labels), escPos: buildEscPos(labels) };
+  return { labels, size, tspl: buildTspl(labels, size), escPos: buildEscPos(labels) };
 }
 
-module.exports = { BRAND_NAME, buildBarcodeLabels, getEan13Modules, isValidEan13 };
+module.exports = { BRAND_NAME, DEFAULT_LABEL_SIZE, LABEL_SIZES, buildBarcodeLabels, getEan13Modules, isValidEan13 };

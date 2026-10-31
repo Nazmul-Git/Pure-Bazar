@@ -197,10 +197,12 @@ export default function SettingsForm() {
           </div>
         </div>
         <MethodChoices label="Enabled vendor payout methods" methods={payoutMethods} value={settings.enabledVendorPayoutMethods} onChange={(value) => setField('enabledVendorPayoutMethods', value)} />
+        {/*
         <div className="grid gap-4 sm:grid-cols-2">
           <ToggleField label="Enable vendor commission" checked={settings.commissionEnabled} onChange={(event) => setField('commissionEnabled', event.target.checked)} />
           <ToggleField label="Enable vendor wallet payout" checked={settings.vendorWalletPayoutEnabled} onChange={(event) => setField('vendorWalletPayoutEnabled', event.target.checked)} />
         </div>
+        */}
         <div className="space-y-3">
           <div>
             <h3 className="text-sm font-semibold text-slate-800"><T>{"Vendor terms versions"}</T></h3>

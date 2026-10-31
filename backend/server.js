@@ -99,6 +99,9 @@ async function startServer() {
   app.listen(env.PORT, () => {
     console.log(`PureBazar API listening on port ${env.PORT}`);
   });
+  app.get('/', (req, res) => {
+  res.json({ success: true, message: "PureBazar API is running successfully!" });
+});
 }
 
 if (require.main === module) {

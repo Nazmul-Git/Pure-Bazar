@@ -23,6 +23,17 @@ describe('barcode label output', () => {
     expect(getEan13Modules(product.barcode)).toHaveLength(95);
   });
 
+  it('appends the unit to the name and prints the unit price with a struck original price', () => {
+    const { getUnitOptions } = require('../../frontend/src/services/barcodeUnits');
+    const egg = { name: 'Egg', barcode: '4006381333931', mrp: 120, unitsPerPackage: 12, subUnitPrice: 11, packageUnitName: 'Dozen' };
+    expect(getUnitOptions(egg).map((o) => [o.name, o.price])).toEqual([['Dozen', 120], ['Pcs', 11]]);
+    const output = buildBarcodeLabels([{ ...egg, unitName: 'Pcs', price: 11, originalPrice: 12 }], 'price');
+    expect(output.labels[0]).toMatchObject({ name: 'Egg (Pcs)', price: '11.00', originalPrice: '12.00' });
+    expect(output.tspl).toContain('"Egg (Pcs)"');
+    expect(output.tspl).toContain('BAR 20,168');
+    expect(() => buildBarcodeLabels([{ ...egg, price: 11, originalPrice: 10 }], 'price')).toThrow('must be higher');
+  });
+
   it('rejects invalid EAN-13 values and out-of-range batch quantities', () => {
     expect(() => buildBarcodeLabels([{ ...product, barcode: '123' }])).toThrow('valid EAN-13');
     expect(() => buildBarcodeLabels([{ ...product, copies: 501 }])).toThrow('from 1 to 500');

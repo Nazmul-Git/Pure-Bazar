@@ -98,19 +98,16 @@ export function ReceiptLayoutEditor({ value, onChange }) {
         <h3 className="text-sm font-semibold text-slate-800"><T>{"Receipt layout"}</T></h3>
         <p className="mt-1 text-xs text-slate-500"><T>{"Controls how printed and digital receipts look."}</T></p>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Input label="Store name on receipt" value={layout.storeName} onChange={(event) => set('storeName', event.target.value)} />
-        <label className="ui-field">
-          <span className="field-label"><T>{"Paper width"}</T></span>
-          <select value={layout.paperWidth} onChange={(event) => set('paperWidth', event.target.value)} className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-[#82C341] focus:outline-none focus:ring-2 focus:ring-[#82C341]/30">
-            <option value="58mm">58 mm thermal</option>
-            <option value="80mm">80 mm thermal</option>
-            <option value="A4">A4</option>
-          </select>
-        </label>
-        <Input label="Header text" value={layout.headerText} onChange={(event) => set('headerText', event.target.value)} />
-        <Input label="Footer text" value={layout.footerText} onChange={(event) => set('footerText', event.target.value)} />
-      </div>
+      {/* 
+<label className="ui-field">
+  <span className="Field-label"><T>{"Paper width"}</T></span>
+  <select value={layout.paperWidth} onChange={(event) => set('paperWidth', event.target.value)} className="w-full rounded-md border border-slate-30">
+    <option value="58mm">58 mm thermal</option>
+    <option value="80mm">80 mm thermal</option>
+    <option value="A4">A4</option>
+  </select>
+</label> 
+*/}
       <div className="grid gap-1 sm:grid-cols-3">
         {toggles.map(([name, label]) => (
           <label key={name} className="flex items-center gap-2 py-1 text-sm text-slate-700">
