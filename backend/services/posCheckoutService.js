@@ -8,6 +8,7 @@ const {
   billOutput, loadBill, receiptData, statusError,
 } = require('./posBillService');
 const { getDefaultPosOutlet } = require('./posOutletService');
+const { unitLabelMap, displayFields } = require('../utils/productDisplay');
 const probashiWalletService = require('./probashiWalletService');
 
 function money(value) {
@@ -117,6 +118,7 @@ async function commitBill(req, res, next, offline) {
     const outletId = await resolveOutlet(req.body, req.user);
     const orderNumber = `POS-${Date.now()}-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
     const saleDate = new Date(req.body.soldAt || Date.now());
+    const unitLabels = await unitLabelMap(result.lines.map(({ product }) => product));
     session = await mongoose.startSession();
     let order;
     await session.withTransaction(async () => {
@@ -146,12 +148,14 @@ async function commitBill(req, res, next, offline) {
         channel: 'POS',
         lines: result.bill.ledgerLines.map((line, index) => {
           const { item, product, pricing } = result.lines[index];
+          const { packageUnitName } = displayFields(product, unitLabels);
           return {
             productId: product._id,
             productName: product.name,
             barcode: product.barcode,
             quantity: line.quantity,
             unit: item.unit === 'PIECE' ? 'PIECE' : 'PACKAGE',
+            ...(packageUnitName ? { packageUnitName } : {}),
             mrp: pricing.unitPrice,
             subtotal: line.subtotal,
             itemDiscountAmount: line.itemDiscountAmount,

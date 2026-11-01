@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Eye, RefreshCw, Search } from 'lucide-react';
 import { Badge, Button, Card, Input, Modal, Select, Table } from '@/components/ui';
 import usePosSales from '@/hooks/use-pos-sales';
+import { formatLineQuantity } from '@/services/stock-units.cjs';
 import useToastMessages from '@/hooks/use-toast-messages';
 import {
   paymentMethodLabel, sumMoney,
@@ -31,7 +32,7 @@ function OrderDetails({ order }) {
             <thead><tr><th><T>{"Product"}</T></th><th><T>{"Qty"}</T></th><th><T>{"Unit price"}</T></th><th className="text-right"><T>{"Total"}</T></th></tr></thead>
             <tbody>{(order.lines || []).map((line, index) => (
               <tr key={`${line.productId}-${index}`}>
-                <td>{line.productName}</td><td>{line.quantity}</td><td>{amount(line.mrp)}</td><td className="text-right">{amount(line.total)}</td>
+                <td>{line.productName}</td><td>{formatLineQuantity(line)}</td><td>{amount(line.mrp)}</td><td className="text-right">{amount(line.total)}</td>
               </tr>
             ))}</tbody>
             <tfoot><tr><th colSpan="3" className="text-right"><T>{"Grand total"}</T></th><th className="text-right">{amount(order.grandTotal)}</th></tr></tfoot>

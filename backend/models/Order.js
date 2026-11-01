@@ -11,6 +11,7 @@ const orderLineSchema = new mongoose.Schema({
   barcode: { type: String, trim: true },
   quantity: { type: Number, required: true, min: 0.000001 },
   unit: { type: String, enum: ['PACKAGE', 'PIECE'], default: 'PACKAGE' },
+  packageUnitName: { type: String, trim: true },
   mrp: { type: Number, required: true, min: 0 },
   subtotal: { type: Number, required: true, min: 0 },
   itemDiscountAmount: { type: Number, default: 0, min: 0 },

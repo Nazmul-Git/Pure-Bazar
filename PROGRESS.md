@@ -487,3 +487,8 @@
 	- Files: `backend/services/billEngine.js`, `posBillService.js`, `posCheckoutService.js`, `frontend/src/components/pos/pos-billing-page.jsx`, `bill-summary.jsx`, backend tests.
 	- Decisions: Full wallet payment always gets the 5% discount from the server bill engine (no Probashi verification for now); the frontend no longer applies it a second time. Wallet payment amount is set to the final total, and the 'Payments must equal the final bill total' rule applies only to Cash/bKash/Nagad/Card. Balance check and WalletLog are skipped when no member is attached.
 	- Validation: backend POS tests and frontend POS utils tests pass; UI not tested in browser.
+
+- [x] UI: show quantity with appropriate units in sales history details and receipts
+	- Files: `frontend/src/services/stock-units.cjs` (new `formatLineQuantity`, + tests), `frontend/src/components/pos/sales-history-page.jsx`, `invoice-modal.jsx`, `backend/models/Order.js`, `backend/services/posCheckoutService.js`, `posHistoryReturnService.js`.
+	- Decisions: order lines now store `packageUnitName` (the sold unit's name); sales history fills it in for older orders from the product's unit. Gram products show Kg/Gram via existing `formatStockDisplay`; PIECE lines show Pcs; others show their unit name (e.g. Box).
+	- Validation: stock-units tests and backend POS tests pass; UI not tested in browser.

@@ -1,8 +1,9 @@
 const crypto = require('crypto');
 const mongoose = require('mongoose');
 const {
-  AuditLog, Order, Return, StockMovement, VendorLedger, WalletLog,
+  AuditLog, Order, Product, Return, StockMovement, VendorLedger, WalletLog,
 } = require('../models');
+const { unitLabelMap, displayFields } = require('../utils/productDisplay');
 const { statusError } = require('./posBillService');
 const { resolveOutlet } = require('./posCheckoutService');
 
@@ -75,7 +76,17 @@ async function listSalesHistory(req) {
   if (dates) clauses.push(dates);
   if (clauses.length) filter.$and = clauses;
 
-  return Order.find(filter).sort({ createdAt: -1 }).limit(100).lean();
+  const orders = await Order.find(filter).sort({ createdAt: -1 }).limit(100).lean();
+  const missing = orders.flatMap((order) => order.lines).filter((line) => !line.packageUnitName);
+  if (!missing.length) return orders;
+  const products = await Product.find({ _id: { $in: missing.map((line) => line.productId) } }).select('unitId').lean();
+  const labels = await unitLabelMap(products);
+  const names = new Map(products.map((product) => [product._id.toString(), displayFields(product, labels).packageUnitName]));
+  missing.forEach((line) => {
+    const name = names.get(String(line.productId));
+    if (name) line.packageUnitName = name;
+  });
+  return orders;
 }
 
 async function returnBill(req) {

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Printer, X } from 'lucide-react';
 import { getCode39Runs } from '@/services/code39.cjs';
+import { formatLineQuantity } from '@/services/stock-units.cjs';
 import { T } from '@/i18n/language-provider';
 import './xprinter-print.css';
 
@@ -45,7 +46,7 @@ function Receipt({ receipt }) {
           {receipt.lines.map((line, index) => (
             <tr key={`${line.barcode}-${index}`}>
               <td>{line.productName}</td>
-              <td className="r">{line.quantity}</td>
+              <td className="r">{formatLineQuantity(line)}</td>
               <td className="r">{money(line.mrp)}</td>
               <td className="r">{money(line.total)}</td>
             </tr>

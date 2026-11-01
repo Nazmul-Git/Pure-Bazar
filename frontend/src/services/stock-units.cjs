@@ -58,4 +58,12 @@ function formatStock(quantity, unitsPerPackage, packageUnitName) {
   return `${boxes} ${packageUnitName ? name : 'Box(es)'} and ${pieces} Pcs`;
 }
 
-module.exports = { isMultiUnit, splitQuantity, combineQuantity, formatStock, formatStockDisplay, isGram, toGrams, fromGrams };
+function formatLineQuantity(line) {
+  const value = Number(line?.quantity) || 0;
+  if (line?.unit === 'PIECE') return `${value} Pcs`;
+  const name = line?.packageUnitName;
+  if (isGram(name)) return formatStockDisplay(value, name);
+  return `${Math.round(value * 1e6) / 1e6} ${name || 'Box'}`;
+}
+
+module.exports = { isMultiUnit, splitQuantity, combineQuantity, formatStock, formatStockDisplay, formatLineQuantity, isGram, toGrams, fromGrams };

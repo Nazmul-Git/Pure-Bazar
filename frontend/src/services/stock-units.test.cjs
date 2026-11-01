@@ -1,6 +1,6 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
-const { splitQuantity, combineQuantity, formatStock, formatStockDisplay, toGrams, fromGrams } = require('./stock-units.cjs');
+const { splitQuantity, combineQuantity, formatStock, formatStockDisplay, formatLineQuantity, toGrams, fromGrams } = require('./stock-units.cjs');
 const { lineTotal } = require('./pos-cart-utils.cjs');
 
 describe('weight input conversion', () => {
@@ -30,6 +30,15 @@ describe('formatStockDisplay', () => {
   });
   it('leaves other units unchanged', () => {
     assert.equal(formatStockDisplay(1700, 'Pcs'), '1700');
+  });
+});
+
+describe('formatLineQuantity', () => {
+  it('formats sold quantities with their units', () => {
+    assert.equal(formatLineQuantity({ quantity: 500, unit: 'PACKAGE', packageUnitName: 'Gram' }), '500 Gram');
+    assert.equal(formatLineQuantity({ quantity: 1000, unit: 'PACKAGE', packageUnitName: 'Gram' }), '1 Kg');
+    assert.equal(formatLineQuantity({ quantity: 3, unit: 'PIECE', packageUnitName: 'Box' }), '3 Pcs');
+    assert.equal(formatLineQuantity({ quantity: 2, unit: 'PACKAGE', packageUnitName: 'Box' }), '2 Box');
   });
 });
 
