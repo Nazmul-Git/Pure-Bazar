@@ -1,46 +1,22 @@
 const rateLimit = require('express-rate-limit');
 
 function corsOptions(env = process.env) {
-  // const configured = (env.CORS_ORIGINS || '').split(',').map((origin) => origin.trim()).filter(Boolean);
-//   const allowed = configured.length
-//     ? configured
-//     : env.NODE_ENV === 'production' ? [] : ['http://localhost:3000', 'http://127.0.0.1:3000'];
+  const configured = (env.CORS_ORIGINS || '').split(',').map((origin) => origin.trim()).filter(Boolean);
+  const allowed = configured.length
+    ? configured
+    : env.NODE_ENV === 'production' ? [] : ['http://localhost:3000', 'http://127.0.0.1:3000'];
 
-//   return {
-//     origin(origin, callback) {
-//       // Requests without an Origin header (server-to-server, curl) are not browser CORS requests.
-//       if (!origin || allowed.includes(origin)) return callback(null, true);
-//       return callback(null, false);
-//     },
-//     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-//     allowedHeaders: ['Content-Type', 'Authorization'],
-//     maxAge: 600,
-//   };
-// }
-
-function corsOptions(env = process.env) {
-  const configured = (env.CORS_ORIGINS || '').split(',').map(origin => origin.trim()).filter(Boolean);
-  
   return {
     origin(origin, callback) {
-      // Requests without an Origin header (like Postman or server-to-server) are allowed
-      if (!origin) return callback(null, true);
-      
-      // If CORS_ORIGINS is configured, check if origin is included, otherwise allow all origins in production/development for now
-      if (configured.length === 0 || configured.includes(origin) || env.NODE_ENV !== 'production') {
-        return callback(null, true);
-      }
-      
-      return callback(new Error('Not allowed by CORS'));
+      // Requests without an Origin header (server-to-server, curl) are not browser CORS requests.
+      if (!origin || allowed.includes(origin)) return callback(null, true);
+      return callback(null, false);
     },
-    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     maxAge: 600,
   };
 }
-
-
 
 function limiter({ windowMs, max, message, keyGenerator, skipSuccessfulRequests = false }) {
   return rateLimit({

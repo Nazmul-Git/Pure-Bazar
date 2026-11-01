@@ -9,6 +9,8 @@
     "test": "jest --runInBand",
     "security:routes": "node scripts/securityRouteCheck.js",
     "seed:roles": "node seeders/seedRoles.js",
+    "backup": "node scripts/backupDb.js",
+    "restore": "node scripts/restoreDb.js",
     "migrate:role-permissions": "node scripts/migrateRolePermissions.js",
     "migrate:product-barcodes": "node scripts/migrateProductBarcodes.js"
   },

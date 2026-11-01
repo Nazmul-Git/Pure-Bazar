@@ -68,13 +68,14 @@ export default function BarcodesPage() {
   const { generated, labelError } = generatedState;
 
   function addProduct(product) {
-    const defaultUnit = getUnitOptions(product)[0].value;
+    const defaultOption = getUnitOptions(product)[0];
+    const defaultPrice = Number(defaultOption.price).toFixed(2);
     setQueue((current) => {
-      const existing = current.find((item) => item.productId === product.id && item.unit === defaultUnit
-        && item.sellingPrice === '' && item.originalPrice === '');
+      const existing = current.find((item) => item.productId === product.id && item.unit === defaultOption.value
+        && item.sellingPrice === defaultPrice && item.originalPrice === '');
       return existing
         ? current.map((item) => item === existing ? { ...item, copies: item.copies + 1 } : item)
-        : [...current, { key: `${product.id}-${Date.now()}-${current.length}`, productId: product.id, unit: defaultUnit, copies: 1, sellingPrice: '', originalPrice: '' }];
+        : [...current, { key: `${product.id}-${Date.now()}-${current.length}`, productId: product.id, unit: defaultOption.value, copies: 1, sellingPrice: defaultPrice, originalPrice: '' }];
     });
     setNotice('');
     setError('');
@@ -160,12 +161,15 @@ export default function BarcodesPage() {
                 const numberField = (field) => (event) => updateItem(item.key, { [field]: event.target.value });
                 return <div key={item.key} className="grid items-end gap-3 rounded-lg border border-slate-200 p-3 sm:grid-cols-2">
                   <div className="sm:col-span-2"><strong className="block text-sm">{product?.name}</strong><small className="text-slate-500">{product?.barcode}</small></div>
-                  <Select label="Unit" name={`unit-${item.key}`} value={item.unit} onChange={(event) => updateItem(item.key, { unit: event.target.value, sellingPrice: '', originalPrice: '' })}>
+                  <Select label="Unit" name={`unit-${item.key}`} value={item.unit} onChange={(event) => {
+                    const next = unitOptions.find((option) => option.value === event.target.value);
+                    updateItem(item.key, { unit: event.target.value, sellingPrice: next ? Number(next.price).toFixed(2) : '', originalPrice: '' });
+                  }}>
                     {unitOptions.map((option) => <option key={option.value} value={option.value}>{option.name} - ৳{Number(option.price).toFixed(2)}</option>)}
                   </Select>
                   <Input label="Copies" type="number" min="1" max="500" step="1" value={item.copies} onChange={(event) => updateItem(item.key, { copies: event.target.value === '' ? '' : Number(event.target.value) })} />
                   <Input label="Original price (strikethrough)" type="number" min="0" step="0.01" value={item.originalPrice} placeholder="Optional" onChange={numberField('originalPrice')} />
-                  <Input label="Selling / discounted price" type="number" min="0" step="0.01" value={item.sellingPrice} placeholder={unit ? `${Number(unit.price).toFixed(2)} (${unit.name} price)` : ''} onChange={numberField('sellingPrice')} />
+                  <Input label={`Price (type to override) - per ${unit?.name || 'unit'}`} type="number" min="0" step="0.01" value={item.sellingPrice} placeholder={unit ? Number(unit.price).toFixed(2) : ''} onChange={numberField('sellingPrice')} />
                   <Button type="button" variant="ghost" size="sm" onClick={() => setQueue((current) => current.filter((entry) => entry.key !== item.key))}>Remove</Button>
                 </div>;
               })}
