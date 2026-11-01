@@ -445,3 +445,7 @@
 	- Files: backend/utils/dbBackup.js, scripts/backupDb.js, scripts/restoreDb.js, tests/dbBackup.test.js (+ npm run backup/restore); backend/Dockerfile, frontend/Dockerfile, .dockerignore files, docker-compose.yml, nginx/nginx.conf, .env.example, docs/DEPLOY.md.
 	- Decisions: backup is pure Node (gzip NDJSON in EJSON + indexes + per-collection counts manifest), so no mongodump is needed; restore refuses a non-empty target unless --drop and compares counts. Daily backup = compose 'backup' service looping every 24h, 14-day retention. nginx routes /api to backend and / to frontend (frontend built with NEXT_PUBLIC_API_URL=/api). Uploads are a separate volume, not in the DB backup.
 	- Validation: jest backup tests pass (2); real CLI backup of 1202 docs restored into a new database with all counts matching; backend started against MongoDB and /api/health returned ok; frontend production build passes. NOT done: Docker is not installed on this machine, so images were not built and compose health checks were not run - run 'docker compose up -d --build' per docs/DEPLOY.md on a Docker host.
+- [x] 7.4 Go-live checklist
+	- Files: `docs/GO-LIVE.md`.
+	- Decisions: Documented merchant settlement, VAT and accounting, margin governance, consignment terms, staff training, the single-outlet pilot, and production verification. No production configuration or secrets were changed.
+	- Validation: Documentation-only change; manually checked checklist coverage. No automated test applies.
