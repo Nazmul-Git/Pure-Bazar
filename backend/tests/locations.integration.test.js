@@ -58,7 +58,7 @@ describe('location API', () => {
 
     expect(response.status).toBe(200);
     expect(response.body.locations).toEqual([{
-      id: centralLocation._id.toString(), type: 'CENTRAL', name: 'Central Warehouse',
+      id: centralLocation._id.toString(), type: 'CENTRAL', name: 'Central Warehouse', isActive: true,
     }]);
     expect(Location.find).toHaveBeenCalledWith({ type: 'CENTRAL' });
   });

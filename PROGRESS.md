@@ -449,3 +449,8 @@
 	- Files: `docs/GO-LIVE.md`.
 	- Decisions: Documented merchant settlement, VAT and accounting, margin governance, consignment terms, staff training, the single-outlet pilot, and production verification. No production configuration or secrets were changed.
 	- Validation: Documentation-only change; manually checked checklist coverage. No automated test applies.
+
+- [x] Fix outdated tests
+	- Files: `backend/tests/models.test.js`, `backend/tests/locations.integration.test.js`, `backend/tests/barcode-engine.test.js`.
+	- Decisions: Updated expected model registration, location activity status, and centered 50mm label barcode position.
+	- Validation: `npm.cmd --prefix backend test` passes (43 suites, 246 tests).
