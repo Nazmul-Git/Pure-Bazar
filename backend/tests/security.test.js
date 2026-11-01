@@ -35,6 +35,17 @@ describe('security hardening', () => {
     expect((await request(app).post('/login').send({ email: 'other@x.test' })).status).toBe(401);
   });
 
+  it('groups IPv6 addresses by subnet for login rate limiting', async () => {
+    const limiter = createLoginLimiter({ max: 1 });
+    const app = createApp((a) => {
+      a.set('trust proxy', 1);
+      a.post('/login', limiter, (req, res) => res.status(401).json({ success: false }));
+    });
+
+    expect((await request(app).post('/login').set('X-Forwarded-For', '2001:db8:1234:1200::1').send({ email: 'a@x.test' })).status).toBe(401);
+    expect((await request(app).post('/login').set('X-Forwarded-For', '2001:db8:1234:12ff::1').send({ email: 'a@x.test' })).status).toBe(429);
+  });
+
   it('does not count successful logins toward the limit', async () => {
     const limiter = createLoginLimiter({ max: 1 });
     const app = createApp((a) => a.post('/login', limiter, (req, res) => res.json({ success: true })));

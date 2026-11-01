@@ -1,4 +1,5 @@
 const rateLimit = require('express-rate-limit');
+const { ipKeyGenerator } = rateLimit;
 
 function corsOptions(env = process.env) {
   const configured = (env.CORS_ORIGINS || '').split(',').map((origin) => origin.trim()).filter(Boolean);
@@ -36,7 +37,7 @@ function createLoginLimiter(options = {}) {
     max: options.max || Number(process.env.LOGIN_RATE_MAX) || 10,
     skipSuccessfulRequests: true,
     message: 'Too many login attempts. Please try again later.',
-    keyGenerator: (req) => `${req.ip}|${String(req.body?.email || '').toLowerCase()}`,
+    keyGenerator: (req) => `${ipKeyGenerator(req.ip)}|${String(req.body?.email || '').toLowerCase()}`,
   });
 }
 
