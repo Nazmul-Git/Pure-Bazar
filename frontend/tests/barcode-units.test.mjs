@@ -13,7 +13,7 @@ const product = {
 
 test('unit options use POS pricing rules', () => {
   const options = getUnitOptions(product);
-  assert.deepEqual(options.map((o) => [o.name, o.price]), [['Bag', 100], ['Pcs', 55]]);
+  assert.deepEqual(options.slice(0, 2).map((o) => [o.name, o.price]), [['Bag', 100], ['Pcs', 55]]);
 });
 
 test('label shows product name with selected unit and its price', () => {
@@ -34,4 +34,11 @@ test('label size changes TSPL paper dimensions', () => {
   assert.match(buildBarcodeLabels([item], 'price', '38x25').tspl, /SIZE 38 mm,25 mm/);
   assert.match(buildBarcodeLabels([item], 'price', '32x18').tspl, /SIZE 32 mm,18 mm/);
   assert.throws(() => buildBarcodeLabels([item], 'price', '1x1'));
+});
+
+test('dropdown includes universal units without rescaling price', () => {
+  const names = getUnitOptions(product).map((o) => o.name);
+  for (const n of ['Box', 'Pcs', 'Pack', 'Kg', 'Gram', 'Liter']) assert.ok(names.includes(n), n);
+  const box = getUnitOptions(product).find((o) => o.name === 'Box');
+  assert.equal(box.price, 500);
 });

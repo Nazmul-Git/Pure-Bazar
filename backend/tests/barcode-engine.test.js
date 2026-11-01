@@ -26,7 +26,10 @@ describe('barcode label output', () => {
   it('appends the unit to the name and prints the unit price with a struck original price', () => {
     const { getUnitOptions } = require('../../frontend/src/services/barcodeUnits');
     const egg = { name: 'Egg', barcode: '4006381333931', mrp: 120, unitsPerPackage: 12, subUnitPrice: 11, packageUnitName: 'Dozen' };
-    expect(getUnitOptions(egg).map((o) => [o.name, o.price])).toEqual([['Dozen', 120], ['Pcs', 11]]);
+    expect(getUnitOptions(egg).slice(0, 2).map((o) => [o.name, o.price])).toEqual([['Dozen', 120], ['Pcs', 11]]);
+    const names = getUnitOptions(egg).map((o) => o.name);
+    expect(names).toEqual(expect.arrayContaining(['Box', 'Pcs', 'Pack', 'Kg', 'Gram', 'Liter']));
+    expect(new Set(names.map((n) => n.toLowerCase())).size).toBe(names.length);
     const output = buildBarcodeLabels([{ ...egg, unitName: 'Pcs', price: 11, originalPrice: 12 }], 'price');
     expect(output.labels[0]).toMatchObject({ name: 'Egg (Pcs)', price: '11.00', originalPrice: '12.00' });
     expect(output.tspl).toContain('"Egg (Pcs)"');
@@ -37,7 +40,7 @@ describe('barcode label output', () => {
   it('offers Kg and Gram pricing for weight-based products', () => {
     const { getUnitOptions } = require('../../frontend/src/services/barcodeUnits');
     const rice = { name: 'Loose Rice', barcode: '4006381333931', mrp: 80, unitValue: 1000, packageUnitName: 'Gram' };
-    expect(getUnitOptions(rice).map((o) => [o.value, o.name, o.price])).toEqual([['kg', 'Kg', 80], ['gram', 'Gram', 0.08]]);
+    expect(getUnitOptions(rice).slice(0, 2).map((o) => [o.value, o.name, o.price])).toEqual([['kg', 'Kg', 80], ['gram', 'Gram', 0.08]]);
     const output = buildBarcodeLabels([{ ...rice, unitName: 'Kg', price: 80 }], 'price');
     expect(output.labels[0]).toMatchObject({ name: 'Loose Rice (Kg)', price: '80.00' });
   });

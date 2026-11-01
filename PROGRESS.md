@@ -500,3 +500,8 @@
 	- Files: `frontend/src/services/barcodeUnits.js` (Kg/Gram options for weight-based products), `backend/tests/barcode-engine.test.js`; `inventory/barcodes/page.jsx` already had per-item Unit dropdown, price override and original price feeding TSPL/ESC-POS/Xprinter output.
 	- Decisions: weight products (Gram base, no pieces) offer Kg (price = per-Kg MRP, default) and Gram (per-gram price); picking a unit resets price to that unit's price, which stays editable. Label name gets the unit suffix.
 	- Validation: barcode engine tests pass (4); UI not tested in browser.
+
+- [x] Feature: universal unit dropdown and manual price override for barcode label printing
+	- Files: `frontend/src/services/barcodeUnits.js` (adds Box, Pcs, Pack, Packet, Kg, Gram, Liter, ML, Dozen, Bag, Bottle, Carton, Pair, Set, Meter after the product's own units), `frontend/src/app/inventory/barcodes/page.jsx`, `backend/tests/barcode-engine.test.js`, `frontend/tests/barcode-units.test.mjs`.
+	- Decisions: changing the unit no longer resets or rescales the price or original price; the typed price is kept and fully manual. Extra units use the product MRP only as a placeholder. No backend API change (label engine is shared code).
+	- Validation: frontend barcode-units tests (5) and backend barcode engine tests (4) pass; UI not tested in browser.

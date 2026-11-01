@@ -161,11 +161,8 @@ export default function BarcodesPage() {
                 const numberField = (field) => (event) => updateItem(item.key, { [field]: event.target.value });
                 return <div key={item.key} className="grid items-end gap-3 rounded-lg border border-slate-200 p-3 sm:grid-cols-2">
                   <div className="sm:col-span-2"><strong className="block text-sm">{product?.name}</strong><small className="text-slate-500">{product?.barcode}</small></div>
-                  <Select label="Unit" name={`unit-${item.key}`} value={item.unit} onChange={(event) => {
-                    const next = unitOptions.find((option) => option.value === event.target.value);
-                    updateItem(item.key, { unit: event.target.value, sellingPrice: next ? Number(next.price).toFixed(2) : '', originalPrice: '' });
-                  }}>
-                    {unitOptions.map((option) => <option key={option.value} value={option.value}>{option.name} - ৳{Number(option.price).toFixed(2)}</option>)}
+                  <Select label="Unit" name={`unit-${item.key}`} value={item.unit} onChange={(event) => updateItem(item.key, { unit: event.target.value })}>
+                    {unitOptions.map((option) => <option key={option.value} value={option.value}>{option.name}</option>)}
                   </Select>
                   <Input label="Copies" type="number" min="1" max="500" step="1" value={item.copies} onChange={(event) => updateItem(item.key, { copies: event.target.value === '' ? '' : Number(event.target.value) })} />
                   <Input label="Original price (strikethrough)" type="number" min="0" step="0.01" value={item.originalPrice} placeholder="Optional" onChange={numberField('originalPrice')} />
