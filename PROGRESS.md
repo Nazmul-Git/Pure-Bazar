@@ -111,6 +111,9 @@
 	- Files: API-backed outlet transfer request, warehouse dispatch, and outlet receipt screens; status filtering and badges; transfer service methods and permission-aware navigation; transfer product labels in API responses and location lookup access for transfer readers.
 	- Decisions: Keep request, dispatch, and confirmation actions gated by existing permissions; preserve location-scoped transfer lists; let location lookup use either stock-read or transfer-read permission.
 	- Validation: Frontend production build passes; focused transfer and authorization tests pass (2 suites, 8 tests).
+- [x] UI: Kg/Gram formatting in outlet transfers
+	- Files: stock-transfers-page.jsx now shows requested/dispatched/received/difference quantities of gram-based products via formatStockDisplay (e.g. 50000 -> 50 Kg), with a live Kg preview beside gram inputs; transfer API lines now include a read-only isWeightBased flag.
+	- Decisions: Stored data, API payloads, and stock movements stay in grams; only presentation is formatted. Transfer tests pass (4 tests).
 - [x] 2.4c Central Warehouse seed reliability
 	- Files: Idempotent Central Warehouse model upsert used by the default seeder; central-location validation for GRN create/update; Location references for GRN, stock movement, and transfer warehouse fields; seeder, model, and GRN regression tests.
 	- Decisions: Keep seed execution explicit and idempotent; only accept existing CENTRAL locations for GRNs so movement-derived warehouse stock always uses the seeded warehouse.

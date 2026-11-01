@@ -10,7 +10,9 @@ import {
 } from '@/services/stock';
 import { T } from '@/i18n/language-provider';
 import useToastMessages from '@/hooks/use-toast-messages';
+import { formatStockDisplay } from '@/services/stock-units.cjs';
 
+const qty = (value, line) => (line.isWeightBased ? formatStockDisplay(value, 'Gram') : value);
 const statuses = ['Requested', 'Dispatched', 'Received', 'Discrepancy'];
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
 const statusTone = {
@@ -222,14 +224,17 @@ export default function StockTransfersPage() {
                 return (
                   <div key={line.productId} className="grid items-center gap-3 rounded-lg border border-slate-200 p-3 sm:grid-cols-[1fr_repeat(3,minmax(5rem,auto))]">
                     <div><strong className="block text-sm text-slate-800">{line.productName || displayId(line.productId)}</strong><small className="text-slate-500">{line.barcode || line.productId}</small></div>
-                    <span className="text-sm text-slate-600">Requested: {line.requestedQuantity}</span>
-                    {selectedTransfer.status !== 'Requested' && <span className="text-sm text-slate-600">Dispatched: {line.dispatchedQuantity}</span>}
+                    <span className="text-sm text-slate-600">Requested: {qty(line.requestedQuantity, line)}</span>
+                    {selectedTransfer.status !== 'Requested' && <span className="text-sm text-slate-600">Dispatched: {qty(line.dispatchedQuantity, line)}</span>}
                     {editable ? (
-                      <Input label={quantityName} type="number" min="0" step="any" value={quantityDraft[line.productId] ?? currentQuantity ?? initialQuantity} onChange={(event) => setQuantityDraft((current) => ({ ...current, [line.productId]: event.target.value }))} />
+                      <div>
+                        <Input label={line.isWeightBased ? `${quantityName} (Gram)` : quantityName} type="number" min="0" step="any" value={quantityDraft[line.productId] ?? currentQuantity ?? initialQuantity} onChange={(event) => setQuantityDraft((current) => ({ ...current, [line.productId]: event.target.value }))} />
+                        {line.isWeightBased && <small className="text-slate-500">= {formatStockDisplay(quantityDraft[line.productId] ?? currentQuantity ?? initialQuantity, 'Gram')}</small>}
+                      </div>
                     ) : selectedTransfer.status === 'Received' || selectedTransfer.status === 'Discrepancy' ? (
-                      <span className="text-sm text-slate-600">Received: {line.receivedQuantity}</span>
+                      <span className="text-sm text-slate-600">Received: {qty(line.receivedQuantity, line)}</span>
                     ) : null}
-                    {line.discrepancyQuantity > 0 && <span className="text-sm font-medium text-red-700">Difference: {line.discrepancyQuantity}</span>}
+                    {line.discrepancyQuantity > 0 && <span className="text-sm font-medium text-red-700">Difference: {qty(line.discrepancyQuantity, line)}</span>}
                   </div>
                 );
               })}

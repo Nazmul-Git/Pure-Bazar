@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const {
   AuditLog, Location, Product, StockMovement, StockTransfer,
 } = require('../models');
+const { unitLabelMap } = require('../utils/productDisplay');
 
 function statusError(message, status) {
   const error = new Error(message);
@@ -65,6 +66,7 @@ function transferOutput(transfer, productsById) {
         productId,
         productName: product?.name || null,
         barcode: product?.barcode || null,
+        isWeightBased: Boolean(product?.isWeightBased),
         requestedQuantity: line.requestedQuantity,
         dispatchedQuantity: line.dispatchedQuantity ?? null,
         receivedQuantity: line.receivedQuantity ?? null,
@@ -80,8 +82,12 @@ async function transferOutputs(transfers) {
     const data = transfer.toObject ? transfer.toObject() : transfer;
     return data.lines.map((line) => line.productId.toString());
   }))];
-  const products = await Product.find({ _id: { $in: productIds } }).select('_id name barcode').lean();
-  const productsById = new Map(products.map((product) => [product._id.toString(), product]));
+  const products = await Product.find({ _id: { $in: productIds } }).select('_id name barcode unitId').lean();
+  const labels = await unitLabelMap(products);
+  const productsById = new Map(products.map((product) => [product._id.toString(), {
+    ...product,
+    isWeightBased: /^(gram|grams|g)$/i.test(String(labels.names.get(product.unitId?.toString()) || '').trim()),
+  }]));
   return items.map((transfer) => transferOutput(transfer, productsById));
 }
 
