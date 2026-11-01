@@ -52,6 +52,7 @@ export default function BarcodesPage() {
     return {
       ...product,
       copies: item.copies,
+      packageTag: item.packageTag,
       unitName: unit.name,
       price: sellingPrice,
       originalPrice: item.originalPrice === '' ? undefined : Number(item.originalPrice),
@@ -75,7 +76,7 @@ export default function BarcodesPage() {
         && item.sellingPrice === defaultPrice && item.originalPrice === '');
       return existing
         ? current.map((item) => item === existing ? { ...item, copies: item.copies + 1 } : item)
-        : [...current, { key: `${product.id}-${Date.now()}-${current.length}`, productId: product.id, unit: defaultOption.value, copies: 1, sellingPrice: defaultPrice, originalPrice: '' }];
+        : [...current, { key: `${product.id}-${Date.now()}-${current.length}`, productId: product.id, unit: defaultOption.value, copies: 1, sellingPrice: defaultPrice, originalPrice: '', packageTag: '' }];
     });
     setNotice('');
     setError('');
@@ -165,6 +166,7 @@ export default function BarcodesPage() {
                     {unitOptions.map((option) => <option key={option.value} value={option.value}>{option.name}</option>)}
                   </Select>
                   <Input label="Copies" type="number" min="1" max="500" step="1" value={item.copies} onChange={(event) => updateItem(item.key, { copies: event.target.value === '' ? '' : Number(event.target.value) })} />
+                  <Input label="Package Size / Weight Tag" name={`packageTag-${item.key}`} maxLength={20} value={item.packageTag || ''} placeholder="Optional, e.g. 5 Kg" onChange={(event) => updateItem(item.key, { packageTag: event.target.value })} />
                   <Input label="Original price (strikethrough)" type="number" min="0" step="0.01" value={item.originalPrice} placeholder="Optional" onChange={numberField('originalPrice')} />
                   <Input label={`Price (type to override) - per ${unit?.name || 'unit'}`} type="number" min="0" step="0.01" value={item.sellingPrice} placeholder={unit ? Number(unit.price).toFixed(2) : ''} onChange={numberField('sellingPrice')} />
                   <Button type="button" variant="ghost" size="sm" onClick={() => setQueue((current) => current.filter((entry) => entry.key !== item.key))}>Remove</Button>

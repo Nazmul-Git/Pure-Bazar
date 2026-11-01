@@ -505,3 +505,8 @@
 	- Files: `frontend/src/services/barcodeUnits.js` (adds Box, Pcs, Pack, Packet, Kg, Gram, Liter, ML, Dozen, Bag, Bottle, Carton, Pair, Set, Meter after the product's own units), `frontend/src/app/inventory/barcodes/page.jsx`, `backend/tests/barcode-engine.test.js`, `frontend/tests/barcode-units.test.mjs`.
 	- Decisions: changing the unit no longer resets or rescales the price or original price; the typed price is kept and fully manual. Extra units use the product MRP only as a placeholder. No backend API change (label engine is shared code).
 	- Validation: frontend barcode-units tests (5) and backend barcode engine tests (4) pass; UI not tested in browser.
+
+- [x] Feature: dynamic package size and weight tag for barcode label printing
+	- Files: `frontend/src/services/barcodeEngine.js`, `frontend/src/app/inventory/barcodes/page.jsx`, `backend/tests/barcode-engine.test.js`.
+	- Decisions: optional per-item "Package Size / Weight Tag" (max 20 chars) replaces the unit in the label name, e.g. "Potato (5 Kg)"; blank falls back to "Potato (Kg)". Preview, TSPL and ESC/POS all use the shared label name. No backend API change.
+	- Validation: backend barcode engine tests (5) pass; UI not tested in browser.

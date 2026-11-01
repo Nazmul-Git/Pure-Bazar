@@ -42,8 +42,9 @@ function safeText(value) {
 }
 
 // Truncates only the product name so the unit suffix always survives the 40-char limit.
-function labelName(name, unitName) {
-  const unit = safeText(unitName);
+// A custom package size/weight tag (e.g. "5 Kg") replaces the plain unit name.
+function labelName(name, unitName, sizeTag) {
+  const unit = safeText(sizeTag).trim() || safeText(unitName);
   if (!unit) return safeText(name);
   const suffix = ` (${unit})`.slice(0, 20);
   return `${safeText(name).slice(0, 40 - suffix.length).trimEnd()}${suffix}`;
@@ -73,7 +74,7 @@ function normalizeLabels(items, labelType) {
       throw new Error(`Original price for "${item.name}" must be higher than the selling price.`);
     }
     const label = {
-      name: labelName(item.name, unitName),
+      name: labelName(item.name, unitName, item.packageTag),
       barcode: String(item.barcode),
       price,
       originalPrice,

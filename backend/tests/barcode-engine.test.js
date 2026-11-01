@@ -45,6 +45,15 @@ describe('barcode label output', () => {
     expect(output.labels[0]).toMatchObject({ name: 'Loose Rice (Kg)', price: '80.00' });
   });
 
+  it('uses the package size/weight tag in the label name for preview, TSPL and ESC/POS', () => {
+    const potato = { name: 'Potato', barcode: '4006381333931', unitName: 'Kg', packageTag: '5 Kg', price: 40 };
+    const output = buildBarcodeLabels([potato], 'price');
+    expect(output.labels[0].name).toBe('Potato (5 Kg)');
+    expect(output.tspl).toContain('"Potato (5 Kg)"');
+    expect(Buffer.from(output.escPos).toString('latin1')).toContain('Potato (5 Kg)');
+    expect(buildBarcodeLabels([{ ...potato, packageTag: '  ' }], 'price').labels[0].name).toBe('Potato (Kg)');
+  });
+
   it('rejects invalid EAN-13 values and out-of-range batch quantities', () => {
     expect(() => buildBarcodeLabels([{ ...product, barcode: '123' }])).toThrow('valid EAN-13');
     expect(() => buildBarcodeLabels([{ ...product, copies: 501 }])).toThrow('from 1 to 500');
