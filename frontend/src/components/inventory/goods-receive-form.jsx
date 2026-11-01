@@ -12,6 +12,7 @@ import {
 } from '@/services/stock';
 import { T } from '@/i18n/language-provider';
 import useToastMessages from '@/hooks/use-toast-messages';
+import { isGram } from '@/services/stock-units.cjs';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
 
@@ -112,6 +113,7 @@ export default function GoodsReceiveForm() {
         productId: product.id,
         productName: product.displayName || product.name,
         barcode: product.barcode,
+        isWeightBased: Boolean(product.isWeightBased) || isGram(product.packageUnitName),
         receivedQuantity: 1,
         acceptedQuantity: 1,
         rejectedQuantity: 0,
@@ -158,12 +160,17 @@ export default function GoodsReceiveForm() {
         ownerType,
         ...(ownerType === 'VENDOR' ? { vendorId, vendorChallanNumber: challan.trim() } : {}),
         warehouseId: location.id,
-        lines: lines.map((line) => ({
-          productId: line.productId,
-          receivedQuantity: Number(line.receivedQuantity),
-          acceptedQuantity: Number(line.acceptedQuantity),
-          rejectedQuantity: Number(line.rejectedQuantity),
-        })),
+        // Weight-based products are entered in Kg but stored in grams.
+        lines: lines.map((line) => {
+          const factor = line.isWeightBased ? 1000 : 1;
+          const toStored = (value) => Math.round(Number(value) * factor * 1e6) / 1e6;
+          return {
+            productId: line.productId,
+            receivedQuantity: toStored(line.receivedQuantity),
+            acceptedQuantity: toStored(line.acceptedQuantity),
+            rejectedQuantity: toStored(line.rejectedQuantity),
+          };
+        }),
       });
       router.push('/inventory/goods-receives');
     } catch (requestError) {
@@ -291,6 +298,7 @@ export default function GoodsReceiveForm() {
                 <tr key={line.productId}>
                   <td>
                     <strong className="block">{line.productName}</strong>
+                    {line.isWeightBased && <small className="block text-amber-700">Enter quantities in Kg</small>}
                     <small className="text-slate-500">{line.barcode}</small>
                   </td>
                   <td>{stockByProduct.get(line.productId) ?? 0}</td>

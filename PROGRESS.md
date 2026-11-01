@@ -464,3 +464,8 @@
 	- Files: `frontend/src/services/stock-units.cjs` (new `formatStockDisplay(quantity, unit)`, `isGram`; `formatStock` uses it for Gram), `stock-units.test.cjs`, `components/pos/cart-panel.jsx`, `app/inventory/products/page.jsx` (new Unit size column).
 	- Decisions: Display only (1700 -> '1 Kg 700 Gram', 2000 -> '2 Kg', 500 -> '500 Gram'); warehouse stock and stock count get it through `formatStock`. Backend, price and margin logic untouched; quantities stay in grams.
 	- Validation: stock-units tests pass and build passes. Frontend suite has 1 pre-existing failure (Bengali translation missing for the retail-sale checkbox label in product-form-modal), not related.
+
+- [x] Feature: allow Kg input in GRN for gram-based products
+	- Files: `frontend/src/components/inventory/goods-receive-form.jsx`, `backend/controllers/goodsReceiveController.js`.
+	- Decisions: product search now returns `isWeightBased` (Gram unit); the GRN form shows a Kg hint and on submit multiplies received/accepted/rejected by 1000 (rounded) for those products. Stored quantities stay in grams; saved-receive API unchanged, so no double conversion.
+	- Validation: backend goods receive tests run; UI not tested in browser.

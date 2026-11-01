@@ -119,6 +119,7 @@ async function searchProducts(req, res, next) {
         id: product._id.toString(),
         name: product.name,
         ...displayFields(product, labels),
+        isWeightBased: /^(gram|grams|g)$/i.test(String(labels.names.get(product.unitId?.toString()) || '').trim()),
         barcode: product.barcode,
         ownerType: product.ownerType,
         vendorId: product.vendorId?.toString() || null,
