@@ -7,6 +7,7 @@ import { Plus, Search } from 'lucide-react';
 import { Badge, Button, Input, Table } from '@/components/ui';
 import ProductFormModal from '@/components/inventory/product-form-modal';
 import { createProduct, getProducts } from '@/services/inventory';
+import { formatStockDisplay } from '@/services/stock-units.cjs';
 import { T } from '@/i18n/language-provider';
 
 const money = (value) => new Intl.NumberFormat('en-BD', {
@@ -18,6 +19,7 @@ const columns = [
   { key: 'name', label: 'Product', render: (value, product) => product.displayName || value },
   { key: 'barcode', label: 'Barcode' },
   { key: 'ownerType', label: 'Owner', render: (value) => value === 'VENDOR' ? 'Vendor' : 'Company' },
+  { key: 'unitValue', label: 'Unit size', render: (value, product) => formatStockDisplay(value, product.packageUnitName) },
   { key: 'vendorPrice', label: 'Vendor price', render: money },
   { key: 'mrp', label: 'MRP', render: money },
   { key: 'margin', label: 'Margin', render: (value, product) => (

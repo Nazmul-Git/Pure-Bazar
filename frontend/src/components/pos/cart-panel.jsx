@@ -6,6 +6,7 @@ import Select from '@/components/ui/select';
 import {
   availableStock, canSellPieces, isPiece, lineTotal, unitPrice,
 } from '@/services/pos-cart-utils.cjs';
+import { formatStockDisplay, isGram } from '@/services/stock-units.cjs';
 import { T } from '@/i18n/language-provider';
 
 const money = (value) => (Number(value) || 0).toFixed(2);
@@ -26,7 +27,7 @@ export default function CartPanel({ items, onQuantity, onUnit, onRemove, onDisco
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <h3 className="truncate font-medium text-slate-900">{item.name}</h3>
-                  <p className="text-xs text-slate-500">{item.barcode} · ৳{money(unitPrice(item))} per {isPiece(item) ? 'pc' : item.packageUnitName || 'box'} · {availableStock(item)} {isPiece(item) ? 'pcs' : item.packageUnitName || 'boxes'} in stock</p>
+                  <p className="text-xs text-slate-500">{item.barcode} · ৳{money(unitPrice(item))} per {isPiece(item) ? 'pc' : item.packageUnitName || 'box'} · {!isPiece(item) && isGram(item.packageUnitName) ? formatStockDisplay(availableStock(item), item.packageUnitName) : `${availableStock(item)} ${isPiece(item) ? 'pcs' : item.packageUnitName || 'boxes'}`} in stock</p>
                 </div>
                 <button
                   type="button"

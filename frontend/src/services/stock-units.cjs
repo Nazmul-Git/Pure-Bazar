@@ -20,8 +20,23 @@ function combineQuantity(boxes, pieces, unitsPerPackage) {
   return Math.round((b * Number(unitsPerPackage) + p)) / Number(unitsPerPackage);
 }
 
+const isGram = (unit) => /^(gram|grams|g)$/i.test(String(unit || '').trim());
+
+// Display only: quantities stay in grams everywhere else.
+function formatStockDisplay(quantity, unit) {
+  const value = Number(quantity) || 0;
+  if (!isGram(unit)) return String(Math.round(value * 1e6) / 1e6);
+  const sign = value < 0 ? '-' : '';
+  const grams = Math.round(Math.abs(value));
+  const kg = Math.floor(grams / 1000);
+  const rest = grams % 1000;
+  if (!kg) return `${sign}${rest} Gram`;
+  return rest ? `${sign}${kg} Kg ${rest} Gram` : `${sign}${kg} Kg`;
+}
+
 function formatStock(quantity, unitsPerPackage, packageUnitName) {
   const value = Number(quantity) || 0;
+  if (!isMultiUnit(unitsPerPackage) && isGram(packageUnitName)) return formatStockDisplay(value, packageUnitName);
   if (!isMultiUnit(unitsPerPackage)) return String(Math.round(value * 1e6) / 1e6);
   const name = packageUnitName || 'Box';
   const { boxes, pieces } = splitQuantity(value, unitsPerPackage);
@@ -30,4 +45,4 @@ function formatStock(quantity, unitsPerPackage, packageUnitName) {
   return `${boxes} ${packageUnitName ? name : 'Box(es)'} and ${pieces} Pcs`;
 }
 
-module.exports = { isMultiUnit, splitQuantity, combineQuantity, formatStock };
+module.exports = { isMultiUnit, splitQuantity, combineQuantity, formatStock, formatStockDisplay, isGram };

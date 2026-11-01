@@ -459,3 +459,8 @@
 	- Files: `frontend/src/components/inventory/product-form-modal.jsx`, `backend/tests/products.integration.test.js`.
 	- Decisions: `isRetailSale` checkbox shows only when the selected unit is Kg; on submit quantity is multiplied by 1000 (rounded) and the unit switches to the existing Gram unit (error if none exists). Backend already accepts any non-negative `unitValue` and unitId, so no controller change was needed; price/MRP/margin logic untouched.
 	- Validation: products integration tests pass (6); modal parses cleanly. Not run: UI in browser.
+
+- [x] UI: format gram stock display to Kg and Gram
+	- Files: `frontend/src/services/stock-units.cjs` (new `formatStockDisplay(quantity, unit)`, `isGram`; `formatStock` uses it for Gram), `stock-units.test.cjs`, `components/pos/cart-panel.jsx`, `app/inventory/products/page.jsx` (new Unit size column).
+	- Decisions: Display only (1700 -> '1 Kg 700 Gram', 2000 -> '2 Kg', 500 -> '500 Gram'); warehouse stock and stock count get it through `formatStock`. Backend, price and margin logic untouched; quantities stay in grams.
+	- Validation: stock-units tests pass and build passes. Frontend suite has 1 pre-existing failure (Bengali translation missing for the retail-sale checkbox label in product-form-modal), not related.

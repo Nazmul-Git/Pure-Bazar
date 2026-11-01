@@ -1,6 +1,19 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
-const { splitQuantity, combineQuantity, formatStock } = require('./stock-units.cjs');
+const { splitQuantity, combineQuantity, formatStock, formatStockDisplay } = require('./stock-units.cjs');
+
+describe('formatStockDisplay', () => {
+  it('formats grams as Kg and Gram', () => {
+    assert.equal(formatStockDisplay(1700, 'Gram'), '1 Kg 700 Gram');
+    assert.equal(formatStockDisplay(2000, 'Gram'), '2 Kg');
+    assert.equal(formatStockDisplay(500, 'Gram'), '500 Gram');
+    assert.equal(formatStockDisplay(0, 'Gram'), '0 Gram');
+    assert.equal(formatStock(1700, 1, 'Gram'), '1 Kg 700 Gram');
+  });
+  it('leaves other units unchanged', () => {
+    assert.equal(formatStockDisplay(1700, 'Pcs'), '1700');
+  });
+});
 
 describe('stock units', () => {
   it('formats fractional boxes as boxes and pieces', () => {
