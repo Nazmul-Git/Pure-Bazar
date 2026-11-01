@@ -469,3 +469,8 @@
 	- Files: `frontend/src/components/inventory/goods-receive-form.jsx`, `backend/controllers/goodsReceiveController.js`.
 	- Decisions: product search now returns `isWeightBased` (Gram unit); the GRN form shows a Kg hint and on submit multiplies received/accepted/rejected by 1000 (rounded) for those products. Stored quantities stay in grams; saved-receive API unchanged, so no double conversion.
 	- Validation: backend goods receive tests run; UI not tested in browser.
+
+- [x] Feature: allow Kg input and formatted stock display in outlet transfers
+	- Files: `frontend/src/components/inventory/stock-transfer-request-form.jsx`.
+	- Decisions: Central Warehouse stock shown via `formatStockDisplay` for weight-based products; quantity input is in Kg (step 0.001) and converted to grams on submit, so the backend still receives grams. Backend unchanged.
+	- Validation: frontend build; UI not tested in browser.

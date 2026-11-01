@@ -6,8 +6,13 @@ import { Button, Card, Input, Select } from '@/components/ui';
 import useBarcodeScanner from '@/hooks/use-barcode-scanner';
 import { searchReceiveProducts } from '@/services/stock';
 import { T } from '@/i18n/language-provider';
+import { formatStockDisplay } from '@/services/stock-units.cjs';
 
-const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
+// Weight-based lines are typed in Kg and sent to the backend in grams.
+const toBaseQuantity = (line) => (line.isWeightBased ? Math.round(Number(line.requestedQuantity) * 1000) : Number(line.requestedQuantity));
+const stockLabel = (stock, isWeightBased) => (isWeightBased ? formatStockDisplay(stock, 'Gram') : stock);
+
+const can =  (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
 
 export default function StockTransferRequestForm({
   token,
@@ -58,21 +63,23 @@ export default function StockTransferRequestForm({
   const addRequestProduct = useCallback((product) => {
     const stockQuantity = Number(product.stockQuantity) || 0;
     const existing = requestLines.find((line) => line.productId === product.id);
-    if (existing && Number(existing.requestedQuantity || 0) + 1 > stockQuantity) {
-      setError(`${product.name}: requested quantity cannot exceed the ${stockQuantity} units available in the Central Warehouse.`);
+    const step = product.isWeightBased ? 1000 : 1;
+    if (existing && toBaseQuantity(existing) + step > stockQuantity) {
+      setError(`${product.name}: requested quantity cannot exceed the ${stockLabel(stockQuantity, product.isWeightBased)} available in the Central Warehouse.`);
       return false;
     }
     setRequestLines((current) => {
       const line = current.find((item) => item.productId === product.id);
       if (line) return current.map((item) => item.productId === product.id
-        ? { ...item, requestedQuantity: Number(item.requestedQuantity || 0) + 1 }
+        ? { ...item, requestedQuantity: Math.round((Number(item.requestedQuantity || 0) + 1) * 1000) / 1000 }
         : item);
       return [...current, {
         productId: product.id,
         productName: product.displayName || product.name,
         barcode: product.barcode,
         stockQuantity,
-        requestedQuantity: 1,
+        isWeightBased: Boolean(product.isWeightBased),
+        requestedQuantity: product.isWeightBased && stockQuantity < 1000 ? stockQuantity / 1000 : 1,
       }];
     });
     setSearch('');
@@ -103,11 +110,10 @@ export default function StockTransferRequestForm({
     }
   }, [addRequestProduct, permissions, setError, sourceId, token]);
   const scanner = useBarcodeScanner(scanBarcode);
-  const invalidRequestLines = requestLines.filter((line) => (
-    !Number.isInteger(Number(line.requestedQuantity))
-    || Number(line.requestedQuantity) < 1
-    || Number(line.requestedQuantity) > line.stockQuantity
-  ));
+  const invalidRequestLines = requestLines.filter((line) => {
+    const base = toBaseQuantity(line);
+    return !Number.isInteger(base) || base < 1 || base > line.stockQuantity;
+  });
 
   function changeSource(event) {
     setSourceId(event.target.value);
@@ -121,10 +127,10 @@ export default function StockTransferRequestForm({
   async function submit(event) {
     event.preventDefault();
     if (invalidRequestLines.length) {
-      setError('Enter a positive whole-number quantity no greater than the available Central Warehouse stock for each product.');
+      setError('Enter a valid positive quantity (whole numbers, or Kg up to 3 decimals for weight items) no greater than the available Central Warehouse stock for each product.');
       return;
     }
-    const created = await onSubmitRequest(requestLines);
+    const created = await onSubmitRequest(requestLines.map((line) => ({ ...line, requestedQuantity: toBaseQuantity(line) })));
     if (created) {
       setRequestLines([]);
       setSearch('');
@@ -154,7 +160,7 @@ export default function StockTransferRequestForm({
             {matches.length > 0 && <div className="absolute z-10 mt-1 max-h-52 w-full overflow-y-auto rounded border border-slate-200 bg-white shadow-lg">
               {matches.map((product) => <button key={product.id} type="button" className="block w-full border-b border-slate-100 px-3 py-2 text-left hover:bg-slate-50" onClick={() => addRequestProduct(product)}>
                 <span className="block text-sm font-medium">{product.displayName || product.name}</span>
-                <small className="text-slate-500">{product.barcode} · Central Warehouse stock: {product.stockQuantity}</small>
+                <small className="text-slate-500">{product.barcode} · Central Warehouse stock: {stockLabel(product.stockQuantity, product.isWeightBased)}</small>
               </button>)}
             </div>}
             {search.trim() && !searching && !searchError && matches.length === 0 && <p className="mt-1 text-xs text-slate-500"><T>{"No in-stock Central Warehouse products found for this search."}</T></p>}
@@ -164,12 +170,12 @@ export default function StockTransferRequestForm({
           <div className="space-y-2">
             {requestLines.map((line) => (
               <div key={line.productId} className="grid items-end gap-3 rounded-lg border border-slate-200 p-3 sm:grid-cols-[1fr_9rem_auto]">
-                <div><strong className="block text-sm font-medium text-slate-800">{line.productName}</strong><small className="text-slate-500">{line.barcode} · Central Warehouse stock: {line.stockQuantity}</small></div>
+                <div><strong className="block text-sm font-medium text-slate-800">{line.productName}</strong><small className="text-slate-500">{line.barcode} · Central Warehouse stock: {stockLabel(line.stockQuantity, line.isWeightBased)}</small></div>
                 <div>
-                  <Input label="Requested quantity" type="number" min="1" max={line.stockQuantity} step="1" value={line.requestedQuantity} onChange={(event) => setRequestLines((current) => current.map((item) => item.productId === line.productId ? { ...item, requestedQuantity: event.target.value } : item))} />
-                  {Number(line.requestedQuantity) > line.stockQuantity
-                    ? <p className="mt-1 text-xs text-red-700">Cannot request more than {line.stockQuantity} currently available in the Central Warehouse.</p>
-                    : !Number.isInteger(Number(line.requestedQuantity)) || Number(line.requestedQuantity) < 1
+                  <Input label={line.isWeightBased ? 'Requested quantity (Kg)' : 'Requested quantity'} type="number" min={line.isWeightBased ? '0.001' : '1'} max={line.isWeightBased ? line.stockQuantity / 1000 : line.stockQuantity} step={line.isWeightBased ? '0.001' : '1'} value={line.requestedQuantity} onChange={(event) => setRequestLines((current) => current.map((item) => item.productId === line.productId ? { ...item, requestedQuantity: event.target.value } : item))} />
+                  {toBaseQuantity(line) > line.stockQuantity
+                                      ? <p className="mt-1 text-xs text-red-700">Cannot request more than {stockLabel(line.stockQuantity, line.isWeightBased)} currently available in the Central Warehouse.</p>
+                    : !Number.isInteger(toBaseQuantity(line)) || toBaseQuantity(line) < 1
                       ? <p className="mt-1 text-xs text-red-700"><T>{"Enter a positive whole-number quantity."}</T></p>
                       : null}
                 </div>
