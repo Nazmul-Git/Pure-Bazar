@@ -130,6 +130,7 @@
 	- Files: Stock adjustment and stock count screens; barcode scanner hook; bulk barcode/price label output engine for TSPL and ESC/POS; printable label preview, ESC/POS serial print helper, and output format tests.
 	- Decisions: Reuse existing transactional adjustment/count endpoints and their approval workflow; cap each product label batch at 500; provide raw TSPL/ESC/POS exports alongside optional Web Serial printing.
 	- Validation: Barcode output tests pass (1 suite, 2 tests); frontend production build passes; editor diagnostics report no errors in changed frontend files.
+	- Update: Fix: include unit alongside package size/weight on barcode labels. A bare numeric package tag (e.g. "5") now gets the selected unit appended ("Potato (5 Kg)") in frontend/src/services/barcodeEngine.js, which feeds the preview, TSPL and ESC/POS; tags with their own unit text are kept as typed. Tests extended (5 pass).
 - [x] 2.5c Searchable picker and reason check
 	- Files: Server-searched, barcode-scannable stock adjustment picker; location-aware stock results; mode-based positive quantities; reason/mode API validation and integration tests.
 	- Decisions: Reuse the stock product search endpoint and barcode scanner hook; cap adjustment search at 10 results; enforce location stock and reason compatibility on the server.

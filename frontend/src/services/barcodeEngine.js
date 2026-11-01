@@ -44,7 +44,10 @@ function safeText(value) {
 // Truncates only the product name so the unit suffix always survives the 40-char limit.
 // A custom package size/weight tag (e.g. "5 Kg") replaces the plain unit name.
 function labelName(name, unitName, sizeTag) {
-  const unit = safeText(sizeTag).trim() || safeText(unitName);
+  const tag = safeText(sizeTag).trim();
+  const plainUnit = safeText(unitName).trim();
+  // A bare quantity such as "5" gets the selected unit appended ("5 Kg"); a tag with its own unit text is kept as typed.
+  const unit = tag && /^[\d.,\s/x×-]+$/i.test(tag) && plainUnit ? `${tag} ${plainUnit}` : tag || plainUnit;
   if (!unit) return safeText(name);
   const suffix = ` (${unit})`.slice(0, 20);
   return `${safeText(name).slice(0, 40 - suffix.length).trimEnd()}${suffix}`;

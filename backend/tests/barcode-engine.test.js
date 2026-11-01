@@ -52,6 +52,10 @@ describe('barcode label output', () => {
     expect(output.tspl).toContain('"Potato (5 Kg)"');
     expect(Buffer.from(output.escPos).toString('latin1')).toContain('Potato (5 Kg)');
     expect(buildBarcodeLabels([{ ...potato, packageTag: '  ' }], 'price').labels[0].name).toBe('Potato (Kg)');
+    const bare = buildBarcodeLabels([{ ...potato, packageTag: '5' }], 'price');
+    expect(bare.labels[0].name).toBe('Potato (5 Kg)');
+    expect(bare.tspl).toContain('"Potato (5 Kg)"');
+    expect(buildBarcodeLabels([{ ...potato, unitName: 'Box', packageTag: '2' }], 'price').labels[0].name).toBe('Potato (2 Box)');
   });
 
   it('rejects invalid EAN-13 values and out-of-range batch quantities', () => {
