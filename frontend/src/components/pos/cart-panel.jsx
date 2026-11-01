@@ -8,6 +8,9 @@ import {
 } from '@/services/pos-cart-utils.cjs';
 import { formatStockDisplay, isGram } from '@/services/stock-units.cjs';
 import { T } from '@/i18n/language-provider';
+import WeightQuantityInput from './weight-quantity-input';
+
+const isWeightItem = (item) => !isPiece(item) && isGram(item.packageUnitName);
 
 const money = (value) => (Number(value) || 0).toFixed(2);
 
@@ -39,6 +42,13 @@ export default function CartPanel({ items, onQuantity, onUnit, onRemove, onDisco
                 </button>
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-[auto_auto_1fr_1fr_1.5fr_auto] sm:items-end">
+                {isWeightItem(item) ? (
+                  <WeightQuantityInput
+                    item={item}
+                    maxGrams={availableStock(item)}
+                    onChange={(grams) => onQuantity(item.productId, grams)}
+                  />
+                ) : (
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
@@ -69,6 +79,7 @@ export default function CartPanel({ items, onQuantity, onUnit, onRemove, onDisco
                     <Plus size={14} />
                   </button>
                 </div>
+                )}
                 {canSellPieces(item) && (
                   <Select
                     label="Unit"

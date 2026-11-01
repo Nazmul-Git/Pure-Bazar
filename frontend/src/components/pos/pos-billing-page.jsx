@@ -17,6 +17,7 @@ import billingUtils from '@/services/pos-billing-utils.cjs';
 import {
   STOCK_LIMIT_MESSAGE, availableStock, canSellPieces, clampQuantity, hasStockProblem,
 } from '@/services/pos-cart-utils.cjs';
+import { isGram } from '@/services/stock-units.cjs';
 import InvoiceModal from './invoice-modal';
 import ErrorToast from './error-toast';
 import useToastMessages from '@/hooks/use-toast-messages';
@@ -145,8 +146,7 @@ export default function PosBillingPage() {
         subUnitPrice: product.subUnitPrice,
         unit: 'PACKAGE',
         stock,
-        quantity: 1,
-        discount: null,
+        quantity: isGram(product.packageUnitName) ? Math.max(1, Math.min(1000, Math.floor(stock))) : 1,
       }];
     });
   }, [showToast]);

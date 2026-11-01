@@ -34,6 +34,19 @@ function formatStockDisplay(quantity, unit) {
   return rest ? `${sign}${kg} Kg ${rest} Gram` : `${sign}${kg} Kg`;
 }
 
+// Converts what the cashier typed (in Kg or Gram) to whole grams.
+function toGrams(value, unit) {
+  const number = Number(value);
+  if (!Number.isFinite(number) || number <= 0) return 0;
+  return Math.round(number * (String(unit).toLowerCase() === 'kg' ? 1000 : 1));
+}
+
+// Converts grams to the number shown in the selected input unit.
+function fromGrams(grams, unit) {
+  const value = Number(grams) || 0;
+  return String(unit).toLowerCase() === 'kg' ? Math.round(value) / 1000 : Math.round(value);
+}
+
 function formatStock(quantity, unitsPerPackage, packageUnitName) {
   const value = Number(quantity) || 0;
   if (!isMultiUnit(unitsPerPackage) && isGram(packageUnitName)) return formatStockDisplay(value, packageUnitName);
@@ -45,4 +58,4 @@ function formatStock(quantity, unitsPerPackage, packageUnitName) {
   return `${boxes} ${packageUnitName ? name : 'Box(es)'} and ${pieces} Pcs`;
 }
 
-module.exports = { isMultiUnit, splitQuantity, combineQuantity, formatStock, formatStockDisplay, isGram };
+module.exports = { isMultiUnit, splitQuantity, combineQuantity, formatStock, formatStockDisplay, isGram, toGrams, fromGrams };

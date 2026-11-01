@@ -1,6 +1,24 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
-const { splitQuantity, combineQuantity, formatStock, formatStockDisplay } = require('./stock-units.cjs');
+const { splitQuantity, combineQuantity, formatStock, formatStockDisplay, toGrams, fromGrams } = require('./stock-units.cjs');
+const { lineTotal } = require('./pos-cart-utils.cjs');
+
+describe('weight input conversion', () => {
+  const item = { mrp: 20, unitValue: 1000, packageUnitName: 'Gram' };
+  it('converts Kg and Gram input to grams', () => {
+    assert.equal(toGrams('1', 'Kg'), 1000);
+    assert.equal(toGrams('0.5', 'Kg'), 500);
+    assert.equal(toGrams('250', 'Gram'), 250);
+    assert.equal(toGrams('', 'Kg'), 0);
+    assert.equal(fromGrams(500, 'Kg'), 0.5);
+    assert.equal(fromGrams(500, 'Gram'), 500);
+  });
+  it('prices 20 BDT per Kg correctly', () => {
+    assert.equal(lineTotal({ ...item, quantity: toGrams('1', 'Kg') }), 20);
+    assert.equal(lineTotal({ ...item, quantity: toGrams('0.5', 'Kg') }), 10);
+    assert.equal(lineTotal({ ...item, quantity: toGrams('1000', 'Gram') }), 20);
+  });
+});
 
 describe('formatStockDisplay', () => {
   it('formats grams as Kg and Gram', () => {

@@ -477,3 +477,8 @@
 	- Files: `frontend/src/components/inventory/stock-transfer-request-form.jsx`.
 	- Decisions: Central Warehouse stock shown via `formatStockDisplay` for weight-based products; quantity input is in Kg (step 0.001) and converted to grams on submit, so the backend still receives grams. Backend unchanged.
 	- Validation: frontend build; UI not tested in browser.
+
+- [x] UX: intuitive Kg input and pricing calculation in POS for weight products
+	- Files: `frontend/src/components/pos/weight-quantity-input.jsx` (new), `cart-panel.jsx`, `pos-billing-page.jsx`, `frontend/src/services/stock-units.cjs` (+ tests).
+	- Decisions: gram-based cart lines get a Kg/Gram selector (default Kg, +/- steps 1 Kg or 100 g); input is converted to whole grams for cart state, payload and stock checks; new weight lines start at 1 Kg (or max stock). Price stays MRP / unitValue per gram, so 20 BDT/Kg gives 20 for 1 Kg and 10 for 0.5 Kg. Backend untouched.
+	- Validation: stock-units tests pass, next build passes; UI not tested in browser.
