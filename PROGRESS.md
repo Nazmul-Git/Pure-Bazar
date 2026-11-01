@@ -496,3 +496,7 @@
 	- Files: `frontend/src/components/inventory/stock-counts-page.jsx`.
 	- Decisions: gram-unit single-unit products show a Kg field (decimals like 49.3, 3 dp) prefilled from system stock with a live Kg/Gram preview; converted to whole grams via `toGrams` on submit, so backend counts/differences stay in grams. No backend change needed.
 	- Validation: component parses; UI not tested in browser.
+- [x] Feature: manual unit and price selection for barcode label printing across all products
+	- Files: `frontend/src/services/barcodeUnits.js` (Kg/Gram options for weight-based products), `backend/tests/barcode-engine.test.js`; `inventory/barcodes/page.jsx` already had per-item Unit dropdown, price override and original price feeding TSPL/ESC-POS/Xprinter output.
+	- Decisions: weight products (Gram base, no pieces) offer Kg (price = per-Kg MRP, default) and Gram (per-gram price); picking a unit resets price to that unit's price, which stays editable. Label name gets the unit suffix.
+	- Validation: barcode engine tests pass (4); UI not tested in browser.

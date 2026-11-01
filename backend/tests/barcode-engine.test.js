@@ -34,6 +34,14 @@ describe('barcode label output', () => {
     expect(() => buildBarcodeLabels([{ ...egg, price: 11, originalPrice: 10 }], 'price')).toThrow('must be higher');
   });
 
+  it('offers Kg and Gram pricing for weight-based products', () => {
+    const { getUnitOptions } = require('../../frontend/src/services/barcodeUnits');
+    const rice = { name: 'Loose Rice', barcode: '4006381333931', mrp: 80, unitValue: 1000, packageUnitName: 'Gram' };
+    expect(getUnitOptions(rice).map((o) => [o.value, o.name, o.price])).toEqual([['kg', 'Kg', 80], ['gram', 'Gram', 0.08]]);
+    const output = buildBarcodeLabels([{ ...rice, unitName: 'Kg', price: 80 }], 'price');
+    expect(output.labels[0]).toMatchObject({ name: 'Loose Rice (Kg)', price: '80.00' });
+  });
+
   it('rejects invalid EAN-13 values and out-of-range batch quantities', () => {
     expect(() => buildBarcodeLabels([{ ...product, barcode: '123' }])).toThrow('valid EAN-13');
     expect(() => buildBarcodeLabels([{ ...product, copies: 501 }])).toThrow('from 1 to 500');
