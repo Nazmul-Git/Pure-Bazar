@@ -136,6 +136,16 @@ describe('product endpoints', () => {
     }));
   });
 
+  it('stores a gram quantity converted from kg for retail sale', async () => {
+    Product.create.mockImplementation(async (input) => ({ ...product, ...input, barcode: 'PB1' }));
+    const res = await request(app).post('/api/products').set(auth).send({
+      name: 'Sugar', categoryId, unitId, unitValue: 1500, ownerType: 'COMPANY', vendorPrice: 90, mrp: 100,
+    });
+
+    expect(res.status).toBe(201);
+    expect(Product.create).toHaveBeenCalledWith(expect.objectContaining({ unitValue: 1500, unitId }));
+  });
+
   it('records price history and an audit event when an authorized user changes prices', async () => {
     const current = {
       ...product,

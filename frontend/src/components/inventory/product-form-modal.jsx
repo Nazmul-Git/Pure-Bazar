@@ -50,9 +50,15 @@ export default function ProductFormModal({
   const [catalogErrors, setCatalogErrors] = useState([]);
   const [quickAdd, setQuickAdd] = useState('');
   const piecesEdited = useRef(false);
+  const [isRetailSale, setIsRetailSale] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   useToastMessages({ error });
+
+  const selectedUnit = units.find((item) => item.id === form.unitId);
+  const isKg = ['kg', 'kilogram'].some((key) => [selectedUnit?.name, selectedUnit?.abbreviation]
+    .some((value) => String(value || '').trim().toLowerCase().replace(/\.$/, '') === key));
+  const convertToGrams = isKg && isRetailSale;
 
   const can = (permission) => permissions.includes('*') || permissions.includes(permission);
   const vendorPrice = Number(form.vendorPrice);
@@ -83,6 +89,7 @@ export default function ProductFormModal({
     if (!open) return undefined;
     let active = true;
     setForm(emptyForm);
+    setIsRetailSale(false);
     piecesEdited.current = false;
     setError('');
     setCatalogErrors([]);
@@ -138,12 +145,25 @@ export default function ProductFormModal({
       return;
     }
 
+    let unitId = form.unitId;
+    let unitValue = form.unitValue !== '' ? Number(form.unitValue) : null;
+    if (convertToGrams) {
+      const gramUnit = units.find((item) => ['gram', 'g'].includes(String(item.name).trim().toLowerCase())
+        || String(item.abbreviation).trim().toLowerCase() === 'g');
+      if (!gramUnit) {
+        setError('Create a "Gram" unit first to use retail/fractional sale.');
+        return;
+      }
+      unitId = gramUnit.id;
+      if (unitValue !== null) unitValue = Math.round(unitValue * 1000 * 1e6) / 1e6;
+    }
+
     const payload = {
       name: form.name.trim(),
       categoryId: form.categoryId,
       ...(form.brandId ? { brandId: form.brandId } : {}),
-      unitId: form.unitId,
-      ...(form.unitValue !== '' ? { unitValue: Number(form.unitValue) } : {}),
+      unitId,
+      ...(unitValue !== null ? { unitValue } : {}),
       ownerType: form.ownerType,
       ...(form.ownerType === 'VENDOR' ? { vendorId: form.vendorId.trim() } : {}),
       vendorPrice: roundedVendorPrice,
@@ -235,6 +255,12 @@ export default function ProductFormModal({
               {can('units:write') && <Button type="button" variant="secondary" size="sm" aria-label="Quick add unit" title="Quick add unit" onClick={() => setQuickAdd('unit')}><Plus size={15} /> <T>{"Quick Add"}</T></Button>}
             </div>
             <Input label="Barcode" name="barcode" value="Generated when product is saved" readOnly />
+            {isKg && (
+              <label className="flex items-center gap-2 text-sm text-slate-700 sm:col-span-2">
+                <input type="checkbox" name="isRetailSale" checked={isRetailSale} onChange={(event) => setIsRetailSale(event.target.checked)} />
+                <T>{"Allow retail/fractional sale (auto-convert Kg to Grams)"}</T>
+              </label>
+            )}
           </div>
           {catalogLoading && <p role="status" className="text-xs text-slate-500"><T>{"Loading product categories, brands, and units..."}</T></p>}
           {catalogErrors.map((message) => <p key={message} role="alert" className="text-xs text-amber-800">{message}</p>)}

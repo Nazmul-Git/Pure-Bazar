@@ -454,3 +454,8 @@
 	- Files: `backend/tests/models.test.js`, `backend/tests/locations.integration.test.js`, `backend/tests/barcode-engine.test.js`.
 	- Decisions: Updated expected model registration, location activity status, and centered 50mm label barcode position.
 	- Validation: `npm.cmd --prefix backend test` passes (43 suites, 246 tests).
+
+- [x] Feature: auto-convert kg to grams for retail sales
+	- Files: `frontend/src/components/inventory/product-form-modal.jsx`, `backend/tests/products.integration.test.js`.
+	- Decisions: `isRetailSale` checkbox shows only when the selected unit is Kg; on submit quantity is multiplied by 1000 (rounded) and the unit switches to the existing Gram unit (error if none exists). Backend already accepts any non-negative `unitValue` and unitId, so no controller change was needed; price/MRP/margin logic untouched.
+	- Validation: products integration tests pass (6); modal parses cleanly. Not run: UI in browser.
