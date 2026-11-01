@@ -6,7 +6,7 @@ import useToastMessages from '@/hooks/use-toast-messages';
 import { Badge, Button, Card, Input, Select, Table } from '@/components/ui';
 import useBarcodeScanner from '@/hooks/use-barcode-scanner';
 import { getProducts } from '@/services/inventory';
-import { combineQuantity, formatStock, isMultiUnit, splitQuantity } from '@/services/stock-units.cjs';
+import { combineQuantity, formatStock, fromGrams, isGram, isMultiUnit, splitQuantity, toGrams } from '@/services/stock-units.cjs';
 import {
   createStockCount, getLocations, getStockCounts, getWarehouseStock, postStockCount,
 } from '@/services/stock';
@@ -16,7 +16,12 @@ const can = (permissions, permission) => permissions.includes('*') || permission
 const recordId = (record) => String(record.id || record._id);
 const statusTone = { Counting: 'info', PendingApproval: 'warning', Posted: 'success', Rejected: 'danger' };
 
-const lineQuantity = (line) => combineQuantity(line.boxes, line.pieces, line.unitsPerPackage);
+// Weight-based lines are typed in Kg and converted to whole grams for the backend.
+const isWeightLine = (line) => !isMultiUnit(line.unitsPerPackage) && isGram(line.packageUnitName);
+const lineQuantity = (line) => (isWeightLine(line) ? toGrams(line.kg, 'Kg') : combineQuantity(line.boxes, line.pieces, line.unitsPerPackage));
+const invalidLine = (line) => (isWeightLine(line)
+  ? !(Number(line.kg) >= 0) || String(line.kg ?? '').trim() === ''
+  : !Number.isFinite(lineQuantity(line)) || Number(line.boxes) < 0 || Number(line.pieces) < 0);
 
 export default function StockCountsPage() {
   const { token, user, initialized } = useSelector((state) => state.auth);
@@ -83,10 +88,10 @@ export default function StockCountsPage() {
     setCountLines((current) => {
       const existing = current.find((line) => line.productId === product.id);
       if (existing) return current.map((line) => line.productId === product.id
-        ? { ...line, ...(isMultiUnit(line.unitsPerPackage) ? { pieces: Number(line.pieces) + 1 } : { boxes: Number(line.boxes) + 1 }) } : line);
+        ? { ...line, ...(isWeightLine(line) ? { kg: String((Number(line.kg) || 0) + 1) } : isMultiUnit(line.unitsPerPackage) ? { pieces: Number(line.pieces) + 1 } : { boxes: Number(line.boxes) + 1 }) } : line);
       const expectedQuantity = stockByProduct.get(product.id) || 0;
       const { boxes, pieces } = splitQuantity(expectedQuantity, product.unitsPerPackage);
-      return [...current, { productId: product.id, expectedQuantity, unitsPerPackage: product.unitsPerPackage || 1, packageUnitName: product.packageUnitName, boxes, pieces }];
+      return [...current, { productId: product.id, expectedQuantity, unitsPerPackage: product.unitsPerPackage || 1, packageUnitName: product.packageUnitName, boxes, pieces, kg: String(fromGrams(expectedQuantity, 'Kg')) }];
     });
     setSearch('');
   }, [stockByProduct]);
@@ -109,7 +114,7 @@ export default function StockCountsPage() {
     setError('');
     setNotice('');
     if (!warehouseId || !reason.trim() || !countLines.length
-      || countLines.some((line) => !Number.isFinite(lineQuantity(line)) || Number(line.boxes) < 0 || Number(line.pieces) < 0)) {
+      || countLines.some(invalidLine)) {
       setError('Choose a location, provide a reason, and enter a non-negative count for each product.');
       return;
     }
@@ -206,7 +211,7 @@ export default function StockCountsPage() {
                   <div><strong className="block text-sm">{product?.name || 'Product'}</strong><small className="text-slate-500">{product?.barcode}</small></div>
                   <span className="pb-2 text-sm text-slate-600">                  System: {formatStock(line.expectedQuantity, line.unitsPerPackage, line.packageUnitName)}</span>
                   <div className="flex gap-2">
-                                      <Input label={isMultiUnit(line.unitsPerPackage) ? (line.packageUnitName || 'Boxes') : 'Counted quantity'} type="number" min="0" step={isMultiUnit(line.unitsPerPackage) ? '1' : 'any'} value={line.boxes} onChange={(event) => updateLine(line.productId, 'boxes', event.target.value)} />
+                    {isWeightLine(line) ? <div><Input label="Counted quantity (Kg)" type="number" min="0" step="0.001" value={line.kg} onChange={(event) => updateLine(line.productId, 'kg', event.target.value)} /><small className="text-slate-500">= {formatStock(lineQuantity(line), 1, line.packageUnitName)}</small></div> : <Input label={isMultiUnit(line.unitsPerPackage) ? (line.packageUnitName || 'Boxes') : 'Counted quantity'} type="number" min="0" step={isMultiUnit(line.unitsPerPackage) ? '1' : 'any'} value={line.boxes} onChange={(event) => updateLine(line.productId, 'boxes', event.target.value)} />}
                     {isMultiUnit(line.unitsPerPackage) && <Input label="Pieces" type="number" min="0" step="1" value={line.pieces} onChange={(event) => updateLine(line.productId, 'pieces', event.target.value)} />}
                   </div>
                   <Button type="button" variant="ghost" size="sm" onClick={() => setCountLines((current) => current.filter((item) => item.productId !== line.productId))}>Remove</Button>

@@ -492,3 +492,7 @@
 	- Files: `frontend/src/services/stock-units.cjs` (new `formatLineQuantity`, + tests), `frontend/src/components/pos/sales-history-page.jsx`, `invoice-modal.jsx`, `backend/models/Order.js`, `backend/services/posCheckoutService.js`, `posHistoryReturnService.js`.
 	- Decisions: order lines now store `packageUnitName` (the sold unit's name); sales history fills it in for older orders from the product's unit. Gram products show Kg/Gram via existing `formatStockDisplay`; PIECE lines show Pcs; others show their unit name (e.g. Box).
 	- Validation: stock-units tests and backend POS tests pass; UI not tested in browser.
+- [x] Feature: allow intuitive Kg input in Stock Count for gram-based products
+	- Files: `frontend/src/components/inventory/stock-counts-page.jsx`.
+	- Decisions: gram-unit single-unit products show a Kg field (decimals like 49.3, 3 dp) prefilled from system stock with a live Kg/Gram preview; converted to whole grams via `toGrams` on submit, so backend counts/differences stay in grams. No backend change needed.
+	- Validation: component parses; UI not tested in browser.
