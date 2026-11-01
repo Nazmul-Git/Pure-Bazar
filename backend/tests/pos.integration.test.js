@@ -166,13 +166,14 @@ describe('POS checkout API', () => {
     jest.restoreAllMocks();
   });
 
-  it('blocks wallet payment without a verified shareholder', async () => {
+  it('completes a full wallet payment at the 5% discount without a shareholder', async () => {
     const response = await checkout({
-      items: line(), payments: [{ method: 'WALLET', amount: 100 }],
+      items: line(), payments: [{ method: 'WALLET' }],
     });
-    expect(response.status).toBe(403);
-    expect(response.body.message).toMatch(/verified shareholder/);
-    expect(db.orders).toHaveLength(0);
+    expect(response.status).toBe(201);
+    expect(db.orders).toHaveLength(1);
+    expect(db.orders[0].grandTotal).toBeCloseTo(db.orders[0].subtotal * 0.95, 2);
+    expect(db.orders[0].payments[0].amount).toBe(db.orders[0].grandTotal);
     expect(walletService.checkWalletBalance).not.toHaveBeenCalled();
   });
 

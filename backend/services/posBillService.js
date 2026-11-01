@@ -110,7 +110,7 @@ async function loadBill(body, user, settingsInput) {
       };
     }),
     paymentMethod: wallet ? 'WALLET' : selected[0],
-    shareholder: walletEligible ? { verified: true } : null,
+    shareholder: wallet ? { verified: true } : null,
     billDiscount: body.billDiscount,
     settings,
   });
@@ -140,7 +140,7 @@ function billOutput(result) {
   return {
     ...result.bill,
     discountApprovalRequired: result.approvalRequired,
-    requiresVerifiedMember: result.wallet && !result.walletEligible,
+    requiresVerifiedMember: false,
   };
 }
 

@@ -23,7 +23,7 @@ export default function BillSummary({
           <span className="text-slate-600"><T>{"Other discounts"}</T></span>
           <span className="text-right text-red-700">− ৳{money(bill?.otherDiscountAmount)}</span>
           <span className="text-slate-600">          <T>{"Shareholder/Wallet discount (5%)"}</T></span>
-                    <span className="text-right text-red-700">− ৳{money(bill?.walletDiscountAmount)}</span>
+                    <span className="text-right text-red-700">− ৳{money(bill?.shareholderDiscountAmount)}</span>
           <span className="text-slate-600"><T>{"VAT"}</T></span>
           <span className="text-right">৳{money(bill?.vatAmount)}</span>
           <strong className="border-t border-slate-200 pt-3 text-base"><T>{"Total due"}</T></strong>

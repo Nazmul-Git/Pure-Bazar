@@ -1,7 +1,7 @@
 'use client';
 
 import {
-  useCallback, useEffect, useMemo, useRef, useState,
+  useCallback, useEffect, useRef, useState,
 } from 'react';
 import useAuth from '@/store/use-auth';
 import CartPanel from './cart-panel';
@@ -24,7 +24,6 @@ import useToastMessages from '@/hooks/use-toast-messages';
 import { T } from '@/i18n/language-provider';
 
 const { createPreviewPayload, paymentTotalMatches } = billingUtils;
-const WALLET_DISCOUNT_RATE = 0.05;
 
 export default function PosBillingPage() {
   const {
@@ -61,17 +60,9 @@ export default function PosBillingPage() {
   const { held, hold, remove: discardHeld } = useHeldSales();
   const latestPreview = useRef(0);
   const selectedMethods = methods.includes('WALLET') ? ['WALLET'] : methods;
-  const walletSelected = selectedMethods.includes('WALLET');
   const singleMethod = selectedMethods.length === 1 ? selectedMethods[0] : null;
-  const bill = useMemo(() => {
-    if (!serverBill || !walletSelected) return serverBill;
-    const walletDiscountAmount = Math.round((Number(serverBill.subtotal) * WALLET_DISCOUNT_RATE + Number.EPSILON) * 100) / 100;
-    return {
-      ...serverBill,
-      walletDiscountAmount,
-      grandTotal: Math.max(0, Math.round((serverBill.grandTotal - walletDiscountAmount + Number.EPSILON) * 100) / 100),
-    };
-  }, [serverBill, walletSelected]);
+  // The server preview already applies the 5% wallet discount.
+  const bill = serverBill;
 
   let payload;
   let formError = '';

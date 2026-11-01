@@ -482,3 +482,8 @@
 	- Files: `frontend/src/components/pos/weight-quantity-input.jsx` (new), `cart-panel.jsx`, `pos-billing-page.jsx`, `frontend/src/services/stock-units.cjs` (+ tests).
 	- Decisions: gram-based cart lines get a Kg/Gram selector (default Kg, +/- steps 1 Kg or 100 g); input is converted to whole grams for cart state, payload and stock checks; new weight lines start at 1 Kg (or max stock). Price stays MRP / unitValue per gram, so 20 BDT/Kg gives 20 for 1 Kg and 10 for 0.5 Kg. Backend untouched.
 	- Validation: stock-units tests pass, next build passes; UI not tested in browser.
+
+- [x] Fix: bypass shareholder verification for full wallet payment and adjust split validation rules
+	- Files: `backend/services/billEngine.js`, `posBillService.js`, `posCheckoutService.js`, `frontend/src/components/pos/pos-billing-page.jsx`, `bill-summary.jsx`, backend tests.
+	- Decisions: Full wallet payment always gets the 5% discount from the server bill engine (no Probashi verification for now); the frontend no longer applies it a second time. Wallet payment amount is set to the final total, and the 'Payments must equal the final bill total' rule applies only to Cash/bKash/Nagad/Card. Balance check and WalletLog are skipped when no member is attached.
+	- Validation: backend POS tests and frontend POS utils tests pass; UI not tested in browser.

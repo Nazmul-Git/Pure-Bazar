@@ -20,11 +20,17 @@ function objectOf(value) {
 
 function validatePayments(result) {
   const payments = result.payments;
+  if (result.wallet) {
+    // Full wallet payment always settles the discounted bill total.
+    payments[0].amount = result.bill.grandTotal;
+  }
   if (payments.some((payment) => !Number.isFinite(payment.amount) || payment.amount <= 0)) {
     throw statusError('Every payment must have a positive amount');
   }
-  const total = money(payments.reduce((sum, payment) => sum + payment.amount, 0));
-  if (total !== result.bill.grandTotal) throw statusError('Payments must equal the final bill total');
+  if (!result.wallet) {
+    const total = money(payments.reduce((sum, payment) => sum + payment.amount, 0));
+    if (total !== result.bill.grandTotal) throw statusError('Payments must equal the final bill total');
+  }
   const allowed = {
     CASH: 'Cash', BKASH: 'bKash', NAGAD: 'Nagad', CARD: 'Card', WALLET: 'Wallet',
   };
@@ -32,13 +38,11 @@ function validatePayments(result) {
   if (enabled && payments.some((payment) => !enabled.includes(allowed[payment.method]))) {
     throw statusError('A selected payment method is disabled in Settings', 400);
   }
-  if (result.wallet && (!result.walletEligible || !result.shareholder)) {
-    throw statusError('Wallet payment requires an attached, verified shareholder', 403);
-  }
 }
 
 async function checkWallet(result, userId) {
-  if (!result.wallet) return null;
+  // Probashi verification is bypassed: without an attached member there is no balance to check.
+  if (!result.wallet || !result.shareholder) return null;
   let balance;
   try {
     balance = await probashiWalletService.checkWalletBalance({
@@ -194,7 +198,7 @@ async function commitBill(req, res, next, offline) {
         companyNet: line.companyNet,
       }));
       if (ledgerRows.length) await VendorLedger.create(ledgerRows, { session, ordered: true });
-      if (result.wallet) {
+      if (result.wallet && result.shareholder) {
         await WalletLog.create([{
           memberId: result.shareholder._id,
           orderId: created._id,
@@ -223,7 +227,7 @@ async function commitBill(req, res, next, offline) {
       if (result.bill.shareholderDiscountAmount > 0) discountRows.push({
         orderId: created._id, scope: 'BILL', discountType: 'FIXED',
         amount: result.bill.shareholderDiscountAmount,
-        reason: 'Verified shareholder wallet discount', appliedBy: req.user._id,
+        reason: 'Wallet payment discount', appliedBy: req.user._id,
       });
       if (discountRows.length) await DiscountLog.create(discountRows, { session, ordered: true });
       await AuditLog.create([{

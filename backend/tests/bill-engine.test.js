@@ -100,15 +100,15 @@ describe('bill engine', () => {
     });
   });
 
-  it('requires verified status and rejects manual shareholder discounts', () => {
-    const unverifiedBill = calculateBill({
+  it('applies the wallet discount without shareholder verification and rejects manual shareholder discounts', () => {
+    const bill = calculateBill({
       items,
       paymentMethod: 'WALLET',
       shareholder: { verified: false },
       settings: walletSettings,
     });
-    expect(unverifiedBill.shareholderDiscountAmount).toBe(0);
-    expect(unverifiedBill.grandTotal).toBe(unverifiedBill.subtotal);
+    expect(bill.shareholderDiscountAmount).toBeGreaterThan(0);
+    expect(bill.grandTotal).toBeLessThan(bill.subtotal);
 
     expect(() => calculateBill({
       items: [{ ...items[0], discount: { type: 'FIXED', value: 5, reason: 'Shareholder' } }],

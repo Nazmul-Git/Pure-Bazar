@@ -95,7 +95,7 @@ function calculateBill({ items, paymentMethod, shareholder, billDiscount, settin
     (sum, line) => sum + line.itemDiscountCents + line.billDiscountCents,
     0,
   );
-  const shareholderEligible = paymentMethod === 'WALLET' && shareholder?.verified === true;
+  const shareholderEligible = paymentMethod === 'WALLET'; // Probashi verification is bypassed for now
   const afterOtherDiscountCents = lines.reduce((sum, line) => sum + line.afterOtherDiscountCents, 0);
   const shareholderDiscountCents = shareholderEligible
     ? Math.round(afterOtherDiscountCents * shareholderPercent / 100)
