@@ -5,6 +5,7 @@ import { Barcode, LoaderCircle, Search } from 'lucide-react';
 import Input from '@/components/ui/input';
 import { posErrorMessage, scanPosItem, searchPosItems } from '@/services/pos';
 import useToastMessages from '@/hooks/use-toast-messages';
+import CameraBarcodeScanner from '@/components/common/camera-barcode-scanner';
 
 export default function ItemScanner({ onAdd }) {
   const [query, setQuery] = useState('');
@@ -24,10 +25,7 @@ export default function ItemScanner({ onAdd }) {
     document.getElementById('pos-barcode')?.focus();
   }
 
-  // Enter submits an exact barcode scan; falls back to the first search match.
-  async function submit(event) {
-    event.preventDefault();
-    const value = query.trim();
+  async function submitValue(value) {
     if (!value || busy.current) return;
     busy.current = true;
     setLoading(true);
@@ -47,6 +45,12 @@ export default function ItemScanner({ onAdd }) {
       busy.current = false;
       setLoading(false);
     }
+  }
+
+  // Enter submits an exact barcode scan; falls back to the first search match.
+  async function submit(event) {
+    event.preventDefault();
+    await submitValue(query.trim());
   }
 
   useEffect(() => {
@@ -79,16 +83,20 @@ export default function ItemScanner({ onAdd }) {
   return (
     <section className="relative rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
       <form onSubmit={submit}>
-        <Input
-          label="Scan barcode or search by name, SKU or barcode"
-          name="pos-barcode"
-          value={query}
-          onChange={(event) => { setQuery(event.target.value); setOpen(true); }}
-          onKeyDown={(event) => { if (event.key === 'Escape') setOpen(false); }}
-          placeholder="Scan barcode and press Enter, or type to search"
-          autoComplete="off"
-          autoFocus
-        />
+        <div className="flex items-end gap-2">
+          <Input
+            className="min-w-0 flex-1"
+            label="Scan barcode or search by name, SKU or barcode"
+            name="pos-barcode"
+            value={query}
+            onChange={(event) => { setQuery(event.target.value); setOpen(true); }}
+            onKeyDown={(event) => { if (event.key === 'Escape') setOpen(false); }}
+            placeholder="Scan barcode and press Enter, or type to search"
+            autoComplete="off"
+            autoFocus
+          />
+          <CameraBarcodeScanner onScan={submitValue} disabled={loading} />
+        </div>
       </form>
       {loading && <p className="mt-2 flex items-center gap-1 text-xs text-slate-500"><LoaderCircle size={13} className="animate-spin" /> Looking up...</p>}
       {open && results.length > 0 && (

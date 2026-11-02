@@ -10,6 +10,7 @@ import { getProducts } from '@/services/inventory';
 import { downloadOutput, printESC } from '@/utils/print-esc';
 import { T } from '@/i18n/language-provider';
 import useToastMessages from '@/hooks/use-toast-messages';
+import CameraBarcodeScanner from '@/components/common/camera-barcode-scanner';
 
 export default function BarcodesPage() {
   const { token, user, initialized } = useSelector((state) => state.auth);
@@ -138,8 +139,9 @@ export default function BarcodesPage() {
       </header>
       <div className="grid gap-5 xl:grid-cols-[1.2fr_1fr]">
         <Card title="Product catalog" description={`${products.length} products available`}>
-          <div className="mb-4 max-w-sm">
+          <div className="mb-4 flex max-w-xl items-end gap-2">
             <Input label="Search products" name="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Product name or barcode" />
+            <CameraBarcodeScanner onScan={setSearch} />
           </div>
           <Table columns={columns} rows={visibleProducts} rowKey="id" emptyMessage="No products match your search." />
         </Card>

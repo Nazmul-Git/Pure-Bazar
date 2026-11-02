@@ -12,6 +12,10 @@ export default function useBarcodeScanner(onScan) {
     setValue('');
     if (barcode) onScan(barcode);
   }, [onScan, value]);
+  const scan = useCallback((barcode) => {
+    const normalized = String(barcode || '').trim();
+    if (normalized) onScan(normalized);
+  }, [onScan]);
 
-  return { value, onChange: handleChange, onKeyDown: handleKeyDown };
+  return { value, onChange: handleChange, onKeyDown: handleKeyDown, onScan: scan };
 }

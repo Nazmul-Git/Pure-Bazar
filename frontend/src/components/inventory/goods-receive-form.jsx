@@ -13,6 +13,7 @@ import {
 import { T } from '@/i18n/language-provider';
 import useToastMessages from '@/hooks/use-toast-messages';
 import { isGram } from '@/services/stock-units.cjs';
+import CameraBarcodeScanner from '@/components/common/camera-barcode-scanner';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
 
@@ -249,8 +250,9 @@ export default function GoodsReceiveForm() {
       </Card>
 
       <Card title="Add products" description="Search by product name or barcode. Current Central Warehouse stock is shown for each result.">
-        <div className="max-w-lg">
+        <div className="flex max-w-xl items-end gap-2">
           <Input
+            className="min-w-0 flex-1"
             label={`Search ${ownerType === 'COMPANY' ? 'company' : 'vendor'} products`}
             name="productSearch"
             value={search}
@@ -259,6 +261,7 @@ export default function GoodsReceiveForm() {
               : vendorId ? 'Filter vendor products' : 'Select a vendor first'}
             disabled={ownerType === 'VENDOR' && !vendorId}
           />
+          <CameraBarcodeScanner onScan={setSearch} disabled={ownerType === 'VENDOR' && !vendorId} />
           <Search size={16} aria-hidden="true" className="pointer-events-none relative -mt-7 ml-auto mr-3 text-slate-400" />
         </div>
         {searchError && <p role="alert" className="mt-3 text-sm text-red-700">{searchError}</p>}

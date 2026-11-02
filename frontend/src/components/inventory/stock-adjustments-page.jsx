@@ -9,6 +9,7 @@ import {
   searchReceiveProducts,
 } from '@/services/stock';
 import { T } from '@/i18n/language-provider';
+import CameraBarcodeScanner from '@/components/common/camera-barcode-scanner';
 import useToastMessages from '@/hooks/use-toast-messages';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
@@ -257,9 +258,15 @@ export default function StockAdjustmentsPage() {
             {reasonMismatch && <p role="alert" className="rounded border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">{reason} is not allowed in {mode === 'REMOVE' ? 'Remove stock' : 'Add stock'} mode.</p>}
             {!can(permissions, 'products:read') && <p className="text-sm text-amber-700"><T>{"Product read permission is required to select adjustment lines."}</T></p>}
             <div className="grid gap-4 md:grid-cols-2">
-              <Input label="Scan barcode and press Enter" name="barcodeScanner" value={scanner.value} onChange={scanner.onChange} onKeyDown={scanner.onKeyDown} placeholder="Focus here, then scan a product barcode" disabled={!warehouseId || !can(permissions, 'products:read')} />
+              <div className="flex items-end gap-2">
+                <Input className="min-w-0 flex-1" label="Scan barcode and press Enter" name="barcodeScanner" value={scanner.value} onChange={scanner.onChange} onKeyDown={scanner.onKeyDown} placeholder="Focus here, then scan a product barcode" disabled={!warehouseId || !can(permissions, 'products:read')} />
+                <CameraBarcodeScanner onScan={scanBarcode} disabled={!warehouseId || !can(permissions, 'products:read')} />
+              </div>
               <div className="relative">
-                <Input label="Find product" name="productSearch" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search name or barcode" disabled={!warehouseId || !can(permissions, 'products:read')} />
+                <div className="flex items-end gap-2">
+                  <Input className="min-w-0 flex-1" label="Find product" name="productSearch" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search name or barcode" disabled={!warehouseId || !can(permissions, 'products:read')} />
+                  <CameraBarcodeScanner onScan={setSearch} disabled={!warehouseId || !can(permissions, 'products:read')} />
+                </div>
                 {searching && <p role="status" className="mt-1 text-xs text-slate-500"><T>{"Searching products..."}</T></p>}
                 {searchError && <p role="alert" className="mt-1 text-xs text-red-700">{searchError}</p>}
                 {matches.length > 0 && <div className="absolute z-10 mt-1 max-h-52 w-full overflow-y-auto rounded border border-slate-200 bg-white shadow-lg">

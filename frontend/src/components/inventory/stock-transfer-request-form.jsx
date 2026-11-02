@@ -7,6 +7,7 @@ import useBarcodeScanner from '@/hooks/use-barcode-scanner';
 import { searchReceiveProducts } from '@/services/stock';
 import { T } from '@/i18n/language-provider';
 import { formatStockDisplay } from '@/services/stock-units.cjs';
+import CameraBarcodeScanner from '@/components/common/camera-barcode-scanner';
 
 // Weight-based lines are typed in Kg and sent to the backend in grams.
 const toBaseQuantity = (line) => (line.isWeightBased ? Math.round(Number(line.requestedQuantity) * 1000) : Number(line.requestedQuantity));
@@ -152,9 +153,15 @@ export default function StockTransferRequestForm({
         </div>
         {!can(permissions, 'products:read') && <p className="text-sm text-amber-700"><T>{"Product read permission is required to add transfer lines."}</T></p>}
         <div className="grid gap-4 md:grid-cols-2">
-          <Input label="Scan barcode and press Enter" name="barcodeScanner" value={scanner.value} onChange={scanner.onChange} onKeyDown={scanner.onKeyDown} placeholder="Focus here, then scan a product barcode" disabled={!sourceId || !can(permissions, 'products:read')} />
+          <div className="flex items-end gap-2">
+            <Input className="min-w-0 flex-1" label="Scan barcode and press Enter" name="barcodeScanner" value={scanner.value} onChange={scanner.onChange} onKeyDown={scanner.onKeyDown} placeholder="Focus here, then scan a product barcode" disabled={!sourceId || !can(permissions, 'products:read')} />
+            <CameraBarcodeScanner onScan={scanBarcode} disabled={!sourceId || !can(permissions, 'products:read')} />
+          </div>
           <div className="relative">
-            <Input label="Find product" name="productSearch" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search name or barcode" disabled={!sourceId || !can(permissions, 'products:read')} />
+            <div className="flex items-end gap-2">
+              <Input className="min-w-0 flex-1" label="Find product" name="productSearch" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search name or barcode" disabled={!sourceId || !can(permissions, 'products:read')} />
+              <CameraBarcodeScanner onScan={setSearch} disabled={!sourceId || !can(permissions, 'products:read')} />
+            </div>
             {searching && <p role="status" className="mt-1 text-xs text-slate-500"><T>{"Searching products..."}</T></p>}
             {searchError && <p role="alert" className="mt-1 text-xs text-red-700">{searchError}</p>}
             {matches.length > 0 && <div className="absolute z-10 mt-1 max-h-52 w-full overflow-y-auto rounded border border-slate-200 bg-white shadow-lg">

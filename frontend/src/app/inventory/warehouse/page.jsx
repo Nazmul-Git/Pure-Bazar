@@ -8,6 +8,7 @@ import { formatStock } from '@/services/stock-units.cjs';
 import { getLocations, getWarehouseStock } from '@/services/stock';
 import { T } from '@/i18n/language-provider';
 import useToastMessages from '@/hooks/use-toast-messages';
+import CameraBarcodeScanner from '@/components/common/camera-barcode-scanner';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
 
@@ -72,8 +73,9 @@ export default function WarehousePage() {
         <p className="mt-1 text-sm text-slate-600"><T>{"Current balance is calculated from approved stock movements."}</T></p>
       </div>
       <Card title="Stock on hand" description={`${stock.length} products with stock movement history`}>
-        <div className="mb-4 max-w-sm">
+        <div className="mb-4 flex max-w-xl items-end gap-2">
           <Input label="Search stock" name="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Product name or barcode" />
+          <CameraBarcodeScanner onScan={setSearch} />
           <Search size={16} aria-hidden="true" className="pointer-events-none relative -mt-7 ml-auto mr-3 text-slate-400" />
         </div>
         <Table columns={columns} rows={visibleStock} rowKey="productId" emptyMessage={search ? 'No stock items match your search.' : 'No stock movement has been recorded for this warehouse.'} />

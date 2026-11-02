@@ -6,6 +6,7 @@ import useToastMessages from '@/hooks/use-toast-messages';
 import { Badge, Button, Card, Input, Select, Table } from '@/components/ui';
 import useBarcodeScanner from '@/hooks/use-barcode-scanner';
 import { getProducts } from '@/services/inventory';
+import CameraBarcodeScanner from '@/components/common/camera-barcode-scanner';
 import { combineQuantity, formatStock, fromGrams, isGram, isMultiUnit, splitQuantity, toGrams } from '@/services/stock-units.cjs';
 import {
   createStockCount, getLocations, getStockCounts, getWarehouseStock, postStockCount,
@@ -193,9 +194,15 @@ export default function StockCountsPage() {
               <Input label="Count reason" name="reason" value={reason} onChange={(event) => setReason(event.target.value)} maxLength={500} required placeholder="e.g. Monthly inventory count" />
             </div>
             <div className="grid gap-4 md:grid-cols-2">
-              <Input label="Scan barcode and press Enter" name="barcodeScanner" value={scanner.value} onChange={scanner.onChange} onKeyDown={scanner.onKeyDown} placeholder="Focus here, then scan a product barcode" disabled={!products.length} />
+              <div className="flex items-end gap-2">
+                <Input className="min-w-0 flex-1" label="Scan barcode and press Enter" name="barcodeScanner" value={scanner.value} onChange={scanner.onChange} onKeyDown={scanner.onKeyDown} placeholder="Focus here, then scan a product barcode" disabled={!products.length} />
+                <CameraBarcodeScanner onScan={scanner.onScan} disabled={!products.length} />
+              </div>
               <div className="relative">
-                <Input label="Find product" name="productSearch" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search name or barcode" disabled={!products.length} />
+                <div className="flex items-end gap-2">
+                  <Input className="min-w-0 flex-1" label="Find product" name="productSearch" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search name or barcode" disabled={!products.length} />
+                  <CameraBarcodeScanner onScan={setSearch} disabled={!products.length} />
+                </div>
                 {matches.length > 0 && <div className="absolute z-10 mt-1 max-h-52 w-full overflow-y-auto rounded border border-slate-200 bg-white shadow-lg">
                   {matches.map((product) => <button key={product.id} type="button" className="block w-full border-b border-slate-100 px-3 py-2 text-left hover:bg-slate-50" onClick={() => addProduct(product)}>
                     <span className="block text-sm font-medium">{product.name}</span><small className="text-slate-500">{product.barcode}</small>

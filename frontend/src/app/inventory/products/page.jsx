@@ -9,6 +9,7 @@ import ProductFormModal from '@/components/inventory/product-form-modal';
 import { createProduct, getProducts } from '@/services/inventory';
 import { formatStockDisplay } from '@/services/stock-units.cjs';
 import { T } from '@/i18n/language-provider';
+import CameraBarcodeScanner from '@/components/common/camera-barcode-scanner';
 
 const money = (value) => new Intl.NumberFormat('en-BD', {
   style: 'currency',
@@ -92,8 +93,9 @@ export default function ProductsPage() {
         {canWrite && <Button onClick={() => setFormOpen(true)}><Plus size={17} /> <T>{"Add New Product"}</T></Button>}
       </div>
 
-      <div className="max-w-sm">
+      <div className="flex max-w-xl items-end gap-2">
         <Input label="Search products" name="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Name or barcode" />
+        <CameraBarcodeScanner onScan={setSearch} />
         <Search size={16} aria-hidden="true" className="pointer-events-none relative -mt-7 ml-auto mr-3 text-slate-400" />
       </div>
       <Table columns={columns} rows={visibleProducts} rowKey="id" emptyMessage={search ? 'No products match your search.' : 'No products found.'} />
