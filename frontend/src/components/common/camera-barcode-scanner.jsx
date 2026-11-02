@@ -4,6 +4,19 @@ import { useEffect, useId, useState } from 'react';
 import { LoaderCircle, ScanBarcode } from 'lucide-react';
 import { Modal } from '@/components/ui';
 
+// html5-qrcode throws (sync or async) when stopping a scanner that never started or already stopped.
+async function safeStop(scanner) {
+  if (!scanner) return;
+  try {
+    const state = typeof scanner.getState === 'function' ? scanner.getState() : null;
+    // 2 = SCANNING, 3 = PAUSED
+    if (state !== null && state !== 2 && state !== 3) return;
+    await scanner.stop();
+  } catch {
+    // already stopped, camera missing or permission denied: nothing to release
+  }
+}
+
 export default function CameraBarcodeScanner({ onScan, disabled = false }) {
   const elementId = `barcode-reader-${useId().replace(/:/g, '')}`;
   const [open, setOpen] = useState(false);
@@ -28,18 +41,14 @@ export default function CameraBarcodeScanner({ onScan, disabled = false }) {
           async (decodedText) => {
             if (!active || !decodedText.trim()) return;
             active = false;
-            try {
-              await scanner.stop();
-            } catch (stopError) {
-              console.error('Unable to stop barcode camera after scan.', stopError);
-            }
+            await safeStop(scanner);
             setOpen(false);
             onScan(decodedText.trim());
           },
           () => {},
         );
       } catch (startError) {
-        if (active) setError(startError.message || 'Unable to access the camera. Check browser permission and HTTPS.');
+        if (active) setError(startError?.message || String(startError || '') || 'Unable to access the camera. Check browser permission and HTTPS.');
       } finally {
         if (active) setStarting(false);
       }
@@ -48,9 +57,7 @@ export default function CameraBarcodeScanner({ onScan, disabled = false }) {
     start();
     return () => {
       active = false;
-      if (scanner) {
-        scanner.stop().catch((stopError) => console.error('Unable to stop barcode camera.', stopError));
-      }
+      safeStop(scanner);
     };
   }, [elementId, onScan, open]);
 

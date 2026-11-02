@@ -533,3 +533,8 @@
 	- Files: `frontend/src/components/common/camera-barcode-scanner.jsx`.
 	- Decisions: the shared scanner is now a rounded-xl bordered 44px icon button (lucide ScanBarcode, hover/active/disabled states) sitting beside the search input; still `block md:hidden` and opens the camera modal. Applies to POS, Stock Count, Transfers, Adjustments, GRN, Products, Warehouse, Barcodes.
 	- Validation: not tested in browser.
+
+- [x] Fix: handle camera scanner stop state safely to prevent runtime crash
+	- Files: `frontend/src/components/common/camera-barcode-scanner.jsx`.
+	- Decisions: a `safeStop` helper only stops when the scanner is scanning/paused and swallows errors, so missing camera, denied permission or already-closed state shows the error/closes the modal without crashing.
+	- Validation: not tested in browser.
