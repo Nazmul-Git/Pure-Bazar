@@ -553,3 +553,8 @@
 	- Files: none changed in code (audit only).
 	- Decisions: product creation remains strictly master-data only and creates no stock or stockmovements; stock is managed exclusively through Goods Receive (GRN). No initial-stock logic was added.
 	- Validation: no code change; no tests needed.
+
+- [x] UI/Print: show unit in GRN product name and add Dozen unit option
+	- Files: backend GRN print response, unit master API and seeder; frontend GRN print page; inventory, seeder, and GRN tests.
+	- Decisions: printable product names append the unit abbreviation in brackets (e.g. `Rice [box]`); seed and expose `Dozen (doz)` through the existing dynamic product unit dropdown.
+	- Validation: focused backend tests pass (3 suites, 24 tests); frontend production build passes.

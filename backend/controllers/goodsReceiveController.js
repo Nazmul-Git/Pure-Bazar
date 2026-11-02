@@ -52,7 +52,7 @@ async function validateCentralWarehouse(warehouseId) {
   }
 }
 
-function receiveOutput(receive, products = []) {
+function receiveOutput(receive, products = [], labels = new Map()) {
   const productMap = new Map(products.map((product) => [product._id.toString(), product]));
   const data = receive.toObject ? receive.toObject() : receive;
   return {
@@ -71,6 +71,7 @@ function receiveOutput(receive, products = []) {
       return {
         productId: line.productId.toString(),
         productName: product?.name,
+        ...(product ? { displayName: displayFields(product, labels).displayName } : {}),
         barcode: product?.barcode,
         receivedQuantity: line.receivedQuantity,
         acceptedQuantity: line.acceptedQuantity,
@@ -243,15 +244,16 @@ async function getGoodsReceive(req, res, next) {
     if (!receive) throw statusError('Goods receive not found', 404);
     const ids = receive.lines.map((line) => line.productId);
     const [products, vendor] = await Promise.all([
-      Product.find({ _id: { $in: ids } }).select('_id name barcode').lean(),
+      Product.find({ _id: { $in: ids } }).select('_id name barcode unitId').lean(),
       receive.vendorId
         ? Vendor.findById(receive.vendorId).select('_id name shopName memberId').lean()
         : null,
     ]);
+    const labels = await unitLabelMap(products);
     return res.json({
       success: true,
       goodsReceive: {
-        ...receiveOutput(receive, products),
+        ...receiveOutput(receive, products, labels),
         vendor: vendor ? {
           id: vendor._id.toString(), name: vendor.name, shopName: vendor.shopName, memberId: vendor.memberId,
         } : null,

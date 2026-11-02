@@ -71,7 +71,7 @@ export default function PrintableGoodsReceivePage() {
             <tbody>
               {receive.lines.map((line) => (
                 <tr key={line.productId}>
-                  <td>{line.productName}</td><td>{line.barcode}</td><td>{line.receivedQuantity}</td>
+                  <td>{line.displayName || line.productName}</td><td>{line.barcode}</td><td>{line.receivedQuantity}</td>
                   <td>{line.acceptedQuantity}</td><td>{line.rejectedQuantity}</td>
                 </tr>
               ))}

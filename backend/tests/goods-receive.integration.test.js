@@ -9,12 +9,13 @@ jest.mock('../models', () => ({
   Location: { findById: jest.fn() },
   Product: { find: jest.fn() },
   StockMovement: { aggregate: jest.fn(), create: jest.fn() },
+  Unit: { find: jest.fn() },
   User: { findById: jest.fn() },
   Vendor: { find: jest.fn(), findById: jest.fn() },
 }));
 
 const {
-  AuditLog, GoodsReceive, Location, Product, StockMovement, User, Vendor,
+  AuditLog, GoodsReceive, Location, Product, StockMovement, Unit, User, Vendor,
 } = require('../models');
 const stockRoutes = require('../routes/stockRoutes');
 const errorMiddleware = require('../middlewares/errorMiddleware');
@@ -24,12 +25,15 @@ const adminId = '65b000000000000000000001';
 const warehouseId = '65b000000000000000000002';
 const productId = '65b000000000000000000003';
 const vendorId = '65b000000000000000000004';
+const unitId = '65b000000000000000000005';
 const admin = {
   _id: adminId,
   isActive: true,
   roleId: { name: 'Inventory Manager', permissions: ['stock:read', 'stock:write'] },
 };
-const rice = { _id: productId, name: 'Rice', barcode: '4006381333931', ownerType: 'COMPANY' };
+const rice = {
+  _id: productId, name: 'Rice', barcode: '4006381333931', unitId, ownerType: 'COMPANY',
+};
 
 function productQuery(result) {
   const query = {
@@ -111,6 +115,9 @@ describe('goods receive and movement-derived stock endpoints', () => {
       lean: jest.fn(async () => ({ _id: id, status: vendorStatus })),
     }));
     Product.find.mockImplementation(() => productQuery([rice]));
+    Unit.find.mockReturnValue(productQuery([{
+      _id: unitId, name: 'Box', abbreviation: 'box',
+    }]));
     AuditLog.create.mockResolvedValue({});
     GoodsReceive.create.mockImplementation(async ([data]) => {
       const receive = newReceive(data);
@@ -203,7 +210,8 @@ describe('goods receive and movement-derived stock endpoints', () => {
     const printable = await request(app).get(`/api/goods-receives/${id}/print`).set(auth);
     expect(printable.status).toBe(200);
     expect(printable.body.goodsReceive.lines[0]).toMatchObject({
-      productName: 'Rice', receivedQuantity: 15, acceptedQuantity: 10, rejectedQuantity: 5,
+      productName: 'Rice', displayName: 'Rice [box]',
+      receivedQuantity: 15, acceptedQuantity: 10, rejectedQuantity: 5,
     });
 
     const rejected = await request(app).post(`/api/goods-receives/${id}/reject`).set(auth);

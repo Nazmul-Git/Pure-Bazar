@@ -109,7 +109,7 @@ describe('inventory category, brand, and unit endpoints', () => {
     expect(forbidden.status).toBe(403);
   });
 
-  it('omits only the Dozen (doz) unit from the unit list', async () => {
+  it('includes the Dozen (doz) unit in the unit list', async () => {
     const unitsList = [
       { _id: '65b000000000000000000010', name: 'Box', abbreviation: 'box' },
       { _id: '65b000000000000000000011', name: 'Crate', abbreviation: 'crate' },
@@ -125,9 +125,9 @@ describe('inventory category, brand, and unit endpoints', () => {
     const response = await request(app).get('/api/units').set(auth);
 
     expect(response.status).toBe(200);
-    expect(response.body.units.map(({ name }) => name)).toEqual([
-      'Box', 'Crate', 'Gram', 'Kg', 'Ltr', 'Pack', 'Pcs',
-    ]);
+    expect(response.body.units).toContainEqual(expect.objectContaining({
+      name: 'Dozen', abbreviation: 'doz',
+    }));
   });
 
   it('creates, updates, and deletes categories while keeping commission disabled and auditing writes', async () => {
