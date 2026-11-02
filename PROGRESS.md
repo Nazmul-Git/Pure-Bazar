@@ -544,7 +544,7 @@
 	- Decisions: stock stays stored in packages; available stock is now derived from one total-pieces figure (Pcs = total pieces, Box = floor(totalPcs / unitSize)), removing float drift (e.g. 4.9999 boxes showing 4). Checkout deduction already uses exact pieces/unitsPerPackage for Pcs and qty packages (= qty x unitSize pieces) for Box, so it is unchanged.
 	- Validation: pos-cart-utils and piece-pricing jest tests pass.
 
-- [x] Fix: correct initial product stock calculation formula
+- [x] Skipped: create initial stock during product creation
 	- Files: none changed in code (audit only).
-	- Decisions: product creation stays master-data only and creates no stock or stockmovements; initial stock comes exclusively from Goods Receive (GRN). `totalPieces()` already computes unitQuantityValue x piecesPerPackage once and no redundant scaling was found, so no initial-stock logic was added.
+	- Decisions: product creation remains strictly master-data only and creates no stock or stockmovements; stock is managed exclusively through Goods Receive (GRN). No initial-stock logic was added.
 	- Validation: no code change; no tests needed.
