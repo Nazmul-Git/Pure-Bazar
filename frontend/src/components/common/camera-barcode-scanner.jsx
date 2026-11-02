@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useId, useState } from 'react';
-import { Camera, LoaderCircle } from 'lucide-react';
-import { Button, Modal } from '@/components/ui';
+import { LoaderCircle, ScanBarcode } from 'lucide-react';
+import { Modal } from '@/components/ui';
 
 export default function CameraBarcodeScanner({ onScan, disabled = false }) {
   const elementId = `barcode-reader-${useId().replace(/:/g, '')}`;
@@ -61,10 +61,17 @@ export default function CameraBarcodeScanner({ onScan, disabled = false }) {
 
   return (
     <>
-      <span className="block md:hidden">
-        <Button type="button" variant="secondary" size="sm" onClick={() => setOpen(true)} disabled={disabled}>
-          <Camera size={15} /> Scan via Camera
-        </Button>
+      <span className="block shrink-0 md:hidden">
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          disabled={disabled}
+          aria-label="Scan barcode via camera"
+          title="Scan barcode"
+          className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-700 shadow-sm transition hover:border-slate-400 hover:bg-slate-100 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <ScanBarcode size={22} />
+        </button>
       </span>
       <Modal open={open} onClose={close} title="Scan via Camera" className="max-w-lg">
         <div className="space-y-3">

@@ -528,3 +528,8 @@
 	- Files: `backend/seeders/seedRoles.js`, `backend/controllers/inventoryController.js`, backend unit list and seeder tests.
 	- Decisions: Dozen (doz) is no longer seeded or returned in the unit list used by unit setup and product creation; existing product records and all other units remain unchanged.
 	- Validation: focused inventory and seeder tests pass.
+
+- [x] UI: enhance mobile barcode scan button with a modern icon and clean layout
+	- Files: `frontend/src/components/common/camera-barcode-scanner.jsx`.
+	- Decisions: the shared scanner is now a rounded-xl bordered 44px icon button (lucide ScanBarcode, hover/active/disabled states) sitting beside the search input; still `block md:hidden` and opens the camera modal. Applies to POS, Stock Count, Transfers, Adjustments, GRN, Products, Warehouse, Barcodes.
+	- Validation: not tested in browser.
