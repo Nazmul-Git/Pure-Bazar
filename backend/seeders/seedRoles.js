@@ -45,7 +45,6 @@ const UNIT_SEEDS = [
   { name: 'Pcs', abbreviation: 'pcs' },
   { name: 'Box', abbreviation: 'box' },
   { name: 'Pack', abbreviation: 'pack' },
-  { name: 'Dozen', abbreviation: 'doz' },
 ];
 
 const CATEGORY_SEEDS = ['Groceries', 'Beverages', 'Household', 'Personal Care'];

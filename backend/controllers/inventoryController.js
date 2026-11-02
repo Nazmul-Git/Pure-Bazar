@@ -190,7 +190,11 @@ async function getBrandLogo(req, res, next) {
 async function listUnits(req, res, next) {
   try {
     const units = await Unit.find().sort({ name: 1 }).lean();
-    return res.json({ success: true, units: units.map(unitOutput) });
+    const selectableUnits = units.filter((unit) => !(
+      unit.name.trim().toLowerCase() === 'dozen'
+      && unit.abbreviation.trim().toLowerCase() === 'doz'
+    ));
+    return res.json({ success: true, units: selectableUnits.map(unitOutput) });
   } catch (error) {
     return next(error);
   }

@@ -523,3 +523,8 @@
 	- Files: `frontend/src/services/stock-units.cjs` (new `productLabel`, `stockText`), POS item scanner, POS billing page, GRN form, stock transfer request form, stock adjustments page, `stock-units.test.cjs`.
 	- Decisions: gram products show e.g. `59 Kg 300 Gram` instead of `59300` and drop the raw `[g]` name tag; other units keep their tag. Cart rows and the warehouse stock column already used the shared formatters.
 	- Validation: stock-units tests (10) pass; UI not tested in browser.
+
+- [x] Refactor: remove Dozen unit option from product unit dropdown
+	- Files: `backend/seeders/seedRoles.js`, `backend/controllers/inventoryController.js`, backend unit list and seeder tests.
+	- Decisions: Dozen (doz) is no longer seeded or returned in the unit list used by unit setup and product creation; existing product records and all other units remain unchanged.
+	- Validation: focused inventory and seeder tests pass.

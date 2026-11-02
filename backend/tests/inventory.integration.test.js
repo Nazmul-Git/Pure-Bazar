@@ -109,6 +109,27 @@ describe('inventory category, brand, and unit endpoints', () => {
     expect(forbidden.status).toBe(403);
   });
 
+  it('omits only the Dozen (doz) unit from the unit list', async () => {
+    const unitsList = [
+      { _id: '65b000000000000000000010', name: 'Box', abbreviation: 'box' },
+      { _id: '65b000000000000000000011', name: 'Crate', abbreviation: 'crate' },
+      { _id: '65b000000000000000000012', name: 'Gram', abbreviation: 'g' },
+      { _id: '65b000000000000000000013', name: 'Kg', abbreviation: 'kg' },
+      { _id: '65b000000000000000000014', name: 'Ltr', abbreviation: 'L' },
+      { _id: '65b000000000000000000015', name: 'Pack', abbreviation: 'pack' },
+      { _id: '65b000000000000000000016', name: 'Pcs', abbreviation: 'pcs' },
+      { _id: '65b000000000000000000017', name: 'Dozen', abbreviation: 'doz' },
+    ];
+    Unit.find.mockReturnValue(query(unitsList));
+
+    const response = await request(app).get('/api/units').set(auth);
+
+    expect(response.status).toBe(200);
+    expect(response.body.units.map(({ name }) => name)).toEqual([
+      'Box', 'Crate', 'Gram', 'Kg', 'Ltr', 'Pack', 'Pcs',
+    ]);
+  });
+
   it('creates, updates, and deletes categories while keeping commission disabled and auditing writes', async () => {
     const created = await request(app).post('/api/categories').set(auth).send({
       name: 'Produce', vatRate: 5, commissionPercent: 10,
