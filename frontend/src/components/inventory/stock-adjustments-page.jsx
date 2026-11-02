@@ -8,6 +8,7 @@ import {
   approveStockAdjustment, createStockAdjustment, getLocations, getStockAdjustments, rejectStockAdjustment,
   searchReceiveProducts,
 } from '@/services/stock';
+import { stockText } from '@/services/stock-units.cjs';
 import { T } from '@/i18n/language-provider';
 import CameraBarcodeScanner from '@/components/common/camera-barcode-scanner';
 import useToastMessages from '@/hooks/use-toast-messages';
@@ -272,7 +273,7 @@ export default function StockAdjustmentsPage() {
                 {matches.length > 0 && <div className="absolute z-10 mt-1 max-h-52 w-full overflow-y-auto rounded border border-slate-200 bg-white shadow-lg">
                   {matches.map((product) => <button key={product.id} type="button" className="block w-full border-b border-slate-100 px-3 py-2 text-left hover:bg-slate-50" onClick={() => addProduct(product)}>
                     <span className="block text-sm font-medium">{product.name}</span>
-                    <small className="text-slate-500">{product.barcode} · Current stock: {product.stockQuantity}</small>
+                    <small className="text-slate-500">{product.barcode} · Current stock: {stockText(product.stockQuantity, product)}</small>
                   </button>)}
                 </div>}
                 {search.trim() && !searching && !searchError && matches.length === 0 && <p className="mt-1 text-xs text-slate-500"><T>{"No products found for this search."}</T></p>}
@@ -281,10 +282,10 @@ export default function StockAdjustmentsPage() {
             {lines.map((line) => (
               <div key={line.productId} className="grid items-end gap-3 rounded-lg border border-slate-200 p-3 sm:grid-cols-[1fr_8rem_12rem_auto]">
                 <div><strong className="block text-sm">{productsById.get(line.productId)?.name}</strong><small className="text-slate-500">{productsById.get(line.productId)?.barcode}</small></div>
-                <span className="pb-2 text-sm text-slate-600">Current stock: {line.stockQuantity}</span>
+                <span className="pb-2 text-sm text-slate-600">Current stock: {stockText(line.stockQuantity, productsById.get(line.productId))}</span>
                 <div>
                   <Input label="Quantity" type="number" min="0.000001" max={mode === 'REMOVE' ? line.stockQuantity : undefined} step="any" value={line.quantity} onChange={(event) => setLines((current) => current.map((entry) => entry.productId === line.productId ? { ...entry, quantity: event.target.value } : entry))} />
-                  {mode === 'REMOVE' && Number(line.quantity) > Number(line.stockQuantity) && <p className="mt-1 text-xs text-red-700">Cannot remove more than {line.stockQuantity} currently in stock.</p>}
+                  {mode === 'REMOVE' && Number(line.quantity) > Number(line.stockQuantity) && <p className="mt-1 text-xs text-red-700">Cannot remove more than {stockText(line.stockQuantity, productsById.get(line.productId))} currently in stock.</p>}
                 </div>
                 <Button type="button" variant="ghost" size="sm" onClick={() => setLines((current) => current.filter((entry) => entry.productId !== line.productId))}>Remove</Button>
               </div>

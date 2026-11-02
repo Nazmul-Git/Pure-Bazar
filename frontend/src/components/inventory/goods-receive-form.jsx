@@ -12,7 +12,7 @@ import {
 } from '@/services/stock';
 import { T } from '@/i18n/language-provider';
 import useToastMessages from '@/hooks/use-toast-messages';
-import { isGram } from '@/services/stock-units.cjs';
+import { isGram, productLabel, stockText } from '@/services/stock-units.cjs';
 import CameraBarcodeScanner from '@/components/common/camera-barcode-scanner';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
@@ -112,7 +112,7 @@ export default function GoodsReceiveForm() {
       if (current.some((line) => line.productId === product.id)) return current;
       return [...current, {
         productId: product.id,
-        productName: product.displayName || product.name,
+        productName: productLabel(product),
         barcode: product.barcode,
         isWeightBased: Boolean(product.isWeightBased) || isGram(product.packageUnitName),
         receivedQuantity: 1,
@@ -276,11 +276,11 @@ export default function GoodsReceiveForm() {
                 disabled={lines.some((line) => line.productId === product.id)}
               >
                 <span>
-                  <strong className="block text-sm text-slate-800">{product.displayName || product.name}</strong>
+                  <strong className="block text-sm text-slate-800">                  {productLabel(product)}</strong>
                   <small className="text-slate-500">{product.barcode}</small>
                 </span>
                 <span className="whitespace-nowrap text-xs text-slate-500">
-                  Stock: {stockByProduct.get(product.id) ?? 0}
+                  Stock: {stockText(stockByProduct.get(product.id) ?? 0, product)}
                   <Plus size={15} className="ml-2 inline" />
                 </span>
               </button>

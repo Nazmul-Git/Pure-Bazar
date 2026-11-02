@@ -17,7 +17,7 @@ import billingUtils from '@/services/pos-billing-utils.cjs';
 import {
   STOCK_LIMIT_MESSAGE, availableStock, canSellPieces, clampQuantity, hasStockProblem,
 } from '@/services/pos-cart-utils.cjs';
-import { isGram } from '@/services/stock-units.cjs';
+import { isGram, productLabel } from '@/services/stock-units.cjs';
 import InvoiceModal from './invoice-modal';
 import ErrorToast from './error-toast';
 import useToastMessages from '@/hooks/use-toast-messages';
@@ -128,7 +128,7 @@ export default function PosBillingPage() {
       if (limit < 1) return current;
       return [...current, {
         productId: String(product.productId),
-        name: product.displayName || product.name,
+        name: productLabel(product),
         barcode: product.barcode,
         mrp: Number(product.mrp),
         unitValue: product.unitValue,

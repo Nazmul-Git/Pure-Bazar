@@ -2,6 +2,18 @@ const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const { splitQuantity, combineQuantity, formatStock, formatStockDisplay, formatLineQuantity, toGrams, fromGrams } = require('./stock-units.cjs');
 const { lineTotal } = require('./pos-cart-utils.cjs');
+const { productLabel, stockText } = require('./stock-units.cjs');
+
+describe('POS display helpers', () => {
+  const rice = { name: 'Rice', displayName: 'Rice [g]', unitLabel: 'g', packageUnitName: 'Gram' };
+  it('formats gram stock as Kg/Gram and drops the raw unit tag', () => {
+    assert.equal(stockText(59300, rice), '59 Kg 300 Gram');
+    assert.equal(productLabel(rice), 'Rice');
+  });
+  it('keeps the display name for non-gram products', () => {
+    assert.equal(productLabel({ name: 'Egg', displayName: 'Egg [Doz]', packageUnitName: 'Dozen' }), 'Egg [Doz]');
+  });
+});
 
 describe('weight input conversion', () => {
   const item = { mrp: 20, unitValue: 1000, packageUnitName: 'Gram' };

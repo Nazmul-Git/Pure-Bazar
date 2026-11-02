@@ -66,4 +66,12 @@ function formatLineQuantity(line) {
   return `${Math.round(value * 1e6) / 1e6} ${name || 'Box'}`;
 }
 
-module.exports = { isMultiUnit, splitQuantity, combineQuantity, formatStock, formatStockDisplay, formatLineQuantity, isGram, toGrams, fromGrams };
+// Gram products show their stock as Kg/Gram, so the raw "[g]" tag is dropped from the name.
+function productLabel(item) {
+  if (isGram(item?.packageUnitName) || isGram(item?.unitLabel)) return item?.name || item?.displayName || '';
+  return item?.displayName || item?.name || '';
+}
+
+const stockText = (quantity, item) => formatStock(quantity, item?.unitsPerPackage, item?.packageUnitName);
+
+module.exports = { productLabel, stockText, isMultiUnit, splitQuantity, combineQuantity, formatStock, formatStockDisplay, formatLineQuantity, isGram, toGrams, fromGrams };

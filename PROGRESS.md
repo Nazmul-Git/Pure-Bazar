@@ -518,3 +518,8 @@
 	- Files: `frontend/src/components/common/camera-barcode-scanner.jsx`.
 	- Decisions: the shared component wraps the button in a `block md:hidden` span, so every module (POS, stock count, transfers, adjustments, GRN, products) hides it at md and wider, where physical scanners are used. The wrapper avoids a clash with the `.ui-button` inline-flex rule.
 	- Validation: not tested in browser.
+
+- [x] Fix: standardize unit display and human-readable stock formatting in POS and inventory search components
+	- Files: `frontend/src/services/stock-units.cjs` (new `productLabel`, `stockText`), POS item scanner, POS billing page, GRN form, stock transfer request form, stock adjustments page, `stock-units.test.cjs`.
+	- Decisions: gram products show e.g. `59 Kg 300 Gram` instead of `59300` and drop the raw `[g]` name tag; other units keep their tag. Cart rows and the warehouse stock column already used the shared formatters.
+	- Validation: stock-units tests (10) pass; UI not tested in browser.
