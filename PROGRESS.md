@@ -538,3 +538,8 @@
 	- Files: `frontend/src/components/common/camera-barcode-scanner.jsx`.
 	- Decisions: a `safeStop` helper only stops when the scanner is scanning/paused and swallows errors, so missing camera, denied permission or already-closed state shows the error/closes the modal without crashing.
 	- Validation: not tested in browser.
+
+- [x] Fix: correct POS cart available stock calculation and unit conversion ratio
+	- Files: `frontend/src/services/pos-cart-utils.cjs`, `backend/tests/pos-cart-utils.test.js`.
+	- Decisions: stock stays stored in packages; available stock is now derived from one total-pieces figure (Pcs = total pieces, Box = floor(totalPcs / unitSize)), removing float drift (e.g. 4.9999 boxes showing 4). Checkout deduction already uses exact pieces/unitsPerPackage for Pcs and qty packages (= qty x unitSize pieces) for Box, so it is unchanged.
+	- Validation: pos-cart-utils and piece-pricing jest tests pass.

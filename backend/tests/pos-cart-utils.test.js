@@ -46,6 +46,14 @@ describe('POS cart quantity rules', () => {
     expect(lineTotal({ ...toffen, unit: 'PACKAGE', quantity: 1 })).toBe(2100);
   });
 
+  it('shows base pieces for Pcs and floor(totalPcs / unitSize) for Box without re-multiplying', () => {
+    const item = { stock: 5, unitsPerPackage: 100, subUnitPrice: 1 };
+    expect(availableStock({ ...item, unit: 'PIECE' })).toBe(500);
+    expect(availableStock({ ...item, unit: 'PACKAGE' })).toBe(5);
+    expect(availableStock({ ...item, stock: 4.9999999999, unit: 'PACKAGE' })).toBe(5);
+    expect(availableStock({ ...item, stock: 5.5, unit: 'PACKAGE' })).toBe(5);
+  });
+
   it('calculates package and piece totals from total MRP', () => {
     const product = {
       mrp: 1557, unitValue: 10, unitsPerPackage: 120, subUnitPrice: 12.98,

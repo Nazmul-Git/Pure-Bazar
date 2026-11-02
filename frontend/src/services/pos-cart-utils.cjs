@@ -20,9 +20,15 @@ function isPiece(item) {
 }
 
 // Stock expressed in the unit currently selected for the cart line.
+// Stock is stored in packages; convert once to base pieces, then derive Box/Pcs from that single figure.
+function totalPieces(item) {
+  return Math.round((Number(item.stock) || 0) * Number(item.unitsPerPackage));
+}
+
 function availableStock(item) {
-  const packages = Number(item.stock) || 0;
-  return isPiece(item) ? Math.floor(Math.round(packages * item.unitsPerPackage * 1e6) / 1e6) : Math.floor(packages);
+  if (!canSellPieces(item)) return Math.floor(Number(item.stock) || 0);
+  const pieces = totalPieces(item);
+  return isPiece(item) ? pieces : Math.floor(pieces / Number(item.unitsPerPackage));
 }
 
 function unitPrice(item) {
