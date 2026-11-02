@@ -514,4 +514,7 @@
 - [x] Feature: universal mobile camera barcode scanning across all inventory and POS modules
 	- Files: `frontend/src/components/common/camera-barcode-scanner.jsx`, product/warehouse/barcode-label pages, GRN, outlet transfer, stock adjustment, stock count, and POS scanner surfaces; `frontend/src/hooks/use-barcode-scanner.js`; frontend package manifests.
 	- Decisions: use `html5-qrcode` with the rear-facing camera (`facingMode: environment`); a shared responsive modal control stops after the first successful decode and routes the value through each module's existing search or add-item handler. Camera permission and startup errors are shown in the modal.
-	- Validation: frontend production build passes; frontend tests have one pre-existing Bengali translation failure for the retail-sale checkbox label.
+	- Validation: frontend production build passes; frontend tests have one pre-existing Bengali translation failure for the retail-sale checkbox label.- [x] UI: show camera barcode scan button exclusively on mobile responsive view
+	- Files: `frontend/src/components/common/camera-barcode-scanner.jsx`.
+	- Decisions: the shared component wraps the button in a `block md:hidden` span, so every module (POS, stock count, transfers, adjustments, GRN, products) hides it at md and wider, where physical scanners are used. The wrapper avoids a clash with the `.ui-button` inline-flex rule.
+	- Validation: not tested in browser.

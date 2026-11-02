@@ -61,9 +61,11 @@ export default function CameraBarcodeScanner({ onScan, disabled = false }) {
 
   return (
     <>
-      <Button type="button" variant="secondary" size="sm" onClick={() => setOpen(true)} disabled={disabled}>
-        <Camera size={15} /> Scan via Camera
-      </Button>
+      <span className="block md:hidden">
+        <Button type="button" variant="secondary" size="sm" onClick={() => setOpen(true)} disabled={disabled}>
+          <Camera size={15} /> Scan via Camera
+        </Button>
+      </span>
       <Modal open={open} onClose={close} title="Scan via Camera" className="max-w-lg">
         <div className="space-y-3">
           <div id={elementId} className="min-h-40 overflow-hidden rounded-lg bg-slate-950" />
