@@ -267,7 +267,6 @@ const pages = {
   'Sales / returns': 'বিক্রয় / ফেরত',
   'Units (sales / returns)': 'একক (বিক্রয় / ফেরত)',
   'Units / amount': 'একক / পরিমাণ',
-  'Unit Quantity / Value': 'একক পরিমাণ / মান',
   'Sales value at vendor price': 'ভেন্ডর মূল্যে বিক্রয়মূল্য',
   'Group by': 'গ্রুপ করুন',
   'Reporting period': 'রিপোর্টিং সময়কাল',

@@ -474,6 +474,11 @@
 	- Decisions: product search now returns `isWeightBased` (Gram unit); the GRN form shows a Kg hint and on submit multiplies received/accepted/rejected by 1000 (rounded) for those products. Stored quantities stay in grams; saved-receive API unchanged, so no double conversion.
 	- Validation: backend goods receive tests run; UI not tested in browser.
 
+- [x] UI: remove unit quantity / initial stock input from product creation form
+	- Files: `frontend/src/components/inventory/product-form-modal.jsx`, `frontend/src/i18n/bn-pages.js`, `backend/controllers/productsController.js`, `backend/routes/productRoutes.js`, `backend/tests/products.integration.test.js`.
+	- Decisions: product creation no longer collects or accepts `unitValue`; pieces per package is used directly. Removed the Kg-to-Gram creation toggle that depended on the removed quantity. Existing product `unitValue` data remains available to POS and can still be updated; initial stock remains managed through GRN.
+	- Validation: product API integration tests pass (6 tests); frontend tests pass (22 tests); frontend production build passes.
+
 - [x] Feature: allow Kg input and formatted stock display in outlet transfers
 	- Files: `frontend/src/components/inventory/stock-transfer-request-form.jsx`.
 	- Decisions: Central Warehouse stock shown via `formatStockDisplay` for weight-based products; quantity input is in Kg (step 0.001) and converted to grams on submit, so the backend still receives grams. Backend unchanged.

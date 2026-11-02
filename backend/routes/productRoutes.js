@@ -36,7 +36,7 @@ const pieceRules = [
 router.get('/', read, productsController.listProducts);
 router.post('/', write, [
   name, categoryId, unitId, ownerType, vendorPrice, mrp,
-  optionalId('brandId'), optionalId('vendorId'), optionalPrice('unitValue'),
+  optionalId('brandId'), optionalId('vendorId'),
   body('vatApplicable').optional().isBoolean().toBoolean()
     .withMessage('vatApplicable must be a boolean'),
   optionalPrice('vatRate').custom((value) => value === undefined || value <= 100)

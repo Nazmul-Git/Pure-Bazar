@@ -136,14 +136,15 @@ describe('product endpoints', () => {
     }));
   });
 
-  it('stores a gram quantity converted from kg for retail sale', async () => {
+  it('ignores unitValue when creating a product', async () => {
     Product.create.mockImplementation(async (input) => ({ ...product, ...input, barcode: 'PB1' }));
     const res = await request(app).post('/api/products').set(auth).send({
       name: 'Sugar', categoryId, unitId, unitValue: 1500, ownerType: 'COMPANY', vendorPrice: 90, mrp: 100,
     });
 
     expect(res.status).toBe(201);
-    expect(Product.create).toHaveBeenCalledWith(expect.objectContaining({ unitValue: 1500, unitId }));
+    expect(Product.create.mock.calls[0][0]).not.toHaveProperty('unitValue');
+    expect(Product.create.mock.calls[0][0]).toMatchObject({ unitId });
   });
 
   it('records price history and an audit event when an authorized user changes prices', async () => {

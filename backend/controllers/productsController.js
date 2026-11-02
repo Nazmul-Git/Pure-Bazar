@@ -7,6 +7,7 @@ const editableFields = [
   'name', 'categoryId', 'brandId', 'unitId', 'unitValue', 'ownerType', 'vendorId',
   'vendorPrice', 'mrp', 'vatApplicable', 'vatRate', 'unitsPerPackage', 'subUnitPriceOverride',
 ];
+const creationFields = editableFields.filter((field) => field !== 'unitValue');
 
 function statusError(message, status) {
   const error = new Error(message);
@@ -77,8 +78,8 @@ async function validateReferences(data) {
   }
 }
 
-function pickInput(body) {
-  return Object.fromEntries(editableFields
+function pickInput(body, fields = editableFields) {
+  return Object.fromEntries(fields
     .filter((field) => Object.prototype.hasOwnProperty.call(body, field))
     .map((field) => [field, body[field]]));
 }
@@ -116,7 +117,7 @@ async function getProduct(req, res, next) {
 
 async function createProduct(req, res, next) {
   try {
-    const input = pickInput(req.body);
+    const input = pickInput(req.body, creationFields);
     await validateReferences(input);
     const product = await Product.create(input);
     const after = productSnapshot(product);
