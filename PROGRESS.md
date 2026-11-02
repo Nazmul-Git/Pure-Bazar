@@ -511,7 +511,6 @@
 	- Files: `frontend/src/services/barcodeEngine.js`, `frontend/src/app/inventory/barcodes/page.jsx`, `backend/tests/barcode-engine.test.js`.
 	- Decisions: optional per-item "Package Size / Weight Tag" (max 20 chars) replaces the unit in the label name, e.g. "Potato (5 Kg)"; blank falls back to "Potato (Kg)". Preview, TSPL and ESC/POS all use the shared label name. No backend API change.
 	- Validation: backend barcode engine tests (5) pass; UI not tested in browser.
- 
 - [x] Feature: universal mobile camera barcode scanning across all inventory and POS modules
 	- Files: `frontend/src/components/common/camera-barcode-scanner.jsx`, product/warehouse/barcode-label pages, GRN, outlet transfer, stock adjustment, stock count, and POS scanner surfaces; `frontend/src/hooks/use-barcode-scanner.js`; frontend package manifests.
 	- Decisions: use `html5-qrcode` with the rear-facing camera (`facingMode: environment`); a shared responsive modal control stops after the first successful decode and routes the value through each module's existing search or add-item handler. Camera permission and startup errors are shown in the modal.
