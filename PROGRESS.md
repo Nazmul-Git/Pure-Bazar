@@ -632,3 +632,6 @@
 - [x] UI: make EN and BN language toggle buttons more compact and slim
 	- Files: frontend/src/app/theme.css and globals.css (.language-switcher/.language-option).
 	- Decisions: padding 2px 8px (6px on small screens), font-size 11px, rounded 6px, mobile min-height 28px; no automated tests run.
+- [x] UI: fix table width constraints for desktop view to span full width
+	- Files: frontend/src/app/globals.css (.table-wrap/.table-scroll/.ui-table width:100%, .page-content max-width none).
+	- Decisions: root cause was .ui-table lacking width:100% (min-width max-content override); tables still scroll horizontally when wider than viewport; no automated tests run.
