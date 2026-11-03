@@ -617,3 +617,8 @@
 	- Files: backend/utils/stockAdjustments.js, controllers/stockAdjustmentController.js, stockCountController.js, stockTransferController.js, services/posCheckoutService.js (body.outletId honored for any authorized user), tests/stock-transfer.integration.test.js, frontend stock-counts/stock-adjustments/stock-transfers pages.
 	- Decisions: user.locationId is ignored for stock counts, transfers and adjustments; only route permission guards apply. Location dropdowns list all active warehouses and outlets and are no longer locked or defaulted to the user's location.
 	- Validation: backend jest 44 suites pass.
+
+- [x] Fix: format stock report units, attach missing units in vendor details, and remove unit size column
+	- Files: frontend/src/app/inventory/products/page.jsx (remove Unit size column), frontend/src/services/stock-units.cjs (label and round single-unit quantities), frontend/src/components/reports/report-screen.jsx (format stock movement and low-stock values), backend/services/salesStockReportService.js (include product unit metadata), related formatter and report integration tests.
+	- Decisions: stock quantities use the shared box/dozen-and-pieces formatter; ratio-1 quantities use the product's primary unit label, defaulting to Pcs.
+	- Validation: formatter tests (10) and report integration tests (8) pass; frontend production build passes. Full frontend test run has one existing i18n translation assertion failure listing Vendor Probashi ID, Print Statement / Generate Invoice, Opening, Closing, Sales value, and Stock value.

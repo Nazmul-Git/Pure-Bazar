@@ -50,7 +50,7 @@ function fromGrams(grams, unit) {
 function formatStock(quantity, unitsPerPackage, packageUnitName) {
   const value = Number(quantity) || 0;
   if (!isMultiUnit(unitsPerPackage) && isGram(packageUnitName)) return formatStockDisplay(value, packageUnitName);
-  if (!isMultiUnit(unitsPerPackage)) return String(Math.round(value * 1e6) / 1e6);
+  if (!isMultiUnit(unitsPerPackage)) return `${Math.round(value)} ${packageUnitName || 'Pcs'}`;
   const name = packageUnitName || 'Box';
   const { boxes, pieces } = splitQuantity(value, unitsPerPackage);
   if (!pieces) return `${boxes} ${packageUnitName ? name : 'Box(es)'}`;

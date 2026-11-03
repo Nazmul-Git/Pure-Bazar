@@ -5,6 +5,7 @@ import { FileDown, FileSpreadsheet } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { Button, Card, Input, Table } from '@/components/ui';
 import { downloadReport, getReport } from '@/services/reports';
+import { stockText } from '@/services/stock-units.cjs';
 import { T } from '@/i18n/language-provider';
 import useToastMessages from '@/hooks/use-toast-messages';
 
@@ -35,12 +36,12 @@ const reportConfig = {
     columns: [
       ['productName', 'Product'],
       ['barcode', 'Barcode'],
-      ['opening', 'Opening', 'quantity'],
-      ['received', 'Received', 'quantity'],
-      ['sold', 'Sold net', 'quantity'],
-      ['otherChange', 'Other change', 'quantity'],
-      ['closing', 'Closing', 'quantity'],
-      ['onHand', 'On hand', 'quantity'],
+      ['opening', 'Opening', 'stockQuantity'],
+      ['received', 'Received', 'stockQuantity'],
+      ['sold', 'Sold net', 'stockQuantity'],
+      ['otherChange', 'Other change', 'stockQuantity'],
+      ['closing', 'Closing', 'stockQuantity'],
+      ['onHand', 'On hand', 'stockQuantity'],
       ['turnover', 'Turnover', 'number'],
     ],
   },
@@ -112,7 +113,7 @@ function ReportTable({ columns, rows, emptyMessage }) {
   const tableColumns = columns.map(([key, label, kind]) => ({
     key,
     label,
-    render: (value) => formatValue(value, kind),
+    render: (value, row) => kind === 'stockQuantity' ? stockText(value, row) : formatValue(value, kind),
   }));
   return <Table columns={tableColumns} rows={rows} rowKey="_id" pageSize={15} emptyMessage={emptyMessage} />;
 }
@@ -270,7 +271,7 @@ export default function ReportScreen({ type }) {
           {type === 'stock' && (
             <Card title="Low stock">
               <ReportTable
-                columns={[['productName', 'Product'], ['barcode', 'Barcode'], ['quantity', 'On hand', 'quantity']]}
+                columns={ [['productName', 'Product'], ['barcode', 'Barcode'], ['quantity', 'On hand', 'stockQuantity']] }
                 rows={report.lowStock || []}
                 emptyMessage="No products are at or below the threshold."
               />

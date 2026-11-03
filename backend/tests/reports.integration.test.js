@@ -8,6 +8,7 @@ jest.mock('../models', () => {
   const list = (items) => {
     const promise = Promise.resolve(items);
     promise.select = () => promise;
+    promise.populate = () => promise;
     promise.lean = () => Promise.resolve(items);
     return promise;
   };
@@ -46,8 +47,8 @@ const o1 = id(); const o2 = id(); const o3 = id(); const o4 = id();
 function seed() {
   global.__db = {
     Product: [
-      { _id: pV, name: 'Vendor Rice', barcode: '1', vendorPrice: 75 },
-      { _id: pC, name: 'Own Soap', barcode: '2', vendorPrice: 30 },
+      { _id: pV, name: 'Vendor Rice', barcode: '1', vendorPrice: 75, unitId: { name: 'Dozen' }, unitsPerPackage: 12 },
+      { _id: pC, name: 'Own Soap', barcode: '2', vendorPrice: 30, unitId: { name: 'Pcs' } },
     ],
     Vendor: [{ _id: v1, name: 'Karim', shopName: 'K Store', memberId: 'V1' }, { _id: v2, name: 'Rahim', shopName: 'R Store', memberId: 'V2' }],
     Order: [
@@ -129,7 +130,9 @@ describe('reports API', () => {
     expect(rice.closing).toBe(18);
     expect(rice.onHand).toBe(raw.reduce((t, m) => t + m.quantity, 0));
     expect(rice.turnover).toBe(0.1053);
+    expect(rice).toMatchObject({ unitsPerPackage: 12, packageUnitName: 'Dozen' });
     expect(report.lowStock.map((r) => [r.productName, r.quantity])).toEqual([['Own Soap', 7]]);
+    expect(report.lowStock[0]).toMatchObject({ unitsPerPackage: 1, packageUnitName: 'Pcs' });
   });
 
   it('vendor profitability per vendor sums to the ledger', async () => {

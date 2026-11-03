@@ -30,12 +30,14 @@ async function stockReport({ from, to, lowStockThreshold = DEFAULT_LOW_STOCK_THR
   const bounds = periodBounds({ from, to });
   const [movements, products] = await Promise.all([
     StockMovement.find({}).lean(),
-    Product.find({}).select('name barcode').lean(),
+    Product.find({}).select('name barcode unitsPerPackage unitId').populate('unitId', 'name').lean(),
   ]);
   const stats = new Map(products.map((product) => [String(product._id), {
     productId: String(product._id),
     productName: product.name,
     barcode: product.barcode,
+    unitsPerPackage: product.unitsPerPackage || 1,
+    packageUnitName: product.unitId?.name || null,
     opening: 0, received: 0, soldNet: 0, otherChange: 0, closing: 0, onHand: 0,
   }]));
 
@@ -64,6 +66,8 @@ async function stockReport({ from, to, lowStockThreshold = DEFAULT_LOW_STOCK_THR
       productId: row.productId,
       productName: row.productName,
       barcode: row.barcode,
+      unitsPerPackage: row.unitsPerPackage,
+      packageUnitName: row.packageUnitName,
       opening: qty(row.opening),
       received: qty(row.received),
       sold: qty(row.soldNet),
@@ -76,7 +80,9 @@ async function stockReport({ from, to, lowStockThreshold = DEFAULT_LOW_STOCK_THR
     .sort((a, b) => a.productName.localeCompare(b.productName));
 
   const lowStock = rows.filter((row) => row.onHand <= lowStockThreshold)
-    .map(({ productId, productName, barcode, onHand }) => ({ productId, productName, barcode, quantity: onHand }))
+    .map(({ productId, productName, barcode, onHand, unitsPerPackage, packageUnitName }) => ({
+      productId, productName, barcode, quantity: onHand, unitsPerPackage, packageUnitName,
+    }))
     .sort((a, b) => a.quantity - b.quantity || a.productName.localeCompare(b.productName));
   return { from: from || null, to: to || null, lowStockThreshold, rows, lowStock };
 }
