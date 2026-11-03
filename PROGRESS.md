@@ -603,3 +603,8 @@
 - [x] UI: simplify vendor details view by keeping only active products summary and core stock columns
 	- Files: frontend/src/components/vendors/vendor-overview.jsx (summary now only 'Active products'; Products table drops 'Sold' and 'Valuation'). Printed statement invoice unchanged.
 	- Validation: visual/syntax check only.
+
+- [x] Fix: resolve outlet transfer permission check error for operation manager role
+	- Files: backend/middlewares/authMiddleware.js and controllers/authController.js (role permissions now run through expandPermissions, so page-level inventory.transfers:write grants stock:transfer:write/receive/read even on roles saved without legacy flags), frontend/src/store/auth-slice.js (refreshSession thunk), frontend/src/components/common/app-shell.jsx (re-reads /auth/me on focus and every 60s).
+	- Decisions: route guards already used stock:transfer:* keys matching the catalog; backend loads role permissions from the DB per request (no JWT claims), so only the frontend session was stale.
+	- Validation: backend jest 44 suites pass.

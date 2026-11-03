@@ -7,7 +7,7 @@ import Header from './header';
 import Sidebar from './sidebar';
 import { getCurrentSection, getPageKey, getRoutePermissions } from './navigation';
 import useAuth from '@/store/use-auth';
-import { restoreAuth } from '@/store/auth-slice';
+import { refreshSession, restoreAuth } from '@/store/auth-slice';
 import { useLanguage } from '@/i18n/language-provider';
 
 export default function AppShell({ children }) {
@@ -21,6 +21,17 @@ export default function AppShell({ children }) {
   useEffect(() => {
     dispatch(restoreAuth());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return undefined;
+    const refresh = () => dispatch(refreshSession());
+    const timer = window.setInterval(refresh, 60000);
+    window.addEventListener('focus', refresh);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener('focus', refresh);
+    };
+  }, [dispatch, isAuthenticated]);
 
   useEffect(() => {
     if (!initialized) return;

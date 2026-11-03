@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
+const { expandPermissions } = require('../config/permissionCatalog');
 
 function authMiddleware(req, res, next) {
   const authorization = req.get('authorization') || '';
@@ -50,9 +51,9 @@ async function loadUser(userId, req, next) {
       role: role?.name || null,
       roleId: role?._id || user.roleId,
       locationId: user.locationId || null,
-      permissions: Array.isArray(role?.permissions)
+      permissions: expandPermissions(Array.isArray(role?.permissions)
         ? role.permissions
-        : Array.isArray(user.permissions) ? user.permissions : [],
+        : Array.isArray(user.permissions) ? user.permissions : []),
     };
 
     return next();

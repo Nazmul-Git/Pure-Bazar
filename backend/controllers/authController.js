@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { AuditLog, User } = require('../models');
+const { expandPermissions } = require('../config/permissionCatalog');
 
 const DUMMY_HASH = bcrypt.hashSync('purebazar-dummy-password', 10);
 
@@ -12,7 +13,7 @@ function publicUser(user) {
     email: user.email,
     role: role?.name || null,
     roleId: role?._id?.toString() || user.roleId?.toString() || null,
-    permissions: Array.isArray(role?.permissions) ? role.permissions : [],
+    permissions: expandPermissions(Array.isArray(role?.permissions) ? role.permissions : []),
   };
 }
 

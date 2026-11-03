@@ -29,6 +29,16 @@ export const restoreAuth = createAsyncThunk('auth/restore', async (_, { rejectWi
   }
 });
 
+// Silently re-reads the user's role/permissions so role edits apply without re-login.
+export const refreshSession = createAsyncThunk('auth/refresh', async (_, { rejectWithValue }) => {
+  try {
+    const { data } = await api.get('/auth/me');
+    return data.user;
+  } catch (error) {
+    return rejectWithValue(error.response?.status || 0);
+  }
+});
+
 export const loginUser = createAsyncThunk('auth/login', async (credentials, { rejectWithValue }) => {
   try {
     const { data } = await api.post('/auth/login', credentials);
@@ -76,6 +86,16 @@ const authSlice = createSlice({
         state.initialized = true;
         state.status = 'failed';
         state.error = action.payload || action.error.message;
+      })
+      .addCase(refreshSession.fulfilled, (state, action) => {
+        if (state.isAuthenticated && action.payload) state.user = action.payload;
+      })
+      .addCase(refreshSession.rejected, (state, action) => {
+        if (action.payload === 401) {
+          window.sessionStorage.removeItem('purebazar.authToken');
+          return { ...initialState, initialized: true };
+        }
+        return state;
       })
       .addCase(loginUser.pending, (state) => {
         state.status = 'loading';
