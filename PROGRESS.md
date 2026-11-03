@@ -558,3 +558,8 @@
 	- Files: backend GRN print response, unit master API and seeder; frontend GRN print page; inventory, seeder, and GRN tests.
 	- Decisions: printable product names append the unit abbreviation in brackets (e.g. `Rice [box]`); seed and expose `Dozen (doz)` through the existing dynamic product unit dropdown.
 	- Validation: focused backend tests pass (3 suites, 24 tests); frontend production build passes.
+
+- [x] Logic: disable low stock notifications for Central Warehouse while keeping alerts active for outlets
+	- Files: `backend/services/dashboardService.js`, dashboard/role-dashboard/notifications integration tests.
+	- Decisions: `lowStockAlerts` (used by dashboards and notifications) now counts stock only per OUTLET location and ignores CENTRAL; alerts include `locationId`/`locationName`.
+	- Validation: full backend jest passes except dbBackup (mongodb-memory-server fails to start in this environment).

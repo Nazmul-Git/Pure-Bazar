@@ -1,5 +1,5 @@
 const {
-  AuditLog, Expense, Order, Product, StockMovement, VendorLedger, VendorStatement,
+  AuditLog, Expense, Location, Order, Product, StockMovement, VendorLedger, VendorStatement,
 } = require('../models');
 
 const { buildTrends } = require('./dashboardTrends');
@@ -31,22 +31,28 @@ function dhakaBounds(now) {
 const soldTime = (order) => new Date(order.soldAt || order.createdAt).getTime();
 
 async function lowStockAlerts(threshold) {
-  const [movements, products] = await Promise.all([
-    StockMovement.find({}).lean(),
+  // Alerts apply to retail outlets only; the Central Warehouse is excluded.
+  const [outlets, products] = await Promise.all([
+    Location.find({ type: 'OUTLET' }).select('name').lean(),
     Product.find({}).select('name barcode').lean(),
   ]);
+  const outletNames = new Map(outlets.map((outlet) => [String(outlet._id), outlet.name]));
+  const movements = (await StockMovement.find({}).lean()).filter((m) => outletNames.has(String(m.warehouseId)));
   const quantities = new Map();
   movements.forEach((movement) => {
-    const key = String(movement.productId);
+    const key = `${movement.productId}|${movement.warehouseId}`;
     quantities.set(key, (quantities.get(key) || 0) + cents(movement.quantity));
   });
   const names = new Map(products.map((product) => [String(product._id), product]));
   return [...quantities.entries()]
-    .filter(([productId, total]) => names.has(productId) && total / 100 <= threshold)
-    .map(([productId, total]) => ({
+    .map(([key, total]) => ({ key, total, productId: key.split('|')[0], locationId: key.split('|')[1] }))
+    .filter(({ productId, total }) => names.has(productId) && total / 100 <= threshold)
+    .map(({ productId, locationId, total }) => ({
       productId,
       productName: names.get(productId).name,
       barcode: names.get(productId).barcode,
+      locationId,
+      locationName: outletNames.get(locationId),
       quantity: total / 100,
     }))
     .sort((a, b) => a.quantity - b.quantity || a.productName.localeCompare(b.productName))

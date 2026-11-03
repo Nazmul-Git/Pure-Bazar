@@ -7,6 +7,7 @@ jest.mock('../models', () => {
   const collection = (name) => ({
     find: jest.fn((filter = {}) => {
       const rows = global.__db[name].filter((doc) => {
+        if (filter.type) return doc.type === filter.type;
         if (!filter.status) return true;
         return filter.status.$in ? filter.status.$in.includes(doc.status) : doc.status === filter.status;
       });
@@ -24,6 +25,7 @@ jest.mock('../models', () => {
     GoodsReceive: collection('GoodsReceive'),
     StockMovement: collection('StockMovement'),
     Product: collection('Product'),
+    Location: collection('Location'),
     Order: collection('Order'),
     VendorLedger: collection('VendorLedger'),
     VendorStatement: collection('VendorStatement'),
@@ -45,6 +47,8 @@ const secret = 'notification-secret';
 const id = () => new mongoose.Types.ObjectId();
 const me = id();
 const p1 = id();
+const outlet = id();
+const central = id();
 
 describe('GET /api/notifications', () => {
   const app = express();
@@ -66,7 +70,8 @@ describe('GET /api/notifications', () => {
       SalarySheet: [{ _id: id(), status: 'Draft', month: '2026-10' }],
       SalaryAdvance: [{ _id: id(), status: 'Draft' }, { _id: id(), status: 'Paid' }],
       Product: [{ _id: p1, name: 'Rice', barcode: '1' }],
-      StockMovement: [{ productId: p1, quantity: 2 }],
+      Location: [{ _id: outlet, type: 'OUTLET', name: 'Outlet-1' }, { _id: central, type: 'CENTRAL', name: 'Central Warehouse' }],
+      StockMovement: [{ productId: p1, warehouseId: outlet, quantity: 2 }, { productId: p1, warehouseId: central, quantity: 0 }],
     };
     models.User.findById.mockImplementation(() => ({
       populate: jest.fn(async () => ({ _id: me, isActive: true, roleId: { _id: id(), name: 'Manager', permissions } })),
@@ -98,7 +103,7 @@ describe('GET /api/notifications', () => {
 
   it('is empty when nothing is pending', async () => {
     permissions = ['*'];
-    global.__db = { StockCount: [], StockAdjustment: [], StockTransfer: [], GoodsReceive: [], VendorStatement: [], WalletReconciliation: [], SalarySheet: [], SalaryAdvance: [], Product: [], StockMovement: [] };
+    global.__db = { StockCount: [], StockAdjustment: [], StockTransfer: [], GoodsReceive: [], VendorStatement: [], WalletReconciliation: [], SalarySheet: [], SalaryAdvance: [], Product: [], Location: [], StockMovement: [] };
     const { body } = await get().expect(200);
     expect(body.notifications).toEqual({ total: 0, groups: [] });
   });

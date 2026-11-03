@@ -21,6 +21,7 @@ jest.mock('../models', () => {
     Order: collection('Order'),
     Product: collection('Product'),
     StockMovement: collection('StockMovement'),
+    Location: collection('Location'),
     VendorLedger: collection('VendorLedger'),
     VendorStatement: collection('VendorStatement'),
     Expense: collection('Expense'),
@@ -39,6 +40,7 @@ const now = new Date('2026-03-10T15:00:00+06:00');
 const at = (iso) => new Date(iso);
 
 const p1 = id(); const p2 = id(); const p3 = id(); const ghost = id();
+const outlet = id(); const central = id();
 const order = (grandTotal, payments, soldAt, paymentStatus = 'PAID') => ({
   _id: id(), grandTotal, payments, soldAt: at(soldAt), paymentStatus,
 });
@@ -67,10 +69,12 @@ function seed() {
       { amount: 7777, expenseDate: at('2026-02-28T23:00:00+06:00') },
       { amount: 8888, expenseDate: at('2026-04-01T00:30:00+06:00') },
     ],
+    Location: [{ _id: outlet, type: 'OUTLET', name: 'Outlet-1' }, { _id: central, type: 'CENTRAL', name: 'Central Warehouse' }],
     StockMovement: [
-      { productId: p1, quantity: 30 }, { productId: p1, quantity: -25 },
-      { productId: p2, quantity: 50 }, { productId: p3, quantity: 10 },
-      { productId: ghost, quantity: 1 },
+      { productId: p1, warehouseId: outlet, quantity: 30 }, { productId: p1, warehouseId: outlet, quantity: -25 },
+      { productId: p2, warehouseId: outlet, quantity: 50 }, { productId: p3, warehouseId: outlet, quantity: 10 },
+      { productId: ghost, warehouseId: outlet, quantity: 1 },
+      { productId: p2, warehouseId: central, quantity: 0 }, { productId: p3, warehouseId: central, quantity: 1 },
     ],
     AuditLog: Array.from({ length: 12 }, (_, i) => ({
       _id: id(), action: `act${i}`, entity: 'Order', createdAt: new Date(Date.UTC(2026, 2, 10, 0, i)),

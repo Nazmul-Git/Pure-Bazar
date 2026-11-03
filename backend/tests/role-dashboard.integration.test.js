@@ -21,6 +21,7 @@ jest.mock('../models', () => {
     Order: collection('Order'),
     Product: collection('Product'),
     StockMovement: collection('StockMovement'),
+    Location: collection('Location'),
     VendorLedger: collection('VendorLedger'),
     VendorStatement: collection('VendorStatement'),
     Expense: collection('Expense'),
@@ -39,7 +40,7 @@ const secret = 'role-dashboard-secret';
 const id = () => new mongoose.Types.ObjectId();
 const me = id();
 const other = id();
-const p1 = id(); const p2 = id();
+const p1 = id(); const p2 = id(); const outlet = id();
 const today = new Date();
 const order = (cashier, grandTotal, payments, number) => ({
   _id: id(), orderNumber: number, cashier, grandTotal, payments, paymentStatus: 'PAID',
@@ -56,9 +57,12 @@ function seed() {
     Settings: [{ dailySalesTarget: 1000 }],
     Shift: [{ openedAt: new Date(today.getTime() - 3600000), openingCash: 500 }],
     Product: [{ _id: p1, name: 'Rice', barcode: '1' }, { _id: p2, name: 'Oil', barcode: '2' }],
+    Location: [{ _id: outlet, type: 'OUTLET', name: 'Outlet-1' }],
     StockMovement: [
-      { productId: p1, quantity: 6, type: 'GRN' }, { productId: p1, quantity: -3, type: 'SALE', createdAt: today },
-      { productId: p2, quantity: 4, type: 'GRN' }, { productId: p2, quantity: -4, type: 'SALE', createdAt: today },
+      { productId: p1, warehouseId: outlet, quantity: 6, type: 'GRN' },
+      { productId: p1, warehouseId: outlet, quantity: -3, type: 'SALE', createdAt: today },
+      { productId: p2, warehouseId: outlet, quantity: 4, type: 'GRN' },
+      { productId: p2, warehouseId: outlet, quantity: -4, type: 'SALE', createdAt: today },
     ],
     GoodsReceive: [{ _id: id(), status: 'Draft', ownerType: 'COMPANY', lines: [{}], createdAt: today }],
     StockAdjustment: [{ _id: id(), status: 'Pending', reason: 'Damage', lines: [{}], createdAt: today }],
