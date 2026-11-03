@@ -48,8 +48,8 @@ export default function VendorOverview() {
   const { vendor, products = [], summary } = data || {};
   const stats = summary && [
     ['Active products', summary.totalProducts],
-    ['Available stock', totalStock(summary.totalAvailableStock, products)],
-    ['Sold units', totalStock(summary.totalSoldUnits, products)],
+    ['Available stock',     totalStock(summary.totalAvailableStock, products, 'currentStock')],
+        ['Sold units', totalStock(summary.totalSoldUnits, products, 'soldQty')],
     ['Payout due', money(summary.totalPayable)],
   ];
 

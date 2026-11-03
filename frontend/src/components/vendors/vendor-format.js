@@ -13,12 +13,19 @@ export const qty = (value) => new Intl.NumberFormat('en-BD', {
 // Per-product stock as Box/Dozen and Pcs, same helper as POS and Stock Count.
 export const productStock = (value, product) => stockText(value, product);
 
-// Totals mix products with different pack sizes, so they are formatted only when every product shares one pack ratio.
-export const totalStock = (value, products = []) => {
-  const [first] = products;
-  const same = first && products.every((p) => (p.unitsPerPackage || 1) === (first.unitsPerPackage || 1)
-    && (p.packageUnitName || '') === (first.packageUnitName || ''));
-  return same ? stockText(value, first) : qty(value);
+// Totals are summed per pack ratio (Box/Dozen/etc.) and each group is shown in the same human-readable format as the products table.
+export const totalStock = (value, products = [], field) => {
+  if (!field || products.length === 0) return qty(value);
+  const groups = new Map();
+  products.forEach((p) => {
+    const key = `${p.unitsPerPackage || 1}|${p.packageUnitName || ''}`;
+    const group = groups.get(key) || { product: p, total: 0 };
+    group.total += Number(p[field]) || 0;
+    groups.set(key, group);
+  });
+  return [...groups.values()]
+    .map(({ product, total }) => stockText(Math.round(total * 1e6) / 1e6, product))
+    .join(' + ');
 };
 
 export const formatDate = (value) => {

@@ -55,8 +55,8 @@ export default function VendorStatementInvoice({ data }) {
           <tr className="font-semibold">
             <td className={td}>Total ({summary.totalProducts})</td>
             <td className={td} colSpan={3} />
-            <td className={td}>{totalStock(summary.totalAvailableStock, products)}</td>
-            <td className={td}>{totalStock(summary.totalSoldUnits, products)}</td>
+            <td className={td}>{            totalStock(summary.totalAvailableStock, products, 'currentStock')}</td>
+                        <td className={td}>{totalStock(summary.totalSoldUnits, products, 'soldQty')}</td>
             <td className={td} />
             <td className={td}>{money(summary.totalValuation)}</td>
             <td className={td}>{money(summary.totalPayable)}</td>

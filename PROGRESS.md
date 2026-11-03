@@ -597,3 +597,6 @@
 	- Files: backend/services/vendorOverviewService.js and vendorSettlementService.js (rows now carry unitsPerPackage, packageUnitName), frontend/src/components/vendors/vendor-format.js (productStock, totalStock), vendor-overview.jsx, vendor-statement-invoice.jsx.
 	- Decisions: reuses stockText/formatStock from services/stock-units.cjs (same as POS and Stock Count); totals are formatted only when all products share one pack ratio, otherwise plain number. Saved monthly statement documents unchanged.
 	- Validation: vendor jest suites pass.
+- [x] UI: fix available stock summary card to avoid decimal float values
+	- Files: frontend/src/components/vendors/vendor-format.js (totalStock now sums per-product fields grouped by pack ratio and formats each group as Box/Dozen and Pcs, joined by ' + '), vendor-overview.jsx, vendor-statement-invoice.jsx.
+	- Validation: syntax check only.
