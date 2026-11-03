@@ -9,7 +9,7 @@ import { Button, Card, Input } from '@/components/ui';
 import { getVendorOverview } from '@/services/vendor';
 import { T } from '@/i18n/language-provider';
 import VendorStatementInvoice from './vendor-statement-invoice';
-import { money, qty } from './vendor-format';
+import { money, productStock, totalStock } from './vendor-format';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
 
@@ -48,8 +48,8 @@ export default function VendorOverview() {
   const { vendor, products = [], summary } = data || {};
   const stats = summary && [
     ['Active products', summary.totalProducts],
-    ['Available stock', qty(summary.totalAvailableStock)],
-    ['Sold units', qty(summary.totalSoldUnits)],
+    ['Available stock', totalStock(summary.totalAvailableStock, products)],
+    ['Sold units', totalStock(summary.totalSoldUnits, products)],
     ['Payout due', money(summary.totalPayable)],
   ];
 
@@ -105,11 +105,11 @@ export default function VendorOverview() {
                     {products.map((p) => (
                       <tr key={p.productId} className="border-t border-slate-100">
                         <td className="px-2 py-2 font-medium">{p.name}</td>
-                        <td className="px-2 py-2">{qty(p.receivedQty)}</td>
-                        <td className="px-2 py-2">{qty(p.warehouseStock)}</td>
-                        <td className="px-2 py-2">{qty(p.outletStock)}</td>
-                        <td className="px-2 py-2">{qty(p.currentStock)}</td>
-                        <td className="px-2 py-2">{qty(p.soldQty)}</td>
+                        <td className="px-2 py-2">{productStock(p.receivedQty, p)}</td>
+                        <td className="px-2 py-2">{productStock(p.warehouseStock, p)}</td>
+                        <td className="px-2 py-2">{productStock(p.outletStock, p)}</td>
+                        <td className="px-2 py-2">{productStock(p.currentStock, p)}</td>
+                        <td className="px-2 py-2">{productStock(p.soldQty, p)}</td>
                         <td className="px-2 py-2">{money(p.unitPrice)}</td>
                         <td className="px-2 py-2">{money(p.valuation)}</td>
                       </tr>

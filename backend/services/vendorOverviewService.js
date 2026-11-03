@@ -1,6 +1,7 @@
 const {
   Location, Product, StockMovement, Vendor, VendorLedger,
 } = require('../models');
+const { unitLabelMap, displayFields } = require('../utils/productDisplay');
 
 const cents = (value) => Math.round((Number(value) + Number.EPSILON) * 100);
 const money = (value) => cents(value || 0) / 100;
@@ -77,7 +78,8 @@ async function getVendorOverview(vendorId, { startDate, endDate } = {}) {
   }
   const range = dateBounds(startDate, endDate);
   const products = await Product.find({ ownerType: 'VENDOR', vendorId })
-    .select('name barcode vendorPrice mrp').sort({ name: 1 }).lean();
+    .select('name barcode vendorPrice mrp unitId unitsPerPackage').sort({ name: 1 }).lean();
+  const unitLabels = await unitLabelMap(products);
   const productIds = products.map((product) => product._id);
   const centralIds = (await Location.find({ type: 'CENTRAL' }).select('_id').lean()).map((item) => item._id);
   const [stock, sales] = await Promise.all([
@@ -98,6 +100,8 @@ async function getVendorOverview(vendorId, { startDate, endDate } = {}) {
       barcode: product.barcode,
       unitPrice: money(product.vendorPrice),
       mrp: money(product.mrp),
+      unitsPerPackage: product.unitsPerPackage || 1,
+      packageUnitName: displayFields(product, unitLabels).packageUnitName,
       receivedQty: qty(stockRow.received),
       warehouseStock,
       outletStock,

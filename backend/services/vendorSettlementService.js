@@ -1,5 +1,5 @@
 const { Product, StockMovement, VendorLedger } = require('../models');
-
+const { unitLabelMap, displayFields } = require('../utils/productDisplay');
 function cents(value) {
   return Math.round((value + Number.EPSILON) * 100);
 }
@@ -29,9 +29,10 @@ function qty(value) {
 
 async function getStockSnapshot(vendorId, start, endExclusive) {
   const products = await Product.find({ ownerType: 'VENDOR', vendorId })
-    .select('_id name barcode vendorPrice mrp')
+    .select('_id name barcode vendorPrice mrp unitId unitsPerPackage')
     .sort({ name: 1 })
     .lean();
+  const unitLabels = await unitLabelMap(products);
   const productIds = products.map((product) => product._id);
   if (!productIds.length) {
     return { openingStock: 0, receipts: 0, closingStock: 0, products: [] };
@@ -77,6 +78,8 @@ async function getStockSnapshot(vendorId, start, endExclusive) {
       barcode: product.barcode,
       vendorPrice: product.vendorPrice,
       mrp: product.mrp,
+      unitsPerPackage: product.unitsPerPackage || 1,
+      packageUnitName: displayFields(product, unitLabels).packageUnitName,
       openingStock: qty(row.openingStock),
       receipts: qty(row.receipts),
       closingStock: qty(row.closingStock),

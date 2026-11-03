@@ -592,3 +592,8 @@
 	- Files: backend/services/vendorOverviewService.js, backend/controllers/vendorOverviewController.js, backend/routes/vendorRoutes.js (GET /api/vendors/:vendorId/overview), vendor-overview.integration.test.js, frontend/src/app/vendors/[vendorId]/page.jsx, components/vendors/vendor-overview.jsx, vendor-statement-invoice.jsx, vendor-format.js, vendor-directory-page.jsx (View Details column).
 	- Decisions: a details page (not modal) at /vendors/[vendorId]; stock split warehouse (CENTRAL) vs outlets from stockmovements; sold/payable are net of returns from the vendor ledger within the optional date range; stock is always current; printable invoice is hidden on screen and shown via print CSS.
 	- Validation: new jest suite and vendor-settlements pass; next build passes.
+
+- [x] UI: format vendor stock quantities using box-dozen-pcs unit representation instead of decimals
+	- Files: backend/services/vendorOverviewService.js and vendorSettlementService.js (rows now carry unitsPerPackage, packageUnitName), frontend/src/components/vendors/vendor-format.js (productStock, totalStock), vendor-overview.jsx, vendor-statement-invoice.jsx.
+	- Decisions: reuses stockText/formatStock from services/stock-units.cjs (same as POS and Stock Count); totals are formatted only when all products share one pack ratio, otherwise plain number. Saved monthly statement documents unchanged.
+	- Validation: vendor jest suites pass.

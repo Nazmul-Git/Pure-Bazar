@@ -1,4 +1,4 @@
-import { formatDate, money, qty } from './vendor-format';
+import { formatDate, money, productStock, totalStock } from './vendor-format';
 
 const th = 'border border-slate-400 px-2 py-1 text-left';
 const td = 'border border-slate-300 px-2 py-1';
@@ -40,11 +40,11 @@ export default function VendorStatementInvoice({ data }) {
           {products.map((p) => (
             <tr key={p.productId}>
               <td className={td}>{p.name}</td>
-              <td className={td}>{qty(p.receivedQty)}</td>
-              <td className={td}>{qty(p.warehouseStock)}</td>
-              <td className={td}>{qty(p.outletStock)}</td>
-              <td className={td}>{qty(p.currentStock)}</td>
-              <td className={td}>{qty(p.soldQty)}</td>
+              <td className={td}>{productStock(p.receivedQty, p)}</td>
+              <td className={td}>{productStock(p.warehouseStock, p)}</td>
+              <td className={td}>{productStock(p.outletStock, p)}</td>
+              <td className={td}>{productStock(p.currentStock, p)}</td>
+              <td className={td}>{productStock(p.soldQty, p)}</td>
               <td className={td}>{money(p.unitPrice)}</td>
               <td className={td}>{money(p.valuation)}</td>
               <td className={td}>{money(p.payable)}</td>
@@ -55,8 +55,8 @@ export default function VendorStatementInvoice({ data }) {
           <tr className="font-semibold">
             <td className={td}>Total ({summary.totalProducts})</td>
             <td className={td} colSpan={3} />
-            <td className={td}>{qty(summary.totalAvailableStock)}</td>
-            <td className={td}>{qty(summary.totalSoldUnits)}</td>
+            <td className={td}>{totalStock(summary.totalAvailableStock, products)}</td>
+            <td className={td}>{totalStock(summary.totalSoldUnits, products)}</td>
             <td className={td} />
             <td className={td}>{money(summary.totalValuation)}</td>
             <td className={td}>{money(summary.totalPayable)}</td>
