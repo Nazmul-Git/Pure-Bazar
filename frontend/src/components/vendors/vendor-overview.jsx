@@ -9,7 +9,7 @@ import { Button, Card, Input } from '@/components/ui';
 import { getVendorOverview } from '@/services/vendor';
 import { T } from '@/i18n/language-provider';
 import VendorStatementInvoice from './vendor-statement-invoice';
-import { money, productStock, totalStock } from './vendor-format';
+import { money, productStock } from './vendor-format';
 
 const can = (permissions, permission) => permissions.includes('*') || permissions.includes(permission);
 
@@ -48,9 +48,6 @@ export default function VendorOverview() {
   const { vendor, products = [], summary } = data || {};
   const stats = summary && [
     ['Active products', summary.totalProducts],
-    ['Available stock',     totalStock(summary.totalAvailableStock, products, 'currentStock')],
-        ['Sold units', totalStock(summary.totalSoldUnits, products, 'soldQty')],
-    ['Payout due', money(summary.totalPayable)],
   ];
 
   return (
@@ -98,10 +95,10 @@ export default function VendorOverview() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead className="text-xs uppercase text-slate-500">
-                    <tr>{['Product', 'Received (GRN)', 'Warehouse', 'Outlets', 'Total stock', 'Sold', 'Unit price', 'Valuation'].map((h) => <th key={h} className="px-2 py-2">{h}</th>)}</tr>
+                    <tr>{['Product', 'Received (GRN)', 'Warehouse', 'Outlets', 'Total stock', 'Unit price'].map((h) => <th key={h} className="px-2 py-2">{h}</th>)}</tr>
                   </thead>
                   <tbody>
-                    {products.length === 0 && <tr><td colSpan={8} className="px-2 py-6 text-center text-slate-500">No products registered for this vendor.</td></tr>}
+                    {products.length === 0 && <tr><td colSpan={6} className="px-2 py-6 text-center text-slate-500">No products registered for this vendor.</td></tr>}
                     {products.map((p) => (
                       <tr key={p.productId} className="border-t border-slate-100">
                         <td className="px-2 py-2 font-medium">{p.name}</td>
@@ -109,9 +106,7 @@ export default function VendorOverview() {
                         <td className="px-2 py-2">{productStock(p.warehouseStock, p)}</td>
                         <td className="px-2 py-2">{productStock(p.outletStock, p)}</td>
                         <td className="px-2 py-2">{productStock(p.currentStock, p)}</td>
-                        <td className="px-2 py-2">{productStock(p.soldQty, p)}</td>
                         <td className="px-2 py-2">{money(p.unitPrice)}</td>
-                        <td className="px-2 py-2">{money(p.valuation)}</td>
                       </tr>
                     ))}
                   </tbody>

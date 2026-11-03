@@ -600,3 +600,6 @@
 - [x] UI: fix available stock summary card to avoid decimal float values
 	- Files: frontend/src/components/vendors/vendor-format.js (totalStock now sums per-product fields grouped by pack ratio and formats each group as Box/Dozen and Pcs, joined by ' + '), vendor-overview.jsx, vendor-statement-invoice.jsx.
 	- Validation: syntax check only.
+- [x] UI: simplify vendor details view by keeping only active products summary and core stock columns
+	- Files: frontend/src/components/vendors/vendor-overview.jsx (summary now only 'Active products'; Products table drops 'Sold' and 'Valuation'). Printed statement invoice unchanged.
+	- Validation: visual/syntax check only.
