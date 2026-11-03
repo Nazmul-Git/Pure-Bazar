@@ -10,13 +10,7 @@ async function listCounts(req, res, next) {
   try {
     const filter = {};
     if (req.query.status) filter.status = req.query.status;
-    if (hasGlobalStockAccess(req.user)) {
-      if (req.query.warehouseId) filter.warehouseId = req.query.warehouseId;
-    } else if (req.user.locationId) {
-      filter.warehouseId = req.user.locationId;
-    } else {
-      throw statusError('A location must be assigned to this user', 403);
-    }
+    if (req.query.warehouseId) filter.warehouseId = req.query.warehouseId;
     const counts = await StockCount.find(filter).sort({ createdAt: -1 }).lean();
     return res.json({ success: true, stockCounts: counts });
   } catch (error) {

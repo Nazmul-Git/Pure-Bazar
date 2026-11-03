@@ -56,15 +56,15 @@ export default function StockAdjustmentsPage() {
     ])
       .then(([locationResponse, adjustmentResponse]) => {
         if (!active) return;
-        const availableLocations = locationResponse.data.locations;
+        const availableLocations = locationResponse.data.locations.filter((item) => item.isActive !== false);
         setLocations(availableLocations);
-        setWarehouseId(user?.locationId || availableLocations[0]?.id || '');
+        setWarehouseId(availableLocations[0]?.id || '');
         setAdjustments(adjustmentResponse.data.stockAdjustments);
       })
       .catch((requestError) => active && setError(requestError.response?.data?.message || 'Unable to load stock adjustments.'))
       .finally(() => active && setLoading(false));
     return () => { active = false; };
-  }, [canRead, initialized, permissions, token, user?.locationId]);
+  }, [canRead, initialized, permissions, token]);
 
   const productsById = useMemo(() => new Map(products.map((product) => [product.id, product])), [products]);
   const reasonMismatch = (
@@ -235,7 +235,7 @@ export default function StockAdjustmentsPage() {
         <Card title="New adjustment" description="Enter positive quantities; the selected mode determines whether stock is added or removed.">
           <form className="space-y-4" onSubmit={submit}>
             <div className="grid gap-4 md:grid-cols-2">
-              <Select label="Warehouse or outlet" name="warehouseId" value={warehouseId} disabled={Boolean(user?.locationId)} onChange={(event) => {
+              <Select label="Warehouse or outlet" name="warehouseId" value={warehouseId} onChange={(event) => {
                 setWarehouseId(event.target.value);
                 setLines([]);
                 setSearch('');

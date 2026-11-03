@@ -203,7 +203,7 @@ describe('stock transfer API', () => {
 
     const warehouseList = await request(app).get('/api/stock-transfers').set(auth(warehouseUserId));
     expect(warehouseList.body.stockTransfers).toHaveLength(1);
-    expect(StockTransfer.find).toHaveBeenCalledWith({ fromWarehouseId: centralId });
+    expect(StockTransfer.find).toHaveBeenCalledWith({});
 
     currentUser = {
       _id: outletUserId,
@@ -220,7 +220,7 @@ describe('stock transfer API', () => {
 
     const outletList = await request(app).get('/api/stock-transfers').set(auth(outletUserId));
     expect(outletList.body.stockTransfers).toHaveLength(1);
-    expect(StockTransfer.find).toHaveBeenCalledWith({ toWarehouseId: outletId });
+    expect(StockTransfer.find).toHaveBeenCalledWith({});
 
     currentUser = {
       _id: warehouseUserId,
@@ -251,7 +251,7 @@ describe('stock transfer API', () => {
     expect(totalStock()).toBe(50);
   });
 
-  it('records a receipt shortage as a discrepancy and scopes transfers to the assigned outlet', async () => {
+  it('records a receipt shortage as a discrepancy and ignores the assigned location', async () => {
     const requested = await createRequestedTransfer(8);
     const id = requested.body.stockTransfer.id;
     const dispatched = await request(app).post(`/api/stock-transfers/${id}/dispatch`)
@@ -276,8 +276,8 @@ describe('stock transfer API', () => {
     expect(stockAt(centralId) + stockAt(outletId) + 2).toBe(50);
 
     currentUser.locationId = new mongoose.Types.ObjectId(otherOutletId);
-    const hidden = await request(app).get(`/api/stock-transfers/${id}`).set(auth(outletUserId));
-    expect(hidden.status).toBe(404);
+    const visible = await request(app).get(`/api/stock-transfers/${id}`).set(auth(outletUserId));
+    expect(visible.status).toBe(200);
   });
 
   it('rejects a request greater than Central Warehouse stock', async () => {

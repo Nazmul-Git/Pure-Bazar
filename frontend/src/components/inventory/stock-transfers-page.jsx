@@ -60,7 +60,7 @@ export default function StockTransfersPage() {
         const availableLocations = locationResponse.data.locations;
         setTransfers(transferResponse.data.stockTransfers);
         setLocations(availableLocations);
-        setSourceId(user?.locationId || availableLocations.find(({ type }) => type === 'CENTRAL')?.id || '');
+        setSourceId(availableLocations.find(({ type }) => type === 'CENTRAL')?.id || '');
         setOutletId(availableLocations.find(({ type, isActive }) => type === 'OUTLET' && isActive !== false)?.id || '');
       })
       .catch((requestError) => active && setError(
@@ -68,7 +68,7 @@ export default function StockTransfersPage() {
       ))
       .finally(() => active && setLoading(false));
     return () => { active = false; };
-  }, [canRead, canWrite, initialized, permissions, token, user?.locationId]);
+  }, [canRead, canWrite, initialized, permissions, token]);
   const locationsById = useMemo(() => new Map(locations.map((location) => [location.id, location.name])), [locations]);
   const visibleTransfers = useMemo(() => transfers.filter((transfer) => (
     !statusFilter || transfer.status === statusFilter

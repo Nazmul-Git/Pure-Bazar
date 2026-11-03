@@ -10,35 +10,17 @@ function statusError(message, status) {
   return error;
 }
 
-function elevated(user) {
-  return ['Super Admin', 'Inventory Manager'].includes(user.role)
-    || (Array.isArray(user.permissions) && user.permissions.includes('*'));
+// Access is purely role/permission based (route guards); assigned location is ignored.
+function locationFilter() {
+  return {};
 }
 
-function assignedLocation(user) {
-  if (!user.locationId) throw statusError('A location must be assigned to this user', 403);
-  return user.locationId.toString();
+function canManageSource() {
+  return true;
 }
 
-// Non-elevated users see transfers touching their own location; route guards check permissions.
-function locationFilter(user) {
-  if (elevated(user)) return {};
-  const location = assignedLocation(user);
-  if (user.role === 'Warehouse Staff') return { fromWarehouseId: location };
-  if (user.role === 'Outlet Cashier') return { toWarehouseId: location };
-  return { $or: [{ fromWarehouseId: location }, { toWarehouseId: location }] };
-}
-
-function canManageSource(user, locationId) {
-  if (elevated(user)) return true;
-  if (user.role === 'Outlet Cashier') return false;
-  return assignedLocation(user) === locationId.toString();
-}
-
-function canReceive(user, locationId) {
-  if (elevated(user)) return true;
-  if (user.role === 'Warehouse Staff') return false;
-  return assignedLocation(user) === locationId.toString();
+function canReceive() {
+  return true;
 }
 
 function normalizeRequestedLines(lines) {

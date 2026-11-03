@@ -22,13 +22,7 @@ async function listAdjustments(req, res, next) {
   try {
     const filter = {};
     if (req.query.status) filter.status = req.query.status;
-    if (hasGlobalStockAccess(req.user)) {
-      if (req.query.warehouseId) filter.warehouseId = req.query.warehouseId;
-    } else if (req.user.locationId) {
-      filter.warehouseId = req.user.locationId;
-    } else {
-      throw statusError('A location must be assigned to this user', 403);
-    }
+    if (req.query.warehouseId) filter.warehouseId = req.query.warehouseId;
     const adjustments = await StockAdjustment.find(filter).sort({ createdAt: -1 }).lean();
     const productIds = [...new Set(adjustments.flatMap((adjustment) => (
       adjustment.lines.map((line) => line.productId.toString())

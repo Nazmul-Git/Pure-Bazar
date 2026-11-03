@@ -57,16 +57,16 @@ export default function StockCountsPage() {
     ])
       .then(([locationResponse, countResponse, productResponse]) => {
         if (!active) return;
-        const availableLocations = locationResponse.data.locations;
+        const availableLocations = locationResponse.data.locations.filter((item) => item.isActive !== false);
         setLocations(availableLocations);
-        setWarehouseId(user?.locationId || availableLocations[0]?.id || '');
+        setWarehouseId(availableLocations[0]?.id || '');
         setCounts(countResponse.data.stockCounts);
         setProducts(productResponse?.data.products || []);
       })
       .catch((requestError) => active && setError(requestError.response?.data?.message || 'Unable to load stock count data.'))
       .finally(() => active && setLoading(false));
     return () => { active = false; };
-  }, [canRead, initialized, permissions, token, user?.locationId]);
+  }, [canRead, initialized, permissions, token]);
 
   useEffect(() => {
     if (!token || !warehouseId) return undefined;
@@ -187,7 +187,7 @@ export default function StockCountsPage() {
         <Card title="Start stock count" description="The system quantity is captured when the count is submitted.">
           <form className="space-y-4" onSubmit={submit}>
             <div className="grid gap-4 md:grid-cols-2">
-              <Select label="Warehouse or outlet" name="warehouseId" value={warehouseId} disabled={Boolean(user?.locationId)} onChange={(event) => setWarehouseId(event.target.value)}>
+              <Select label="Warehouse or outlet" name="warehouseId" value={warehouseId} onChange={(event) => setWarehouseId(event.target.value)}>
                 <option value=""><T>{"Choose a location"}</T></option>
                 {locations.map((location) => <option key={location.id} value={location.id}>{location.name}</option>)}
               </Select>

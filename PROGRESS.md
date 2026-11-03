@@ -613,3 +613,7 @@
 	- Files: backend/utils/stockAdjustments.js (hasGlobalStockAccess, canManageLocation), controllers/stockAdjustmentController.js, stockCountController.js, stockTransferController.js, frontend/src/app/roles/manage/page.jsx (dispatches refreshSession after saving a role).
 	- Decisions: route permission keys already match the catalog and auth loads role permissions from the DB per request. The remaining 403 'Insufficient role permissions' came from controllers hard-coding role names; custom roles are now allowed by permission and scoped to their assigned location (global roles or '*' see all).
 	- Validation: stock jest suites pass (13 tests).
+- [x] Refactor: disable strict user location check and enforce pure role-based access control
+	- Files: backend/utils/stockAdjustments.js, controllers/stockAdjustmentController.js, stockCountController.js, stockTransferController.js, services/posCheckoutService.js (body.outletId honored for any authorized user), tests/stock-transfer.integration.test.js, frontend stock-counts/stock-adjustments/stock-transfers pages.
+	- Decisions: user.locationId is ignored for stock counts, transfers and adjustments; only route permission guards apply. Location dropdowns list all active warehouses and outlets and are no longer locked or defaulted to the user's location.
+	- Validation: backend jest 44 suites pass.

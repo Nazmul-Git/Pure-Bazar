@@ -62,7 +62,7 @@ async function checkWallet(result, userId) {
 }
 
 async function resolveOutlet(body, user) {
-  const outletId = user.role === 'Super Admin' && body.outletId ? body.outletId : user.locationId;
+  const outletId = body.outletId || user.locationId;
   const outlet = outletId
     ? await Location.findById(outletId).lean()
     : await getDefaultPosOutlet();
