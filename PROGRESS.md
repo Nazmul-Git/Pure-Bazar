@@ -577,3 +577,8 @@
 	- Files: Settings model/controller (centralWarehouseLowStockEnabled, default false), backend/services/dashboardService.js, settings-fields.jsx, settings-form.jsx, dashboard.integration.test.js.
 	- Decisions: toggle read dynamically in lowStockAlerts (used by dashboard and notifications); off = Central Warehouse stock is not checked at all, on = same threshold rule as outlets.
 	- Validation: full backend jest passes (43 suites, 254 tests).
+
+- [x] Feature: add vendor-wise product filtering and detailed stock statement
+	- Files: frontend/src/app/inventory/products/page.jsx (Vendors dropdown filter), backend/services/vendorSettlementService.js, backend/models/VendorStatement.js, vendor-statement-document.jsx, vendor-settlements.integration.test.js.
+	- Decisions: statements and ledger now carry per-product opening/receipts/sales/returns/closing, sales value and stock value at vendor price; quantities rounded to 3 decimals and money to 2.
+	- Validation: backend jest passes except pre-existing dbBackup.test.js failures (unrelated).

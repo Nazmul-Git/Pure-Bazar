@@ -108,9 +108,10 @@ describe('vendor settlement APIs', () => {
     models.Vendor.findById.mockReturnValue(query({ _id: vendorId }));
     models.Product.find.mockReturnValue(query([{ _id: productId, vendorPrice: 50 }]));
     models.StockMovement.aggregate.mockResolvedValue([{
+      _id: productId,
       openingStock: 5,
       receipts: 4,
-      closingStock: 7,
+      closingStock: 7.000000000000001,
     }]);
     models.VendorLedger.find.mockImplementation((filter) => {
       const periodEntries = entries.filter((entry) => (
@@ -176,6 +177,10 @@ describe('vendor settlement APIs', () => {
       closingStock: 7,
       salesValueAtVendorPrice: 170,
       netPayable: 120,
+    });
+    expect(created.body.statement.products).toHaveLength(1);
+    expect(created.body.statement.products[0]).toMatchObject({
+      sales: 3, returns: 1, closingStock: 7, closingStockValue: 350, salesValueAtVendorPrice: 170,
     });
     expect(created.body.statement.salesValueAtVendorPrice).toBe(ledger.body.totals.vendorPayable);
     expect(models.AuditLog.create).toHaveBeenCalledWith(expect.objectContaining({

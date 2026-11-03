@@ -21,6 +21,7 @@ const date = (value) => {
     ? '—'
     : new Intl.DateTimeFormat('en-BD', { dateStyle: 'medium' }).format(parsed);
 };
+const qty = (value) => Math.round(((Number(value) || 0) + Number.EPSILON) * 1000) / 1000;
 const tone = (status) => ({ Draft: 'warning', Approved: 'info', Paid: 'success' }[status] || 'neutral');
 
 export default function VendorStatementDocument({ receipt = false }) {
@@ -93,15 +94,43 @@ export default function VendorStatementDocument({ receipt = false }) {
             <table className="ui-table min-w-[540px]">
               <thead><tr><th scope="col"><T>{"Monthly stock & earnings summary"}</T></th><th scope="col" className="text-right"><T>{"Units / amount"}</T></th></tr></thead>
               <tbody>
-                <tr><td><T>{"Opening stock"}</T></td><td className="text-right">{statement.openingStock}</td></tr>
-                <tr><td><T>{"Receipts"}</T></td><td className="text-right">{statement.receipts}</td></tr>
-                <tr><td><T>{"Sales"}</T></td><td className="text-right">{statement.sales}</td></tr>
-                <tr><td><T>{"Returns"}</T></td><td className="text-right">{statement.returns}</td></tr>
-                <tr><td><T>{"Closing stock"}</T></td><td className="text-right">{statement.closingStock}</td></tr>
+                <tr><td><T>{"Opening stock"}</T></td><td className="text-right">{qty(statement.openingStock)}</td></tr>
+                <tr><td><T>{"Receipts"}</T></td><td className="text-right">{qty(statement.receipts)}</td></tr>
+                <tr><td><T>{"Sales"}</T></td><td className="text-right">{qty(statement.sales)}</td></tr>
+                <tr><td><T>{"Returns"}</T></td><td className="text-right">{qty(statement.returns)}</td></tr>
+                <tr><td><T>{"Closing stock"}</T></td><td className="text-right">{qty(statement.closingStock)}</td></tr>
                 <tr><td><T>{"Sales value at vendor price"}</T></td><td className="text-right">{money(statement.salesValueAtVendorPrice)}</td></tr>
                 <tr><td><strong><T>{"Net payable"}</T></strong></td><td className="text-right"><strong>{money(statement.netPayable)}</strong></td></tr>
               </tbody>
             </table>
+            {statement.products?.length > 0 && (
+              <table className="ui-table mt-6 min-w-[720px]">
+                <thead>
+                  <tr>
+                    <th scope="col"><T>{"Product"}</T></th>
+                    <th scope="col" className="text-right"><T>{"Opening"}</T></th>
+                    <th scope="col" className="text-right"><T>{"Receipts"}</T></th>
+                    <th scope="col" className="text-right"><T>{"Sales"}</T></th>
+                    <th scope="col" className="text-right"><T>{"Closing"}</T></th>
+                    <th scope="col" className="text-right"><T>{"Sales value"}</T></th>
+                    <th scope="col" className="text-right"><T>{"Stock value"}</T></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {statement.products.map((line) => (
+                    <tr key={line.productId}>
+                      <td>{line.name}</td>
+                      <td className="text-right">{qty(line.openingStock)}</td>
+                      <td className="text-right">{qty(line.receipts)}</td>
+                      <td className="text-right">{qty(line.sales)}</td>
+                      <td className="text-right">{qty(line.closingStock)}</td>
+                      <td className="text-right">{money(line.salesValueAtVendorPrice)}</td>
+                      <td className="text-right">{money(line.closingStockValue)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         ) : (
           <div className="rounded border border-slate-200 p-5">
