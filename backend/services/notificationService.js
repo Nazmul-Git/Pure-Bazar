@@ -55,7 +55,7 @@ async function getNotifications(user, { lowStockThreshold = DEFAULT_LOW_STOCK_TH
     group('goods-receives', 'GRN', 'GRNs awaiting approval', '/inventory/goods-receives', 'warning', grns,
       () => 'Goods receive pending approval'),
     group('low-stock', 'LOW_STOCK', 'Low stock warnings', '/inventory/warehouse', 'danger', lowStock,
-      (row) => `${row.productName}: ${row.quantity} left`),
+      (row) => `${row.productName}: ${Math.floor(Number(row.quantity))} left`),
     group('vendor-payouts', 'VENDOR_PAYOUT', 'Vendor payout requests awaiting approval', '/vendors/payouts', 'warning', draftPayouts,
       (row) => `Vendor payout request pending${row.statementNumber ? `: ${row.statementNumber}` : ''}`),
     group('payout-approvals', 'PAYOUT_APPROVAL', 'Approved payouts awaiting payment', '/finance/batch-payout', 'warning', approvedPayouts,

@@ -563,3 +563,7 @@
 	- Files: `backend/services/dashboardService.js`, dashboard/role-dashboard/notifications integration tests.
 	- Decisions: `lowStockAlerts` (used by dashboards and notifications) now counts stock only per OUTLET location and ignores CENTRAL; alerts include `locationId`/`locationName`.
 	- Validation: full backend jest passes except dbBackup (mongodb-memory-server fails to start in this environment).
+
+- [x] Fix: format low stock alert quantities as integers and exclude warehouse
+	- Files: `backend/services/notificationService.js`
+	- Decisions: notification text floors quantity (`7.9 left` -> `7 left`); Central Warehouse exclusion already enforced in `lowStockAlerts`.
