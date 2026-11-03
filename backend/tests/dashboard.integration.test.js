@@ -8,12 +8,14 @@ jest.mock('../models', () => {
     const promise = Promise.resolve(items);
     promise.sort = () => promise;
     promise.select = () => promise;
+    promise.populate = () => promise;
     promise.lean = () => Promise.resolve(items);
     return promise;
   };
   const collection = (name) => ({
     find: jest.fn((filter = {}) => list(global.__db[name].filter((doc) => Object.entries(filter)
       .every(([key, value]) => doc[key] === value)))),
+    findOne: jest.fn(() => ({ lean: async () => (global.__db[name] || [])[0] || null })),
   });
   return {
     AuditLog: { ...collection('AuditLog'), create: jest.fn() },
@@ -25,6 +27,7 @@ jest.mock('../models', () => {
     VendorLedger: collection('VendorLedger'),
     VendorStatement: collection('VendorStatement'),
     Expense: collection('Expense'),
+    Settings: collection('Settings'),
   };
 });
 
@@ -113,11 +116,23 @@ describe('dashboard API', () => {
 
   it('lists low stock from movement totals and the latest 10 audit entries', async () => {
     const d = await getDashboard({ now });
-    expect(d.lowStockAlerts.map((a) => [a.productName, a.quantity])).toEqual([['Rice', 5], ['Salt', 10]]);
-    expect((await getDashboard({ now, lowStockThreshold: 4 })).lowStockAlerts).toEqual([]);
+    expect(d.lowStockAlerts.map((a) => [a.productName, a.quantity])).toEqual([['Rice', 5]]);
+    expect((await getDashboard({ now, lowStockThreshold: 5 })).lowStockAlerts).toEqual([]);
+    expect((await getDashboard({ now, lowStockThreshold: 11 })).lowStockAlerts.map((a) => a.productName)).toEqual(['Rice', 'Salt']);
     expect(d.recentActivity).toHaveLength(10);
     expect(d.recentActivity[0].action).toBe('act11');
     expect(d.recentActivity[9].action).toBe('act2');
+  });
+
+  it('uses the configured setting and shows box and piece breakdown', async () => {
+    global.__db.Settings = [{ lowStockThreshold: 20 }];
+    global.__db.Product[0] = { ...global.__db.Product[0], unitsPerPackage: 100, unitId: { name: 'Box' } };
+    global.__db.StockMovement.push({ productId: p1, warehouseId: outlet, quantity: 2.9 });
+    const d = await getDashboard({ now });
+    expect(d.lowStockThreshold).toBe(20);
+    const rice = d.lowStockAlerts.find((a) => a.productName === 'Rice');
+    expect(rice.quantityLabel).toBe('7 Box 90 Pcs');
+    expect(d.lowStockAlerts.every((a) => a.locationName === 'Outlet-1')).toBe(true);
   });
 
   describe('route', () => {

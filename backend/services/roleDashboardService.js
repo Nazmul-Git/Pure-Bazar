@@ -2,7 +2,7 @@ const {
   GoodsReceive, Order, Product, Settings, Shift, StockAdjustment, StockMovement,
 } = require('../models');
 const { expandPermissions } = require('../config/permissionCatalog');
-const { getDashboard, dhakaBounds, lowStockAlerts, DEFAULT_LOW_STOCK_THRESHOLD } = require('./dashboardService');
+const { getDashboard, dhakaBounds, lowStockAlerts, resolveLowStockThreshold } = require('./dashboardService');
 
 const RECENT_LIMIT = 10;
 const FAST_MOVING_DAYS = 30;
@@ -85,7 +85,8 @@ async function getCashierDashboard(user, now) {
   };
 }
 
-async function getInventoryDashboard(now, lowStockThreshold = DEFAULT_LOW_STOCK_THRESHOLD) {
+async function getInventoryDashboard(now, thresholdInput) {
+  const lowStockThreshold = await resolveLowStockThreshold(thresholdInput);
   const [alerts, pendingGrns, adjustments, movements, products] = await Promise.all([
     lowStockAlerts(lowStockThreshold),
     GoodsReceive.find({ status: 'Draft' }).lean(),

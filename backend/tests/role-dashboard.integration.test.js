@@ -8,6 +8,7 @@ jest.mock('../models', () => {
     const promise = Promise.resolve(items);
     promise.sort = () => promise;
     promise.select = () => promise;
+    promise.populate = () => promise;
     promise.lean = () => Promise.resolve(items);
     return promise;
   };

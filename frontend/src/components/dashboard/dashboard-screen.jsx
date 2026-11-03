@@ -104,7 +104,7 @@ export default function DashboardScreen() {
             {has('finance') && <MetricCard label="Total sales" value={formatMoney(dashboard.totalSales)} description="All paid orders" icon={Activity} tint="#3B82F6" />}
             {has('finance') && <MetricCard label="Margin income" value={formatMoney(dashboard.marginIncome)} description="Company net from vendor ledger" icon={Wallet} tint="#8B5CF6" />}
             {has('finance') && <MetricCard label="Vendor payables due" value={formatMoney(dashboard.vendorPayablesDue)} description="Approved statements awaiting payment" icon={Package} tint="#F58220" />}
-            {has('inventory') && <MetricCard label="Low stock alerts" value={String(lowStock.length)} description={`At or below ${dashboard.lowStockThreshold} units`} icon={Package} tint="#F58220" />}
+            {has('inventory') && <MetricCard label="Low stock alerts" value={String(lowStock.length)} description={`Below ${dashboard.lowStockThreshold} units`} icon={Package} tint="#F58220" />}
           </div>
 
           {has('sales') && (
@@ -134,7 +134,7 @@ export default function DashboardScreen() {
             )}
 
             {has('inventory') && (
-            <Card title="Stock to watch" description={`Products at or below ${dashboard.lowStockThreshold} units.`}
+            <Card title="Stock to watch" description={`Products below ${dashboard.lowStockThreshold} units.`}
               actions={<Link className="dash-action" href="/inventory/goods-receives/new"><T>{"Restock"}</T></Link>}>
               <div className="dashboard-panel-summary">
                 <span className="dashboard-summary-icon"><Package size={17} /></span>
@@ -150,7 +150,7 @@ export default function DashboardScreen() {
                         <span className={`dash-badge ${product.quantity <= 0 ? 'critical' : 'low'}`}>
                           {product.quantity <= 0 ? 'Out of stock' : 'Low'}
                         </span>
-                        <b>{product.quantity} units</b>
+                        <b>{product.quantityLabel || `${product.quantity} units`}</b>
                       </span>
                     </li>
                   ))}

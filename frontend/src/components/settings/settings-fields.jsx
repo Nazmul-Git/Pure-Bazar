@@ -5,6 +5,7 @@ export const payoutMethods = ['Cash', 'Bank', 'bKash', 'Nagad'];
 export const settingFields = [
   'shareholderDiscountPercent',
   'stockAdjustmentApprovalLimit',
+  'lowStockThreshold',
   'vatEnabled',
   'defaultVatRate',
   'vatPriceMode',
@@ -25,6 +26,7 @@ export const settingFields = [
 export const defaultSettings = {
   shareholderDiscountPercent: 5,
   stockAdjustmentApprovalLimit: 0,
+  lowStockThreshold: 10,
   vatEnabled: false,
   defaultVatRate: 0,
   vatPriceMode: 'EXCLUDED',

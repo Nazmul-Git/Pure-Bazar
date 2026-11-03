@@ -567,3 +567,8 @@
 - [x] Fix: format low stock alert quantities as integers and exclude warehouse
 	- Files: `backend/services/notificationService.js`
 	- Decisions: notification text floors quantity (`7.9 left` -> `7 left`); Central Warehouse exclusion already enforced in `lowStockAlerts`.
+
+- [x] Feature: add dynamic low stock threshold settings and fix detailed unit display in alerts
+	- Files: Settings model/controller (lowStockThreshold), ackend/services/dashboardService.js, notification/role-dashboard services, settings form/fields, dashboard screen, dashboard/notification/role-dashboard tests.
+	- Decisions: global threshold (main units, default 10) set in Settings; query param still overrides. Alerts fire only when outlet stock is strictly below threshold; Central Warehouse excluded. Alerts carry quantityLabel (e.g. 7 Box 90 Pcs) from unit name and unitsPerPackage; notification text uses it.
+	- Validation: full backend jest passes (43 suites, 253 tests).

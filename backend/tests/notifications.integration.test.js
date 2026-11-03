@@ -13,9 +13,11 @@ jest.mock('../models', () => {
       });
       const promise = Promise.resolve(rows);
       promise.select = () => promise;
+      promise.populate = () => promise;
       promise.lean = () => Promise.resolve(rows);
       return promise;
     }),
+    findOne: jest.fn(() => ({ lean: async () => (global.__db[name] || [])[0] || null })),
   });
   return {
     User: { findById: jest.fn() },

@@ -168,6 +168,17 @@ export default function SettingsForm() {
         />
       </SettingsSection>
 
+      <SettingsSection title="Low stock alerts" description="Outlets warn only when stock falls below this minimum (in main units, e.g. boxes). Central Warehouse is excluded.">
+        <Input
+          label="Low stock alert threshold"
+          type="number"
+          min="0"
+          step="0.01"
+          value={settings.lowStockThreshold}
+          onChange={(event) => setField('lowStockThreshold', Number(event.target.value))}
+        />
+      </SettingsSection>
+
       <SettingsSection title="Payments and receipt" description="Choose accepted checkout methods and configure the receipt layout.">
         <MethodChoices label="Enabled payment methods" methods={paymentMethods} value={settings.enabledPaymentMethods} onChange={(value) => setField('enabledPaymentMethods', value)} />
         <ReceiptLayoutEditor value={settings.receiptLayout} onChange={(value) => setField('receiptLayout', value)} />
