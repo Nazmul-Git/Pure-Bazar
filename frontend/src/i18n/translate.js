@@ -3,8 +3,8 @@ import bn from './bn.js';
 export const LANGUAGE_STORAGE_KEY = 'purebazar-language';
 export const DEFAULT_LANGUAGE = 'en';
 export const LANGUAGES = [
-  { code: 'en', label: 'English' },
-  { code: 'bn', label: 'বাংলা' },
+  { code: 'en', label:   'English', short: 'EN' },
+    { code: 'bn', label: 'বাংলা', short: 'BN' },
 ];
 
 const dictionaries = { en: {}, bn };

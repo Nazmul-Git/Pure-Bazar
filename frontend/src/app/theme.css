@@ -117,6 +117,6 @@ body, .app-header, .ui-card, .table-wrap, .modal-panel, .user-menu, .ui-input, .
 .user-menu .user-menu-logout { color: #e5484d; }
 .user-menu .user-menu-logout:hover { background: #e5484d1f; color: #e5484d; }
 
-.language-switcher { align-items: center; background: #8080801f; border-radius: 8px; color: inherit; display: inline-flex; gap: 2px; margin-right: 10px; padding: 2px 6px 2px 8px; }
-.language-option { background: transparent; border: 0; border-radius: 6px; color: inherit; cursor: pointer; font-size: 13px; font-weight: 600; padding: 4px 9px; }
+.language-switcher { align-items: center; background: #8080801f; border-radius: 8px; color: inherit; display: inline-flex; gap: 2px; flex-shrink: 0; margin-right: 4px; padding: 2px 4px 2px 6px; }
+.language-option { background: transparent; border: 0; border-radius: 6px; color: inherit; cursor: pointer; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; padding: 4px 7px; }
 .language-option-active, .language-option-active:hover { background: #82c341; color: #181b1e; }

@@ -15,9 +15,11 @@ export default function LanguageSwitcher() {
           type="button"
           className={`language-option${lang === item.code ? ' language-option-active' : ''}`}
           aria-pressed={lang === item.code}
+          aria-label={item.label}
+          title={item.label}
           onClick={() => setLang(item.code)}
         >
-          {item.label}
+          {item.short}
         </button>
       ))}
     </div>

@@ -626,3 +626,6 @@
 	- Files: frontend/src/app/globals.css (mobile rules), layout.jsx (viewport), xprinter-print.css, plus table/form components that had hardcoded min-w-[Npx] widths.
 	- Decisions: existing drawer sidebar kept; header actions compact below 640px; tables scroll horizontally (min-width max-content); modals become bottom sheets on mobile; inputs/buttons 44px tap targets; form grids go single column; hardcoded pixel widths removed.
 	- Validation: frontend production build passes; no manual device testing done.
+- [x] UI: shorten header language buttons to EN and BN
+	- Files: frontend/src/i18n/translate.js (short codes), frontend/src/components/common/language-switcher.jsx (EN/BN badges with full-name aria-label/title), frontend/src/app/theme.css and globals.css (tighter switcher spacing, header title ellipsis/min-width).
+	- Decisions: full labels kept in LANGUAGES for accessibility; no automated tests run.
