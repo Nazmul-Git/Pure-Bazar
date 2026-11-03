@@ -326,7 +326,7 @@ img, svg, canvas { max-width: 100%; }
   .ui-input, .ui-select { font-size: 16px; min-height: 44px; }
   .language-switcher { margin-right: 2px; padding: 2px 4px; }
   .language-switcher svg { display: none; }
-  .language-option { min-height: 36px; padding: 4px 8px; }
+  .language-option { min-height: 28px; padding: 2px 8px; }
   .notif-menu { position: fixed; right: 8px; left: 8px; top: 66px; width: auto; }
   .user-menu { max-width: calc(100vw - 16px); }
   .modal-backdrop { align-items: flex-end; padding: 0; }
@@ -339,7 +339,7 @@ img, svg, canvas { max-width: 100%; }
 @media (max-width: 640px) {
   .header-section { max-width: 28vw; }
   .header-eyebrow { display: none; }
-  .language-option { padding: 4px 6px; }
+  .language-option { padding: 2px 6px; }
 }
 
 @media (max-width: 420px) {

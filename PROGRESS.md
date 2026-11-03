@@ -629,3 +629,6 @@
 - [x] UI: shorten header language buttons to EN and BN
 	- Files: frontend/src/i18n/translate.js (short codes), frontend/src/components/common/language-switcher.jsx (EN/BN badges with full-name aria-label/title), frontend/src/app/theme.css and globals.css (tighter switcher spacing, header title ellipsis/min-width).
 	- Decisions: full labels kept in LANGUAGES for accessibility; no automated tests run.
+- [x] UI: make EN and BN language toggle buttons more compact and slim
+	- Files: frontend/src/app/theme.css and globals.css (.language-switcher/.language-option).
+	- Decisions: padding 2px 8px (6px on small screens), font-size 11px, rounded 6px, mobile min-height 28px; no automated tests run.
