@@ -11,6 +11,7 @@ const settingsSchema = new mongoose.Schema({
   shareholderDiscountPercent: { type: Number, min: 0, max: 100, default: 5 },
   stockAdjustmentApprovalLimit: { type: Number, min: 0, default: 0 },
   lowStockThreshold: { type: Number, min: 0, default: 10 },
+  centralWarehouseLowStockEnabled: { type: Boolean, default: false },
   dailySalesTarget: { type: Number, min: 0, default: 0 },
   vatEnabled: { type: Boolean, default: false },
   defaultVatRate: { type: Number, min: 0, max: 100, default: 0 },

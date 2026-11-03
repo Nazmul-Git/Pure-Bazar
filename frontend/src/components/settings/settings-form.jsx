@@ -168,7 +168,7 @@ export default function SettingsForm() {
         />
       </SettingsSection>
 
-      <SettingsSection title="Low stock alerts" description="Outlets warn only when stock falls below this minimum (in main units, e.g. boxes). Central Warehouse is excluded.">
+      <SettingsSection title="Low stock alerts" description="Outlets warn only when stock falls below this minimum (in main units, e.g. boxes).       Central Warehouse is checked only when enabled below.">
         <Input
           label="Low stock alert threshold"
           type="number"
@@ -177,6 +177,11 @@ export default function SettingsForm() {
           value={settings.lowStockThreshold}
           onChange={(event) => setField('lowStockThreshold', Number(event.target.value))}
         />
+             <ToggleField
+               label="Enable Central Warehouse Low Stock Warnings"
+               checked={Boolean(settings.centralWarehouseLowStockEnabled)}
+               onChange={(event) => setField('centralWarehouseLowStockEnabled', event.target.checked)}
+             />
       </SettingsSection>
 
       <SettingsSection title="Payments and receipt" description="Choose accepted checkout methods and configure the receipt layout.">

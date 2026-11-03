@@ -7,6 +7,7 @@ const settingsInputSchema = Joi.object({
   shareholderDiscountPercent: Joi.number().min(0).max(100),
   stockAdjustmentApprovalLimit: Joi.number().min(0).precision(2),
   lowStockThreshold: Joi.number().min(0).precision(2),
+  centralWarehouseLowStockEnabled: Joi.boolean(),
   dailySalesTarget: Joi.number().min(0).precision(2),
   vatEnabled: Joi.boolean(),
   defaultVatRate: Joi.number().min(0).max(100),

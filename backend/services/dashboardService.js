@@ -53,10 +53,12 @@ async function resolveLowStockThreshold(threshold) {
 }
 
 async function lowStockAlerts(thresholdInput) {
-  // Alerts apply to retail outlets only; the Central Warehouse is excluded.
+  // Outlets are always checked; the Central Warehouse only when the setting is enabled.
   const threshold = await resolveLowStockThreshold(thresholdInput);
+  const settings = await Settings.findOne({ singleton: 'global' }).lean();
+  const includeCentral = Boolean(settings && settings.centralWarehouseLowStockEnabled);
   const [outlets, products] = await Promise.all([
-    Location.find({ type: 'OUTLET' }).select('name').lean(),
+    Location.find({ type: includeCentral ? { $in: ['OUTLET', 'CENTRAL'] } : 'OUTLET' }).select('name').lean(),
     Product.find({}).select('name barcode unitsPerPackage unitId').populate('unitId', 'name').lean(),
   ]);
   const outletNames = new Map(outlets.map((outlet) => [String(outlet._id), outlet.name]));

@@ -572,3 +572,8 @@
 	- Files: Settings model/controller (lowStockThreshold), ackend/services/dashboardService.js, notification/role-dashboard services, settings form/fields, dashboard screen, dashboard/notification/role-dashboard tests.
 	- Decisions: global threshold (main units, default 10) set in Settings; query param still overrides. Alerts fire only when outlet stock is strictly below threshold; Central Warehouse excluded. Alerts carry quantityLabel (e.g. 7 Box 90 Pcs) from unit name and unitsPerPackage; notification text uses it.
 	- Validation: full backend jest passes (43 suites, 253 tests).
+
+- [x] Feature: add settings toggle for Central Warehouse low stock notifications
+	- Files: Settings model/controller (centralWarehouseLowStockEnabled, default false), backend/services/dashboardService.js, settings-fields.jsx, settings-form.jsx, dashboard.integration.test.js.
+	- Decisions: toggle read dynamically in lowStockAlerts (used by dashboard and notifications); off = Central Warehouse stock is not checked at all, on = same threshold rule as outlets.
+	- Validation: full backend jest passes (43 suites, 254 tests).

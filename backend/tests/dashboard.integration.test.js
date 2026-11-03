@@ -14,7 +14,7 @@ jest.mock('../models', () => {
   };
   const collection = (name) => ({
     find: jest.fn((filter = {}) => list(global.__db[name].filter((doc) => Object.entries(filter)
-      .every(([key, value]) => doc[key] === value)))),
+      .every(([key, value]) => (value && value.$in ? value.$in.includes(doc[key]) : doc[key] === value))))),
     findOne: jest.fn(() => ({ lean: async () => (global.__db[name] || [])[0] || null })),
   });
   return {
@@ -133,6 +133,14 @@ describe('dashboard API', () => {
     const rice = d.lowStockAlerts.find((a) => a.productName === 'Rice');
     expect(rice.quantityLabel).toBe('7 Box 90 Pcs');
     expect(d.lowStockAlerts.every((a) => a.locationName === 'Outlet-1')).toBe(true);
+  });
+
+  it('checks the Central Warehouse only when its low stock toggle is enabled', async () => {
+    global.__db.Settings = [{ lowStockThreshold: 5, centralWarehouseLowStockEnabled: false }];
+    expect((await getDashboard({ now })).lowStockAlerts).toEqual([]);
+    global.__db.Settings = [{ lowStockThreshold: 5, centralWarehouseLowStockEnabled: true }];
+    const alerts = (await getDashboard({ now })).lowStockAlerts;
+    expect(alerts.map((a) => [a.locationName, a.productName])).toEqual([['Central Warehouse', 'Oil'], ['Central Warehouse', 'Salt']]);
   });
 
   describe('route', () => {
