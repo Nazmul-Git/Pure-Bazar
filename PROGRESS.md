@@ -587,3 +587,8 @@
 	- Files: frontend/src/app/inventory/products/page.jsx (Vendors dropdown replaced by Vendor Probashi ID input with datalist autocomplete).
 	- Decisions: exact, case-insensitive match on vendor memberId (Probashi ID) resolved client-side from the vendors list; unknown ID shows no products; empty input shows all.
 	- Validation: frontend-only change, no backend/test changes.
+
+- [x] Feature: add vendor view details modal with comprehensive stock sales invoice generation
+	- Files: backend/services/vendorOverviewService.js, backend/controllers/vendorOverviewController.js, backend/routes/vendorRoutes.js (GET /api/vendors/:vendorId/overview), vendor-overview.integration.test.js, frontend/src/app/vendors/[vendorId]/page.jsx, components/vendors/vendor-overview.jsx, vendor-statement-invoice.jsx, vendor-format.js, vendor-directory-page.jsx (View Details column).
+	- Decisions: a details page (not modal) at /vendors/[vendorId]; stock split warehouse (CENTRAL) vs outlets from stockmovements; sold/payable are net of returns from the vendor ledger within the optional date range; stock is always current; printable invoice is hidden on screen and shown via print CSS.
+	- Validation: new jest suite and vendor-settlements pass; next build passes.

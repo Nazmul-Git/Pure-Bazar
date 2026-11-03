@@ -2,6 +2,7 @@ const express = require('express');
 const { body, param, query } = require('express-validator');
 const vendorsController = require('../controllers/vendorsController');
 const vendorSettlementController = require('../controllers/vendorSettlementController');
+const vendorOverviewController = require('../controllers/vendorOverviewController');
 const vendorRegistrationController = require('../controllers/vendorRegistrationController');
 const { vendorKybUpload } = require('../middlewares/vendorKybUpload');
 const authMiddleware = require('../middlewares/authMiddleware');
@@ -47,6 +48,14 @@ router.get('/:vendorId/ledger', read, [
     .custom(isDateOnly)
     .withMessage('endDate must be a valid YYYY-MM-DD date'),
 ], validateRequest, vendorSettlementController.listLedger);
+
+router.get('/:vendorId/overview', read, [
+  param('vendorId').isMongoId().withMessage('A valid vendor ID is required'),
+  query('startDate').optional().isISO8601({ strict: true, strictSeparator: true })
+    .custom(isDateOnly).withMessage('startDate must be a valid YYYY-MM-DD date'),
+  query('endDate').optional().isISO8601({ strict: true, strictSeparator: true })
+    .custom(isDateOnly).withMessage('endDate must be a valid YYYY-MM-DD date'),
+], validateRequest, vendorOverviewController.overview);
 
 router.get('/:vendorId/statements', read, [
   param('vendorId').isMongoId().withMessage('A valid vendor ID is required'),

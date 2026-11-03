@@ -23,6 +23,10 @@ export const updateVendorStatus = (token, id, status) => api.patch(
   { status },
   authConfig(token),
 );
+export const getVendorOverview = (token, id, params = {}) => api.get(`/vendors/${id}/overview`, {
+  ...authConfig(token),
+  params: Object.fromEntries(Object.entries(params).filter(([, value]) => value)),
+});
 export const getVendorLedger = (token, id, params) => api.get(
   `/vendors/${id}/ledger`,
   { ...authConfig(token), params },

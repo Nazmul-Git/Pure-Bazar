@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSelector } from 'react-redux';
-import { Plus, RefreshCw, Search } from 'lucide-react';
+import { Eye, Plus, RefreshCw, Search } from 'lucide-react';
 import { Badge, Button, Card, Input, Select, Table } from '@/components/ui';
 import { getVendors, updateVendorStatus } from '@/services/vendor';
 import { T } from '@/i18n/language-provider';
@@ -102,6 +102,13 @@ export default function VendorDirectoryPage() {
       key: 'status',
       label: 'Status',
       render: (value) => <Badge tone={statusTone(value)}>{value}</Badge>,
+    },
+    {
+      key: 'details',
+      label: 'Details',
+      render: (_, vendor) => (
+        <Link href={`/vendors/${vendor.id}`} className="ui-button button-secondary button-sm"><Eye size={14} /> View Details</Link>
+      ),
     },
     ...(canWrite ? [{
       key: 'actions',
