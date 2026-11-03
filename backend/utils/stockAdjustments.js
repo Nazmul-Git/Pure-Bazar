@@ -7,10 +7,16 @@ function statusError(message, status) {
   return error;
 }
 
+// Company-wide access: built-in elevated roles or a wildcard permission.
+function hasGlobalStockAccess(user) {
+  return ['Super Admin', 'Inventory Manager'].includes(user.role)
+    || (Array.isArray(user.permissions) && user.permissions.includes('*'));
+}
+
+// Route guards already check permissions from the DB; other roles are limited to their own location.
 function canManageLocation(user, locationId) {
-  if (['Super Admin', 'Inventory Manager'].includes(user.role)) return true;
-  return user.role === 'Warehouse Staff'
-    && user.locationId?.toString() === locationId.toString();
+  if (hasGlobalStockAccess(user)) return true;
+  return Boolean(user.locationId) && user.locationId.toString() === locationId.toString();
 }
 
 function adjustmentValue(lines, products) {
@@ -72,5 +78,5 @@ function objectOf(document) {
 }
 
 module.exports = {
-  statusError, canManageLocation, adjustmentValue, loadProducts, currentStock, postMovements, objectOf,
+  statusError, canManageLocation, hasGlobalStockAccess, adjustmentValue, loadProducts, currentStock, postMovements, objectOf,
 };

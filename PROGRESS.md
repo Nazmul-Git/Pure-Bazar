@@ -608,3 +608,8 @@
 	- Files: backend/middlewares/authMiddleware.js and controllers/authController.js (role permissions now run through expandPermissions, so page-level inventory.transfers:write grants stock:transfer:write/receive/read even on roles saved without legacy flags), frontend/src/store/auth-slice.js (refreshSession thunk), frontend/src/components/common/app-shell.jsx (re-reads /auth/me on focus and every 60s).
 	- Decisions: route guards already used stock:transfer:* keys matching the catalog; backend loads role permissions from the DB per request (no JWT claims), so only the frontend session was stale.
 	- Validation: backend jest 44 suites pass.
+
+- [x] Fix: resolve permission middleware key mismatch and stale JWT access check for inventory stock routes
+	- Files: backend/utils/stockAdjustments.js (hasGlobalStockAccess, canManageLocation), controllers/stockAdjustmentController.js, stockCountController.js, stockTransferController.js, frontend/src/app/roles/manage/page.jsx (dispatches refreshSession after saving a role).
+	- Decisions: route permission keys already match the catalog and auth loads role permissions from the DB per request. The remaining 403 'Insufficient role permissions' came from controllers hard-coding role names; custom roles are now allowed by permission and scoped to their assigned location (global roles or '*' see all).
+	- Validation: stock jest suites pass (13 tests).

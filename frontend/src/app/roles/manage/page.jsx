@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { refreshSession } from '@/store/auth-slice';
 import { AlertTriangle, KeyRound, Pencil, Plus, Shield, Trash2 } from 'lucide-react';
 import { Button, Input, Modal } from '@/components/ui';
 import { createRole, deleteRole, getRoles, getUsers, updateRole } from '@/services/admin';
@@ -12,6 +13,7 @@ import useToastMessages from '@/hooks/use-toast-messages';
 const emptyForm = { name: '', permissions: ['dashboard:read'] };
 
 export default function RoleManagementPage() {
+  const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
   const [roles, setRoles] = useState([]);
   const [users, setUsers] = useState([]);
@@ -87,6 +89,7 @@ export default function RoleManagementPage() {
       if (editingRole) await updateRole(token, editingRole._id, payload);
       else await createRole(token, payload);
       await refresh();
+      dispatch(refreshSession());
       setDialogOpen(false);
     } catch (requestError) {
       setError(requestError.response?.data?.message || 'Unable to save role.');

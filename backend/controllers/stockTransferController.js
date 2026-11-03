@@ -11,7 +11,8 @@ function statusError(message, status) {
 }
 
 function elevated(user) {
-  return ['Super Admin', 'Inventory Manager'].includes(user.role);
+  return ['Super Admin', 'Inventory Manager'].includes(user.role)
+    || (Array.isArray(user.permissions) && user.permissions.includes('*'));
 }
 
 function assignedLocation(user) {
@@ -19,21 +20,25 @@ function assignedLocation(user) {
   return user.locationId.toString();
 }
 
+// Non-elevated users see transfers touching their own location; route guards check permissions.
 function locationFilter(user) {
   if (elevated(user)) return {};
-  if (user.role === 'Warehouse Staff') return { fromWarehouseId: assignedLocation(user) };
-  if (user.role === 'Outlet Cashier') return { toWarehouseId: assignedLocation(user) };
-  throw statusError('Insufficient role permissions', 403);
+  const location = assignedLocation(user);
+  if (user.role === 'Warehouse Staff') return { fromWarehouseId: location };
+  if (user.role === 'Outlet Cashier') return { toWarehouseId: location };
+  return { $or: [{ fromWarehouseId: location }, { toWarehouseId: location }] };
 }
 
 function canManageSource(user, locationId) {
-  return elevated(user)
-    || (user.role === 'Warehouse Staff' && assignedLocation(user) === locationId.toString());
+  if (elevated(user)) return true;
+  if (user.role === 'Outlet Cashier') return false;
+  return assignedLocation(user) === locationId.toString();
 }
 
 function canReceive(user, locationId) {
-  return elevated(user)
-    || (user.role === 'Outlet Cashier' && assignedLocation(user) === locationId.toString());
+  if (elevated(user)) return true;
+  if (user.role === 'Warehouse Staff') return false;
+  return assignedLocation(user) === locationId.toString();
 }
 
 function normalizeRequestedLines(lines) {

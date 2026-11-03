@@ -3,7 +3,7 @@ const {
   AuditLog, Location, Product, Settings, StockAdjustment, StockCount,
 } = require('../models');
 const {
-  statusError, canManageLocation, adjustmentValue, loadProducts, currentStock, postMovements, objectOf,
+  statusError, canManageLocation, hasGlobalStockAccess, adjustmentValue, loadProducts, currentStock, postMovements, objectOf,
 } = require('../utils/stockAdjustments');
 
 function normalizeLines(lines, mode) {
@@ -22,12 +22,12 @@ async function listAdjustments(req, res, next) {
   try {
     const filter = {};
     if (req.query.status) filter.status = req.query.status;
-    if (['Super Admin', 'Inventory Manager'].includes(req.user.role) && req.query.warehouseId) {
-      filter.warehouseId = req.query.warehouseId;
-    } else if (req.user.role === 'Warehouse Staff' && req.user.locationId) {
+    if (hasGlobalStockAccess(req.user)) {
+      if (req.query.warehouseId) filter.warehouseId = req.query.warehouseId;
+    } else if (req.user.locationId) {
       filter.warehouseId = req.user.locationId;
-    } else if (!['Super Admin', 'Inventory Manager'].includes(req.user.role)) {
-      throw statusError('Insufficient role permissions', 403);
+    } else {
+      throw statusError('A location must be assigned to this user', 403);
     }
     const adjustments = await StockAdjustment.find(filter).sort({ createdAt: -1 }).lean();
     const productIds = [...new Set(adjustments.flatMap((adjustment) => (
