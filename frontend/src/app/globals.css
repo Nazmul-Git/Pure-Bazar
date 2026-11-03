@@ -308,6 +308,40 @@ a { color: inherit; text-decoration: none; }
   .login-heading h2 { font-size: 31px; }
 }
 
+/* Mobile-first responsive refinements */
+html, body { max-width: 100%; overflow-x: hidden; }
+.workspace { min-width: 0; }
+.page-content { min-width: 0; }
+.table-scroll, .overflow-x-auto { -webkit-overflow-scrolling: touch; max-width: 100%; }
+.ui-table { min-width: max-content; }
+img, svg, canvas { max-width: 100%; }
+
+@media (max-width: 760px) {
+  .header-leading { gap: 8px; min-width: 0; }
+  .header-context { min-width: 0; }
+  .header-section { max-width: 34vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .header-actions { flex-shrink: 0; gap: 2px; }
+  .icon-button, .user-menu-trigger { min-height: 44px; min-width: 44px; }
+  .button-md, .button-sm, .button-secondary, .button-primary, .button-ghost { min-height: 44px; }
+  .ui-input, .ui-select { font-size: 16px; min-height: 44px; }
+  .language-switcher { margin-right: 2px; padding: 2px 4px; }
+  .language-switcher svg { display: none; }
+  .language-option { min-height: 36px; padding: 4px 8px; }
+  .notif-menu { position: fixed; right: 8px; left: 8px; top: 66px; width: auto; }
+  .user-menu { max-width: calc(100vw - 16px); }
+  .modal-backdrop { align-items: flex-end; padding: 0; }
+  .modal-panel { border-radius: 12px 12px 0 0; max-height: 92vh; max-width: 100%; }
+  .modal-content { padding: 14px 16px; }
+  .page-content form .grid, .page-content .modal-content .grid { grid-template-columns: minmax(0, 1fr); }
+  .page-content h1 { overflow-wrap: anywhere; }
+}
+
+@media (max-width: 640px) {
+  .header-section { max-width: 28vw; }
+  .header-eyebrow { display: none; }
+  .language-option { padding: 4px 6px; }
+}
+
 @media (max-width: 420px) {
   .dashboard-metrics { grid-template-columns: minmax(0, 1fr); }
   .dashboard-metric .card-content { min-height: 0; }

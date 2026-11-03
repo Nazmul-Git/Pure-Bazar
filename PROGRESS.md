@@ -622,3 +622,7 @@
 	- Files: frontend/src/app/inventory/products/page.jsx (remove Unit size column), frontend/src/services/stock-units.cjs (label and round single-unit quantities), frontend/src/components/reports/report-screen.jsx (format stock movement and low-stock values), backend/services/salesStockReportService.js (include product unit metadata), related formatter and report integration tests.
 	- Decisions: stock quantities use the shared box/dozen-and-pieces formatter; ratio-1 quantities use the product's primary unit label, defaulting to Pcs.
 	- Validation: formatter tests (10) and report integration tests (8) pass; frontend production build passes. Full frontend test run has one existing i18n translation assertion failure listing Vendor Probashi ID, Print Statement / Generate Invoice, Opening, Closing, Sales value, and Stock value.
+- [x] UI mobile responsiveness
+	- Files: frontend/src/app/globals.css (mobile rules), layout.jsx (viewport), xprinter-print.css, plus table/form components that had hardcoded min-w-[Npx] widths.
+	- Decisions: existing drawer sidebar kept; header actions compact below 640px; tables scroll horizontally (min-width max-content); modals become bottom sheets on mobile; inputs/buttons 44px tap targets; form grids go single column; hardcoded pixel widths removed.
+	- Validation: frontend production build passes; no manual device testing done.

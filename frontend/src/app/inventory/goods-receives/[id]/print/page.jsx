@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -66,7 +66,7 @@ export default function PrintableGoodsReceivePage() {
           <div><dt className="text-slate-500"><T>{"Received on"}</T></dt><dd className="mt-1 font-semibold text-slate-800">{formatDate(receive.createdAt)}</dd></div>
         </dl>
         <div className="overflow-x-auto">
-          <table className="ui-table min-w-[620px]">
+          <table className="ui-table min-w-0">
             <thead><tr><th scope="col"><T>{"Product"}</T></th><th scope="col"><T>{"Barcode"}</T></th><th scope="col"><T>{"Received"}</T></th><th scope="col"><T>{"Accepted"}</T></th><th scope="col"><T>{"Rejected"}</T></th></tr></thead>
             <tbody>
               {receive.lines.map((line) => (

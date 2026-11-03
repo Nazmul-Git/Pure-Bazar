@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -91,7 +91,7 @@ export default function VendorStatementDocument({ receipt = false }) {
 
         {!receipt ? (
           <div className="overflow-x-auto">
-            <table className="ui-table min-w-[540px]">
+            <table className="ui-table min-w-0">
               <thead><tr><th scope="col"><T>{"Monthly stock & earnings summary"}</T></th><th scope="col" className="text-right"><T>{"Units / amount"}</T></th></tr></thead>
               <tbody>
                 <tr><td><T>{"Opening stock"}</T></td><td className="text-right">{qty(statement.openingStock)}</td></tr>
@@ -104,7 +104,7 @@ export default function VendorStatementDocument({ receipt = false }) {
               </tbody>
             </table>
             {statement.products?.length > 0 && (
-              <table className="ui-table mt-6 min-w-[720px]">
+              <table className="ui-table mt-6 min-w-0">
                 <thead>
                   <tr>
                     <th scope="col"><T>{"Product"}</T></th>

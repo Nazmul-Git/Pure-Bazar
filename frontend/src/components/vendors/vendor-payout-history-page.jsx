@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
@@ -92,7 +92,7 @@ export default function VendorPayoutHistoryPage() {
         </div>
         {loading ? <p role="status" className="py-8 text-center text-sm text-slate-500"><T>{"Loading payout records..."}</T></p> : (
           <div className="overflow-x-auto">
-            <table className="ui-table min-w-[1150px]">
+            <table className="ui-table min-w-0">
               <thead><tr><th scope="col"><T>{"Vendor"}</T></th><th scope="col"><T>{"Statement & period"}</T></th><th scope="col"><T>{"Amount paid"}</T></th><th scope="col"><T>{"Payment details"}</T></th><th scope="col"><T>{"Received by"}</T></th><th scope="col"><T>{"Receipt"}</T></th></tr></thead>
               <tbody>
                 {visiblePayouts.map((payout) => {

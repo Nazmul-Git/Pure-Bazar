@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -113,7 +113,7 @@ export default function RoleUsersPage() {
           <span className="ml-auto text-xs text-slate-500">{users.length} users</span>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[680px] text-left text-sm">
+          <table className="w-full min-w-max text-left text-sm">
             <thead className="bg-slate-50 text-xs uppercase text-slate-500">
               <tr><th className="px-4 py-3 font-semibold"><T>{"Name"}</T></th><th className="px-4 py-3 font-semibold"><T>{"Email"}</T></th><th className="px-4 py-3 font-semibold"><T>{"Role"}</T></th><th className="px-4 py-3 font-semibold"><T>{"Status"}</T></th><th className="px-4 py-3 text-right font-semibold"><T>{"Actions"}</T></th></tr>
             </thead>

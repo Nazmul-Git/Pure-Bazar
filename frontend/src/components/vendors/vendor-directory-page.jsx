@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -114,7 +114,7 @@ export default function VendorDirectoryPage() {
       key: 'actions',
       label: 'Update status',
       render: (_, vendor) => (
-        <div className="flex min-w-[190px] items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2">
           <select
             className="ui-select"
             aria-label={`Status for ${vendor.name}`}

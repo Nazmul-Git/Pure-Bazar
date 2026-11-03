@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -289,7 +289,7 @@ export default function GoodsReceiveForm() {
         )}
 
         <div className="mt-5 overflow-x-auto">
-          <table className="ui-table min-w-[760px]">
+          <table className="ui-table min-w-0">
             <thead>
               <tr>
                 <th scope="col"><T>{"Product"}</T></th><th scope="col"><T>{"Current stock"}</T></th><th scope="col"><T>{"Received"}</T></th>

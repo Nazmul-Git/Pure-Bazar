@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
@@ -204,7 +204,7 @@ export default function VendorLedgerPage() {
       <Card title="Sales ledger" description={selectedVendor ? `${selectedVendor.name} · ${startDate} to ${endDate}` : 'Select a vendor to view ledger entries.'}>
         {loadingData ? <p role="status" className="py-8 text-center text-sm text-slate-500"><T>{"Loading ledger..."}</T></p> : (
           <div className="overflow-x-auto">
-            <table className="ui-table min-w-[720px]">
+            <table className="ui-table min-w-0">
               <thead><tr><th scope="col"><T>{"Date"}</T></th><th scope="col"><T>{"Order"}</T></th><th scope="col"><T>{"Product"}</T></th><th scope="col"><T>{"Units"}</T></th><th scope="col"><T>{"Vendor payable"}</T></th><th scope="col"><T>{"Company margin"}</T></th></tr></thead>
               <tbody>
                 {(ledger?.entries || []).map((entry) => (
@@ -231,7 +231,7 @@ export default function VendorLedgerPage() {
       >
         {loadingData ? <p role="status" className="py-8 text-center text-sm text-slate-500"><T>{"Loading statements..."}</T></p> : (
           <div className="overflow-x-auto">
-            <table className="ui-table min-w-[940px]">
+            <table className="ui-table min-w-0">
               <thead><tr><th scope="col"><T>{"Statement"}</T></th><th scope="col"><T>{"Period"}</T></th><th scope="col"><T>{"Units (sales / returns)"}</T></th><th scope="col"><T>{"Net payable"}</T></th><th scope="col"><T>{"Status"}</T></th><th scope="col"><T>{"Documents & actions"}</T></th></tr></thead>
               <tbody>
                 {statements.map((statement) => (
@@ -249,7 +249,7 @@ export default function VendorLedgerPage() {
                         {canPayout && statement.status === 'Approved' && <Button size="sm" disabled={busyId === statement._id} onClick={() => setPaymentId(paymentId === statement._id ? '' : statement._id)}>Record payment</Button>}
                       </div>
                       {paymentId === statement._id && (
-                        <form className="mt-3 grid min-w-[560px] gap-2 rounded border border-slate-200 bg-slate-50 p-3 sm:grid-cols-2" onSubmit={(event) => submitPayment(event, statement)}>
+                        <form className="mt-3 grid min-w-0 gap-2 rounded border border-slate-200 bg-slate-50 p-3 sm:grid-cols-2" onSubmit={(event) => submitPayment(event, statement)}>
                           <Select label="Payment method" name="paymentMethod" value={paymentMethod} onChange={(event) => setPaymentMethod(event.target.value)}>
                             {['Cash', 'Bank', 'bKash', 'Nagad'].map((method) => <option key={method}>{method}</option>)}
                           </Select>
