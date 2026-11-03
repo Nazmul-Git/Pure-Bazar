@@ -582,3 +582,8 @@
 	- Files: frontend/src/app/inventory/products/page.jsx (Vendors dropdown filter), backend/services/vendorSettlementService.js, backend/models/VendorStatement.js, vendor-statement-document.jsx, vendor-settlements.integration.test.js.
 	- Decisions: statements and ledger now carry per-product opening/receipts/sales/returns/closing, sales value and stock value at vendor price; quantities rounded to 3 decimals and money to 2.
 	- Validation: backend jest passes except pre-existing dbBackup.test.js failures (unrelated).
+
+- [x] Feature: update product filter to use vendor Probashi ID input
+	- Files: frontend/src/app/inventory/products/page.jsx (Vendors dropdown replaced by Vendor Probashi ID input with datalist autocomplete).
+	- Decisions: exact, case-insensitive match on vendor memberId (Probashi ID) resolved client-side from the vendors list; unknown ID shows no products; empty input shows all.
+	- Validation: frontend-only change, no backend/test changes.
