@@ -635,3 +635,8 @@
 - [x] UI: fix table width constraints for desktop view to span full width
 	- Files: frontend/src/app/globals.css (.table-wrap/.table-scroll/.ui-table width:100%, .page-content max-width none).
 	- Decisions: root cause was .ui-table lacking width:100% (min-width max-content override); tables still scroll horizontally when wider than viewport; no automated tests run.
+
+- [x] Fix: resolve form state reset and input wipe issue in add product modal
+	- Files: frontend/src/components/inventory/product-form-modal.jsx, quick-add-category-modal.jsx, quick-add-unit-modal.jsx.
+	- Decisions: product form initialization now runs only when the modal opens; catalog loading is independent of form state and uses stable permission dependencies. Quick-add controlled inputs use functional state updates, preserving the parent form while sub-modals open or close.
+	- Validation: frontend production build passes; frontend tests pass 21/22, with the existing i18n translation assertion failure for six unrelated literals.

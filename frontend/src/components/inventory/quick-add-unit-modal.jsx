@@ -36,8 +36,8 @@ export default function QuickAddUnitModal({ open, onClose, onSubmit, unit = null
   return (
     <Modal open={open} onClose={onClose} title={unit ? 'Edit unit' : 'Quick add unit'}>
       <form className="space-y-4" onSubmit={submit}>
-        <Input label="Unit name" name="name" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} required maxLength={100} autoFocus />
-        <Input label="Abbreviation" name="abbreviation" value={form.abbreviation} onChange={(event) => setForm({ ...form, abbreviation: event.target.value })} required maxLength={20} />
+        <Input label="Unit name" name="name" value={form.name} onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))} required maxLength={100} autoFocus />
+        <Input label="Abbreviation" name="abbreviation" value={form.abbreviation} onChange={(event) => setForm((current) => ({ ...current, abbreviation: event.target.value }))} required maxLength={20} />
         <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
           <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
           <Button type="submit" disabled={saving}>{saving ? 'Saving...' : unit ? 'Save changes' : 'Add unit'}</Button>

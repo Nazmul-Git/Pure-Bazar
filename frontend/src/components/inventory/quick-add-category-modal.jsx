@@ -44,9 +44,9 @@ export default function QuickAddCategoryModal({ open, onClose, onSubmit, categor
   return (
     <Modal open={open} onClose={onClose} title={category ? 'Edit category' : 'Quick add category'}>
       <form className="space-y-4" onSubmit={submit}>
-        <Input label="Category name" name="name" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} required maxLength={100} autoFocus />
-        <Input label="VAT rate (%)" name="vatRate" type="number" min="0" max="100" step="0.01" value={form.vatRate} onChange={(event) => setForm({ ...form, vatRate: event.target.value })} />
-        <Input label="Commission rate (%)" name="commissionPercent" type="number" min="0" max="100" step="0.01" value={form.commissionPercent} onChange={(event) => setForm({ ...form, commissionPercent: event.target.value })} />
+        <Input label="Category name" name="name" value={form.name} onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))} required maxLength={100} autoFocus />
+        <Input label="VAT rate (%)" name="vatRate" type="number" min="0" max="100" step="0.01" value={form.vatRate} onChange={(event) => setForm((current) => ({ ...current, vatRate: event.target.value }))} />
+        <Input label="Commission rate (%)" name="commissionPercent" type="number" min="0" max="100" step="0.01" value={form.commissionPercent} onChange={(event) => setForm((current) => ({ ...current, commissionPercent: event.target.value }))} />
         <p className="text-xs text-slate-500"><T>{"Category commission remains disabled."}</T></p>
         <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
           <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>

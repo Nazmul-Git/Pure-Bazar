@@ -29,6 +29,10 @@ const emptyForm = {
   subUnitPriceOverride: '',
 };
 
+function hasPermission(permissions, permission) {
+  return permissions.includes('*') || permissions.includes(permission);
+}
+
 const money = (value) => new Intl.NumberFormat('en-BD', {
   style: 'currency',
   currency: 'BDT',
@@ -53,7 +57,8 @@ export default function ProductFormModal({
   const [error, setError] = useState('');
   useToastMessages({ error });
 
-  const can = (permission) => permissions.includes('*') || permissions.includes(permission);
+  const permissionsKey = permissions.join('|');
+  const can = (permission) => hasPermission(permissions, permission);
   const vendorPrice = Number(form.vendorPrice);
   const mrp = Number(form.mrp);
   const hasPrices = form.vendorPrice !== '' && form.mrp !== ''
@@ -79,22 +84,26 @@ export default function ProductFormModal({
 
   useEffect(() => {
     if (!open) return undefined;
-    let active = true;
-    setForm(emptyForm);
+    setForm({ ...emptyForm });
     piecesEdited.current = false;
     setError('');
     setCatalogErrors([]);
-    setCatalogLoading(true);
+  }, [open]);
 
+  useEffect(() => {
+    if (!open) return undefined;
+    let active = true;
+    setCatalogLoading(true);
+    const currentPermissions = permissionsKey ? permissionsKey.split('|') : [];
     const requests = [
       ['categories', 'categories:read', getCategories],
       ['brands', 'brands:read', getBrands],
       ['units', 'units:read', getUnits],
     ];
     const unavailable = requests
-      .filter(([, permission]) => !can(permission))
+      .filter(([, permission]) => !hasPermission(currentPermissions, permission))
       .map(([name]) => `You do not have permission to load ${name}.`);
-    const available = requests.filter(([, permission]) => can(permission));
+    const available = requests.filter(([, permission]) => hasPermission(currentPermissions, permission));
 
     Promise.allSettled(available.map(([, , load]) => load(token))).then((results) => {
       if (!active) return;
@@ -115,9 +124,7 @@ export default function ProductFormModal({
     });
 
     return () => { active = false; };
-  // Permissions are refreshed with the authenticated user; reopening reloads catalog data.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, token, permissions]);
+  }, [open, permissionsKey, token]);
 
   async function submit(event) {
     event.preventDefault();
