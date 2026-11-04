@@ -649,3 +649,6 @@
 - [x] UI: fix mobile layout stacking and overlapping for print and export action buttons
 	- Files: frontend/src/app/inventory/barcodes/page.jsx.
 	- Decisions: action group is flex-col gap-2 w-full on mobile, row/wrap right-aligned from sm; each button w-full with min-h-11 touch size on mobile, auto width on desktop.
+- [x] UI: fix printable preview container overflowing outside screen bounds on mobile
+	- Files: frontend/src/app/inventory/barcodes/page.jsx.
+	- Decisions: preview grid wrapped in w-full min-w-0 max-w-full overflow-x-auto (print:overflow-visible); page section gets min-w-0 max-w-full.

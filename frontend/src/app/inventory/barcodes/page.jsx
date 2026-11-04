@@ -131,7 +131,7 @@ export default function BarcodesPage() {
   if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><T>{"You do not have permission to generate product labels."}</T></p>;
 
   return (
-    <section className="barcode-page space-y-4 sm:space-y-5">
+    <section className="barcode-page min-w-0 max-w-full space-y-4 sm:space-y-5">
       <header>
         <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"Inventory"}</T></p>
         <h1 className="text-xl font-semibold sm:text-2xl text-slate-900"><T>{"Barcode & Price Labels"}</T></h1>
@@ -188,6 +188,7 @@ export default function BarcodesPage() {
       </div>
       <Card title="Printable preview" description={`${generated?.labels.length || 0} label${generated?.labels.length === 1 ? '' : 's'} in this batch`}>
         <style>{`@media print { @page { size: auto; margin: 5mm; } }`}</style>
+        <div className="w-full min-w-0 max-w-full overflow-x-auto print:overflow-visible">
         <div id="label-print-preview" className={`label-grid label-size-${sizeKey}`} style={{ '--label-w': `${LABEL_SIZES[sizeKey].width}mm`, '--label-h': `${LABEL_SIZES[sizeKey].height}mm` }}>
           {generated?.labels.map((label, index) => (
             <article className="label-card" key={`${label.barcode}-${index}`}>
@@ -203,6 +204,7 @@ export default function BarcodesPage() {
               <Badge tone="neutral">{labelType === 'price' ? 'Price label' : 'Barcode'}</Badge>
             </article>
           ))}
+        </div>
         </div>
       </Card>
     </section>
