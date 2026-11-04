@@ -640,3 +640,8 @@
 	- Files: frontend/src/components/inventory/product-form-modal.jsx, quick-add-category-modal.jsx, quick-add-unit-modal.jsx.
 	- Decisions: product form initialization now runs only when the modal opens; catalog loading is independent of form state and uses stable permission dependencies. Quick-add controlled inputs use functional state updates, preserving the parent form while sub-modals open or close.
 	- Validation: frontend production build passes; frontend tests pass 21/22, with the existing i18n translation assertion failure for six unrelated literals.
+
+- [x] UI: barcode and label page mobile responsiveness
+	- Files: frontend/src/app/inventory/barcodes/page.jsx, frontend/src/app/globals.css.
+	- Decisions: stacked search/scanner, forms, and full-width action buttons on mobile; 44px touch targets under 640px; label preview grid no longer overflows narrow screens; print styles unchanged.
+	- Validation: frontend production build.

@@ -45,7 +45,13 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 a { color: inherit; text-decoration: none; }
 :focus-visible { outline: 3px solid #83bdf2; outline-offset: 2px; }
 
-.label-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+.label-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(210px, 100%), 1fr)); }
+@media (max-width: 639px) {
+  .barcode-page input, .barcode-page select, .barcode-page button { min-height: 44px; }
+  .barcode-page .barcode-actions > button { width: 100%; }
+  .barcode-page .label-card { min-height: 150px; }
+  .barcode-page .barcode-graphic { height: 56px; }
+}
 .label-card { align-items: center; border: 1px dashed #aab5c2; display: flex; flex-direction: column; gap: 3px; justify-content: center; min-height: 170px; padding: 8px; text-align: center; }
 .label-grid[style*="--label-w"] .label-card { aspect-ratio: var(--label-w) / var(--label-h); min-height: 0; }
 .label-name { font-size: 12px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

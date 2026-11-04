@@ -131,7 +131,7 @@ export default function BarcodesPage() {
   if (!token || !canRead) return <p role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><T>{"You do not have permission to generate product labels."}</T></p>;
 
   return (
-    <section className="space-y-5">
+    <section className="barcode-page space-y-4 sm:space-y-5">
       <header>
         <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"Inventory"}</T></p>
         <h1 className="text-2xl font-semibold text-slate-900"><T>{"Barcode & Price Labels"}</T></h1>
@@ -139,14 +139,14 @@ export default function BarcodesPage() {
       </header>
       <div className="grid gap-5 xl:grid-cols-[1.2fr_1fr]">
         <Card title="Product catalog" description={`${products.length} products available`}>
-          <div className="mb-4 flex max-w-xl items-end gap-2">
-            <Input label="Search products" name="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Product name or barcode" />
+          <div className="mb-4 flex w-full max-w-xl flex-col gap-2 sm:flex-row sm:items-end">
+                      <div className="w-full min-w-0 flex-1"><Input label="Search products" name="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Product name or barcode" /></div>
             <CameraBarcodeScanner onScan={setSearch} />
           </div>
-          <Table columns={columns} rows={visibleProducts} rowKey="id" emptyMessage="No products match your search." />
+                    <div className="-mx-2 overflow-x-auto sm:mx-0"><Table columns={columns} rows={visibleProducts} rowKey="id"                     emptyMessage="No products match your search." /></div>
         </Card>
         <Card title="Label batch" description="Add products more than once or adjust the number of copies.">
-          <div className="mb-4 grid max-w-xl gap-3 sm:grid-cols-2">
+          <div className="mb-4 grid w-full max-w-xl grid-cols-1 gap-3 sm:grid-cols-2">
             <Select label="Label format" name="labelType" value={labelType} onChange={(event) => setLabelType(event.target.value)}>
               <option value="price"><T>{"Barcode + price label"}</T></option>
               <option value="barcode"><T>{"Barcode-only label"}</T></option>
@@ -162,8 +162,8 @@ export default function BarcodesPage() {
                 const unitOptions = product ? getUnitOptions(product) : [];
                 const unit = unitOptions.find((option) => option.value === item.unit) || unitOptions[0];
                 const numberField = (field) => (event) => updateItem(item.key, { [field]: event.target.value });
-                return <div key={item.key} className="grid items-end gap-3 rounded-lg border border-slate-200 p-3 sm:grid-cols-2">
-                  <div className="sm:col-span-2"><strong className="block text-sm">{product?.name}</strong><small className="text-slate-500">{product?.barcode}</small></div>
+                return <div key={item.key} className="grid grid-cols-1 items-end gap-3 rounded-lg border border-slate-200 p-3 sm:grid-cols-2">
+                  <div className="min-w-0 break-words sm:col-span-2"><strong className="block text-sm">{product?.name}</strong><small className="text-slate-500">{product?.barcode}</small></div>
                   <Select label="Unit" name={`unit-${item.key}`} value={item.unit} onChange={(event) => updateItem(item.key, { unit: event.target.value })}>
                     {unitOptions.map((option) => <option key={option.value} value={option.value}>{option.name}</option>)}
                   </Select>
@@ -177,7 +177,7 @@ export default function BarcodesPage() {
             </div>
           )}
           {labelError && <p role="alert" className="mt-3 text-sm text-red-700">{labelError}</p>}
-          <div className="mt-4 flex flex-wrap justify-end gap-2">
+          <div className="barcode-actions mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-end sm:gap-2">
             <Button variant="secondary" disabled={!generated} onClick={() => exportOutput('tspl')}>Export TSPL</Button>
             <Button variant="secondary" disabled={!generated} onClick={sendTsplToPrinter}>Print TSPL (Xprinter)</Button>
             <Button variant="secondary" disabled={!generated} onClick={() => exportOutput('escpos')}>Export ESC/POS</Button>
