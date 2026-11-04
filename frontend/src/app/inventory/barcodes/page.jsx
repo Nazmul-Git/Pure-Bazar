@@ -134,19 +134,19 @@ export default function BarcodesPage() {
     <section className="barcode-page space-y-4 sm:space-y-5">
       <header>
         <p className="mb-1 text-xs font-semibold uppercase text-slate-500"><T>{"Inventory"}</T></p>
-        <h1 className="text-2xl font-semibold text-slate-900"><T>{"Barcode & Price Labels"}</T></h1>
+        <h1 className="text-xl font-semibold sm:text-2xl text-slate-900"><T>{"Barcode & Price Labels"}</T></h1>
         <p className="mt-1 text-sm text-slate-600"><T>{"Select products and label quantities, then preview, print, or export printer commands."}</T></p>
       </header>
-      <div className="grid gap-5 xl:grid-cols-[1.2fr_1fr]">
+      <div className="grid min-w-0 gap-4 sm:gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
         <Card title="Product catalog" description={`${products.length} products available`}>
           <div className="mb-4 flex w-full max-w-xl flex-col gap-2 sm:flex-row sm:items-end">
                       <div className="w-full min-w-0 flex-1"><Input label="Search products" name="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Product name or barcode" /></div>
             <CameraBarcodeScanner onScan={setSearch} />
           </div>
-                    <div className="-mx-2 overflow-x-auto sm:mx-0"><Table columns={columns} rows={visibleProducts} rowKey="id"                     emptyMessage="No products match your search." /></div>
+                    <div className="max-w-full overflow-x-auto"><Table columns={columns} rows={visibleProducts} rowKey="id"                     emptyMessage="No products match your search." /></div>
         </Card>
         <Card title="Label batch" description="Add products more than once or adjust the number of copies.">
-          <div className="mb-4 grid w-full max-w-xl grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="mb-4 grid w-full min-w-0 max-w-xl grid-cols-1 gap-3 sm:grid-cols-2">
             <Select label="Label format" name="labelType" value={labelType} onChange={(event) => setLabelType(event.target.value)}>
               <option value="price"><T>{"Barcode + price label"}</T></option>
               <option value="barcode"><T>{"Barcode-only label"}</T></option>

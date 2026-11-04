@@ -48,7 +48,8 @@ a { color: inherit; text-decoration: none; }
 .label-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(210px, 100%), 1fr)); }
 @media (max-width: 639px) {
   .barcode-page input, .barcode-page select, .barcode-page button { min-height: 44px; }
-  .barcode-page .barcode-actions > button { width: 100%; }
+  .barcode-page .barcode-actions > button { width: 100%; white-space: normal; }
+  .barcode-page table th, .barcode-page table td { padding-left: 8px; padding-right: 8px; word-break: break-word; }
   .barcode-page .label-card { min-height: 150px; }
   .barcode-page .barcode-graphic { height: 56px; }
 }
