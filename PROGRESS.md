@@ -646,3 +646,6 @@
 	- Decisions: stacked search/scanner, forms, and full-width action buttons on mobile; 44px touch targets under 640px; label preview grid no longer overflows narrow screens; print styles unchanged.
 	- Validation: frontend production build.
 	- Follow-up: xl grid columns use minmax(0,...) so cards cannot overflow, table wrapper no longer uses negative margins, compact table cell padding and wrapping on mobile, smaller mobile heading, wrapping action buttons.
+- [x] UI: fix mobile layout stacking and overlapping for print and export action buttons
+	- Files: frontend/src/app/inventory/barcodes/page.jsx.
+	- Decisions: action group is flex-col gap-2 w-full on mobile, row/wrap right-aligned from sm; each button w-full with min-h-11 touch size on mobile, auto width on desktop.

@@ -177,12 +177,12 @@ export default function BarcodesPage() {
             </div>
           )}
           {labelError && <p role="alert" className="mt-3 text-sm text-red-700">{labelError}</p>}
-          <div className="barcode-actions mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-end sm:gap-2">
-            <Button variant="secondary" disabled={!generated} onClick={() => exportOutput('tspl')}>Export TSPL</Button>
-            <Button variant="secondary" disabled={!generated} onClick={sendTsplToPrinter}>Print TSPL (Xprinter)</Button>
-            <Button variant="secondary" disabled={!generated} onClick={() => exportOutput('escpos')}>Export ESC/POS</Button>
-            <Button variant="secondary" disabled={!generated} onClick={sendToPrinter}>Print ESC/POS</Button>
-            <Button disabled={!generated} onClick={() => window.print()}>Print preview</Button>
+          <div className="barcode-actions mt-4 flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
+            <Button className="min-h-11 w-full px-4 py-2.5 sm:min-h-0 sm:w-auto" variant="secondary" disabled={!generated} onClick={() => exportOutput('tspl')}>Export TSPL</Button>
+            <Button className="min-h-11 w-full px-4 py-2.5 sm:min-h-0 sm:w-auto" variant="secondary" disabled={!generated} onClick={sendTsplToPrinter}>Print TSPL (Xprinter)</Button>
+            <Button className="min-h-11 w-full px-4 py-2.5 sm:min-h-0 sm:w-auto" variant="secondary" disabled={!generated} onClick={() => exportOutput('escpos')}>Export ESC/POS</Button>
+            <Button className="min-h-11 w-full px-4 py-2.5 sm:min-h-0 sm:w-auto" variant="secondary" disabled={!generated} onClick={sendToPrinter}>Print ESC/POS</Button>
+            <Button className="min-h-11 w-full px-4 py-2.5 sm:min-h-0 sm:w-auto" disabled={!generated} onClick={() => window.print()}>Print preview</Button>
           </div>
         </Card>
       </div>
