@@ -137,32 +137,32 @@ export default function BarcodesPage() {
         <h1 className="text-xl font-semibold sm:text-2xl text-slate-900"><T>{"Barcode & Price Labels"}</T></h1>
         <p className="mt-1 text-sm text-slate-600"><T>{"Select products and label quantities, then preview, print, or export printer commands."}</T></p>
       </header>
-      <div className="grid min-w-0 gap-4 sm:gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
-        <Card title="Product catalog" description={`${products.length} products available`}>
+      <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-4 sm:gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+        <Card className="min-w-0" title="Product catalog" description={`${products.length} products available`}>
           <div className="mb-4 flex w-full max-w-xl flex-col gap-2 sm:flex-row sm:items-end">
-                      <div className="w-full min-w-0 flex-1"><Input label="Search products" name="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Product name or barcode" /></div>
-            <CameraBarcodeScanner onScan={setSearch} />
+            <div className="w-full min-w-0 flex-1"><Input label="Search products" name="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Product name or barcode" /></div>
+            <div className="w-full sm:w-auto [&>span>button]:w-full sm:[&>span>button]:w-11"><CameraBarcodeScanner onScan={setSearch} /></div>
           </div>
-                    <div className="max-w-full overflow-x-auto"><Table columns={columns} rows={visibleProducts} rowKey="id"                     emptyMessage="No products match your search." /></div>
+          <div className="block w-full min-w-0 overflow-x-auto"><Table columns={columns} rows={visibleProducts} rowKey="id" emptyMessage="No products match your search." /></div>
         </Card>
-        <Card title="Label batch" description="Add products more than once or adjust the number of copies.">
-          <div className="mb-4 grid w-full min-w-0 max-w-xl grid-cols-1 gap-3 sm:grid-cols-2">
-            <Select label="Label format" name="labelType" value={labelType} onChange={(event) => setLabelType(event.target.value)}>
+        <Card className="min-w-0" title="Label batch" description="Add products more than once or adjust the number of copies.">
+          <div className="mb-4 flex w-full min-w-0 max-w-xl flex-col gap-3 sm:grid sm:grid-cols-2">
+            <Select className="w-full min-w-0" label="Label format" name="labelType" value={labelType} onChange={(event) => setLabelType(event.target.value)}>
               <option value="price"><T>{"Barcode + price label"}</T></option>
               <option value="barcode"><T>{"Barcode-only label"}</T></option>
             </Select>
-            <Select label="Label size" name="labelSize" value={sizeKey} onChange={(event) => setSizeKey(event.target.value)}>
+            <Select className="w-full min-w-0" label="Label size" name="labelSize" value={sizeKey} onChange={(event) => setSizeKey(event.target.value)}>
               {Object.values(LABEL_SIZES).map((size) => <option key={size.key} value={size.key}>{size.label}</option>)}
             </Select>
           </div>
-          {queue.length === 0 ? <p className="rounded border border-dashed border-slate-300 p-5 text-center text-sm text-slate-500"><T>{"Add one or more products to create a batch."}</T></p> : (
-            <div className="space-y-2">
+          {queue.length === 0 ? <p className="w-full break-words rounded border border-dashed border-slate-300 p-5 text-center text-sm text-slate-500"><T>{"Add one or more products to create a batch."}</T></p> : (
+            <div className="w-full min-w-0 space-y-2">
               {queue.map((item) => {
                 const product = products.find((entry) => entry.id === item.productId);
                 const unitOptions = product ? getUnitOptions(product) : [];
                 const unit = unitOptions.find((option) => option.value === item.unit) || unitOptions[0];
                 const numberField = (field) => (event) => updateItem(item.key, { [field]: event.target.value });
-                return <div key={item.key} className="grid grid-cols-1 items-end gap-3 rounded-lg border border-slate-200 p-3 sm:grid-cols-2">
+                return <div key={item.key} className="flex w-full min-w-0 flex-col gap-3 rounded-lg border border-slate-200 p-3 sm:grid sm:grid-cols-2 sm:items-end">
                   <div className="min-w-0 break-words sm:col-span-2"><strong className="block text-sm">{product?.name}</strong><small className="text-slate-500">{product?.barcode}</small></div>
                   <Select label="Unit" name={`unit-${item.key}`} value={item.unit} onChange={(event) => updateItem(item.key, { unit: event.target.value })}>
                     {unitOptions.map((option) => <option key={option.value} value={option.value}>{option.name}</option>)}

@@ -652,3 +652,7 @@
 - [x] UI: fix printable preview container overflowing outside screen bounds on mobile
 	- Files: frontend/src/app/inventory/barcodes/page.jsx.
 	- Decisions: preview grid wrapped in w-full min-w-0 max-w-full overflow-x-auto (print:overflow-visible); page section gets min-w-0 max-w-full.
+- [x] UI: fix mobile overflow and stack layout for product catalog and label batch sections
+	- Files: frontend/src/app/inventory/barcodes/page.jsx, frontend/tests/barcode-mobile-layout.test.mjs.
+	- Decisions: constrain the page grid and cards, keep the catalog table horizontally scrollable, and stack full-width search, scanner, batch fields, and actions on mobile; retain the desktop layout.
+	- Validation: 8 focused frontend tests and the production build pass; browser checks with mocked products covered 320, 375, 639, 640, 768, and 1280px, including search, a populated batch, and scanner dialog sizing.
