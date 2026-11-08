@@ -656,3 +656,7 @@
 	- Files: frontend/src/app/inventory/barcodes/page.jsx, frontend/tests/barcode-mobile-layout.test.mjs.
 	- Decisions: constrain the page grid and cards, keep the catalog table horizontally scrollable, and stack full-width search, scanner, batch fields, and actions on mobile; retain the desktop layout.
 	- Validation: 8 focused frontend tests and the production build pass; browser checks with mocked products covered 320, 375, 639, 640, 768, and 1280px, including search, a populated batch, and scanner dialog sizing.
+- [x] CI: add GitHub Actions workflow for automated build and test
+	- Files: `.github/workflows/ci.yml`.
+	- Decisions: run backend tests and frontend production build with Node.js 20 on pushes and pull requests targeting `main`; pass `secrets.MONGODB_URI_TEST` to the backend as `MONGODB_URI`; do not deploy.
+	- Validation: backend tests and frontend production build pass locally.
