@@ -64,9 +64,18 @@ export default function LoginPage() {
       <section className="login-form-panel" aria-labelledby="login-title">
         <div className="login-form-wrap">
           <div className="login-mobile-brand">
-            <span className="login-brand-mark">
-              <T>{"PB"}</T>
-            </span>{" "}
+              <span className="">
+                <img
+                  src="/logo.png"
+                  alt="PureBazar Logo"
+                  className="brand-logo-img"
+                  style={{
+                    height: "46px",
+                    width: "auto",
+                    objectFit: "contain",
+                  }}
+                />
+              </span>
             PureBazar
           </div>
           <div className="login-heading">
