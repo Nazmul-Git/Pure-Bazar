@@ -1,0 +1,23 @@
+---
+description: PureBazar project rules
+alwaysApply: true
+---
+
+# PureBazar rules (read on every task)
+
+- Project: PureBazar, offline inventory + POS (central warehouse, outlets, POS). Source of truth: docs/blueprint/*.md (including 50-multi-outlet.md). Never invent features outside it.
+- Before each task read PROGRESS.md and ONLY the files the prompt names.
+- Stack: backend/ Node, Express, MongoDB with Mongoose, JWT, joi, jest, supertest. frontend/ Next.js App Router, Tailwind, Redux Toolkit, Axios, lucide-react.
+- Do only the task asked. Do not touch unrelated files. Keep every file under about 300 lines.
+- Money: round to 2 decimals. Never trust raw floating point sums.
+- Stock changes only through stockmovements lines. Never write stock numbers directly.
+- Every write action is audited. Validate input on every route. Secrets only in .env. Probashi APIs only from the server.
+- Multi-outlet rule: every outlet-scoped record carries a location reference using its existing field name (StockMovement/GoodsReceive/StockAdjustment/StockCount: warehouseId, StockTransfer: fromWarehouseId/toWarehouseId, Order: outlet, Shift: outletId, Expense/User/VendorLedger: locationId). Never rename these fields. Location.type is CENTRAL or OUTLET; the central warehouse is a Location.
+- Every user except Super Admin must have User.locationId and is locked to it. The server overrides any location sent by the client (locationId, outletId, warehouseId) with req.locationId via middlewares/enforceLocationScope.js. Super Admin has no location and may see all locations or select one.
+- Roles have allowedLocationType (any, warehouse = CENTRAL, outlet = OUTLET); a user's location type must match their role. Never hardcode role names; identify Super Admin by the existing built-in check.
+- Permission checks live in authMiddleware and authorizeMiddleware (exact string match). Do not create a parallel permission system.
+- The product catalog is shared (Product has no location field). Stock and accounting are per location. Existing records without a location are treated as the central warehouse; never migrate old data silently.
+- Do not break the existing central warehouse flow or existing tests.
+- Write automated tests, run them, fix until they pass. Report results in plain English, briefly.
+- When tests pass: tick the step in PROGRESS.md and git commit with the message '<step id> <step name>'.
+- If you are running out of context, stop and say exactly what is done and what remains.
