@@ -15,12 +15,7 @@ lines.
 - Stock changes only through stockmovements lines. Never write stock numbers directly.
 - Every write action is audited. Validate input on every route. Secrets only in .env. Probashi
 APIs only from the server.
-- Multi-outlet rule: every outlet-scoped record carries locationId. Every user except Super
-Admin must have assignedLocation (Central Warehouse or an outlet) and is locked to it;
-the server overrides any locationId sent by the client. Roles have an allowedLocationType
-setting (any, warehouse or outlet) and a user's location must match it. Super Admin has
-no location and may see all locations or select one. The product catalog is shared; stock
-and accounting are per location. Never hardcode role names.
+- Multi-outlet rule: every outlet-scoped record carries a location. Use the existing field names and never rename them: User.locationId, warehouseId on StockMovement, GoodsReceive, StockAdjustment, StockCount and StockTransfer, Order.outlet, Shift.outletId, Expense.locationId. Every user except Super Admin must have locationId (Central Warehouse or an outlet) and is locked to it; the server overrides any location sent by the client. Roles have an allowedLocationType setting (any, warehouse or outlet) and a user's location must match it. Super Admin has no location and may see all locations or select one. Locations come from the Location collection, not Settings.outlets. The product catalog is shared; stock and accounting are per location. Permission checks use authorizeMiddleware. Never hardcode role names beyond the existing Super Admin check.
 - Do not break the existing central warehouse flow or existing tests.
 - Write automated tests, run them, fix until they pass. Report results in plain English,
 briefly.
