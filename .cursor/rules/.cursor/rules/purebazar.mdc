@@ -1,0 +1,19 @@
+---
+description: PureBazar project rules
+alwaysApply: true
+---
+
+# PureBazar rules (read on every task)
+
+- Project: PureBazar, offline inventory + POS (central warehouse, outlets, POS). Source of truth: docs/blueprint/*.md. Never invent features outside it.
+- Before each task read PROGRESS.md and ONLY the files the prompt names.
+- Stack: backend/ Node, Express, MongoDB with Mongoose, JWT, joi, jest, supertest. frontend/ Next.js App Router, Tailwind, Redux Toolkit, Axios, lucide-react.
+- Do only the task asked. Do not touch unrelated files. Keep every file under about 300 lines.
+- Money: round to 2 decimals. Never trust raw floating point sums.
+- Stock changes only through stockmovements lines. Never write stock numbers directly.
+- Every write action is audited. Validate input on every route. Secrets only in .env. Probashi APIs only from the server.
+- Multi-outlet rule: outlet-scoped data is filtered by locationId. Roles have a locationRestricted setting managed by Super Admin; users with a restricted role are locked to their assignedLocation. Never hardcode role names.
+- Do not break the existing central warehouse flow or existing tests.
+- Write automated tests, run them, fix until they pass. Report results in plain English, briefly.
+- When tests pass: tick the step in PROGRESS.md and git commit with the message '<step id> <step name>'.
+- If you are running out of context, stop and say exactly what is done and what remains.    
